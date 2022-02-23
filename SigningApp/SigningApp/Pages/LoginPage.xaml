@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodel="clr-namespace:XamarinLicentaApp.ViewModel" x:DataType="viewmodel:LoginViewModel"
+             x:Class="XamarinLicentaApp.LoginPage">
+    
+    <ContentPage.Content>
+        <StackLayout Orientation="Vertical" Padding="30" Spacing="40">
+            <BoxView HeightRequest="10"/>
+            <Frame BackgroundColor="#34495E" HasShadow="False">
+                <StackLayout Orientation="Vertical" Spacing="10">
+                    <Entry x:Name="Username" Text="{Binding Username}" Placeholder="Username"   
+                           PlaceholderColor="#34495E" HeightRequest="40"   
+                           Keyboard="Text"  
+                           TextColor="#34495E"/>
+                    <Entry x:Name="Password" Text="{Binding Password}" Placeholder="Password"   
+                           PlaceholderColor="#34495E" HeightRequest="40"   
+                           IsPassword="True"  
+                           TextColor="#34495E"/>
+                </StackLayout>
+            </Frame>
+            <Button Command="{Binding OnSubmit}" Text="Login" TextColor="White"  
+                    FontAttributes="Bold" FontSize="Large" HorizontalOptions="FillAndExpand"  
+                    BackgroundColor="#34495E" />
+        </StackLayout>
+    </ContentPage.Content>
+    
+</ContentPage>

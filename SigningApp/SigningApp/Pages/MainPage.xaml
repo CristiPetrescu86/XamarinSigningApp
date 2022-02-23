@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:st="clr-namespace:Plugin.SharedTransitions;assembly=Plugin.SharedTransitions"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:vm="clr-namespace:XamarinLicentaApp.ViewModel"
+             x:Class="XamarinLicentaApp.MainPage">
+
+
+    <ContentPage.BindingContext>
+        <vm:MainViewModel x:Name="vm"/>
+    </ContentPage.BindingContext>
+
+    <Grid BackgroundColor="WhiteSmoke">
+        <Grid RowDefinitions="Auto, Auto, Auto, *" RowSpacing="30" Padding="30">
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <ImageButton Source="Menu.png" BackgroundColor="Transparent" VerticalOptions="Center" 
+                             HeightRequest="24" WidthRequest="24" Clicked="MenuTapped"/>
+                <Label Grid.Column="1" Text="Digital Signatures" TextColor="#2D2942" FontSize="20" FontAttributes="Bold" 
+                       VerticalOptions="Center" HorizontalOptions="Center"/>
+            </Grid>
+           
+            
+        </Grid>
+        
+        
+        <Grid x:Name="MenuGrid" IsVisible="False">
+            <BoxView x:Name="MenuOverlay" BackgroundColor="Black" Opacity="0.35">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OverlayTapped"/>
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <Grid x:Name="MenuView" WidthRequest="220" BackgroundColor="#34495E"
+                  HorizontalOptions="Start" TranslationX="-220">
+                <!--
+                <StackLayout Margin="30,100" Spacing="20" BindableLayout.ItemsSource="{Binding MenuList}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <StackLayout Orientation="Horizontal" Spacing="20">
+                                <Grid Grid.Row="2" HorizontalOptions="Start" VerticalOptions="Start"
+                                      HeightRequest="46" WidthRequest="46">
+                                    <ImageButton Source="{Binding Icon}" WidthRequest="22" HeightRequest="22"
+                                            HorizontalOptions="Center" VerticalOptions="Center" Clicked="PDFPage"/>
+                                </Grid>
+                                <Label Text="{Binding Name}" TextColor="White" FontSize="16" VerticalOptions="Center"
+                                        FontFamily="NormalFont"/>
+                            </StackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </StackLayout>
+                -->
+                <StackLayout Margin="30,100" Spacing="20" >
+                    <CollectionView SelectionMode="Single" ItemsSource="{Binding MenuList}" 
+                                SelectedItem="{Binding SelectedMenuOption}" SelectionChanged="MenuOptionSelected">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Orientation="Vertical"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.EmptyView>
+                            <Label Text="No Item found." TextColor="Gray" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <StackLayout Orientation="Horizontal" Spacing="20">
+                                    <Grid Grid.Row="2" HorizontalOptions="Start" VerticalOptions="Start"
+                                      HeightRequest="46" WidthRequest="46">
+                                        <ImageButton Source="{Binding Icon}" WidthRequest="22" HeightRequest="22"
+                                            HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Grid>
+                                    <Label Text="{Binding Name}" TextColor="White" FontSize="16" VerticalOptions="Center"
+                                        FontFamily="NormalFont"/>
+                                </StackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</ContentPage>
