@@ -8,6 +8,7 @@
             <Label FontSize="Large" x:Name="LabelInfo"/>
 
             <Button Text="SignPDF" Clicked="ButtonClicked2"/>
+            <Label x:Name="label1" Text="Salut" TextColor="Red"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

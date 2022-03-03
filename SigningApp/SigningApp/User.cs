@@ -12,6 +12,10 @@ using System.Net.Http.Headers;
 using LicentaApp.JsonClass;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Security.Cryptography.X509Certificates;
+using iText.Signatures;
+using System.Security.Cryptography;
+using System.Diagnostics;
 
 namespace LicentaApp
 {
@@ -120,7 +124,7 @@ namespace LicentaApp
 
 
         #region SIGN/SIGNHASH
-        private List<string> signatures = new List<string>();
+        public List<string> signatures = new List<string>();
         #endregion SIGN/SIGNHASH
 
 
@@ -373,7 +377,7 @@ namespace LicentaApp
         
         public void credentialsInfo(string credentialName)
         {
-            credentialsCertificatesSelect = "single";
+            credentialsCertificatesSelect = "chain";
 
             bool ok = true;
             foreach (var credential in credentialsIDs)
@@ -448,7 +452,7 @@ namespace LicentaApp
         }
 
         
-        public void credentialsAuthorize(List<string> pdfName, string credentialName)
+        public void credentialsAuthorize(List<string> pdfName, string credentialName, byte[] hash)
         {
             byte[] hashDocument;
             string hashedDocumentB64;
@@ -501,14 +505,49 @@ namespace LicentaApp
             //    return;
             //}
 
-              
-            foreach (var name in pdfName)
-            {
-                hashDocument = SHAClass.Instance.getSHA256Hash(name);
-                hashedDocumentB64 = Convert.ToBase64String(hashDocument);
+            SHA256 shaM = new SHA256Managed();
+            var result = shaM.ComputeHash(hash);
 
-                method.hash.Add(hashedDocumentB64);
-            }
+            hashedDocumentB64 = Convert.ToBase64String(result);
+            method.hash.Add(hashedDocumentB64);
+
+
+            //foreach (var name in pdfName)
+            //{
+            //    byte[] bytes = Convert.FromBase64String(keysInfo[0].cert.certificates[0]);
+            //    var cert = new X509Certificate2(bytes);
+
+            //    byte[] bytes2 = Convert.FromBase64String(keysInfo[0].cert.certificates[1]);
+            //    var cert1a = new X509Certificate2(bytes2);
+
+            //    Org.BouncyCastle.X509.X509Certificate[] chain = new Org.BouncyCastle.X509.X509Certificate[2];
+            //    chain[0] = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert);
+            //    chain[1] = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert1a);
+
+            //    PdfPKCS7 sgn = new PdfPKCS7(null, chain, "SHA-256", false);
+
+            //    Stream inputStream = new FileStream(name, FileMode.Open);
+            //    byte[] hash = DigestAlgorithms.Digest(inputStream, "SHA-256");
+
+            //    byte[] sh = sgn.GetAuthenticatedAttributeBytes(hash, PdfSigner.CryptoStandard.CMS, null, null);
+
+            //    inputStream.Close();
+
+            //    Stream aux1 = new MemoryStream(sh);
+            //    byte[] secondHash = DigestAlgorithms.Digest(aux1, "SHA-256");
+            //    aux1.Close();
+
+            //    //SHA256 shaM = new SHA256Managed();
+            //    //var result = shaM.ComputeHash(sh);
+
+
+            //    //hashDocument = SHAClass.Instance.getSHA256Hash(name);
+            //    //string hashedDocumentB641 = Convert.ToBase64String(hashDocument);
+            //    //method.hash.Add(hashedDocumentB64);
+
+            //    hashedDocumentB64 = Convert.ToBase64String(secondHash);
+            //    method.hash.Add(hashedDocumentB64);
+            //}
 
 
             if (keysInfo[index].authMode == "explicit")
@@ -548,7 +587,7 @@ namespace LicentaApp
 
             var response = client.PostAsync("", byteContent).Result;
 
-            CredentialsAuthorizeReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsAuthorizeReceiveClass>(response.Content.ToString(), jsonSerializerOptions);
+            CredentialsAuthorizeReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsAuthorizeReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
 
             if(methodResponse.SAD == null)
             {
@@ -621,7 +660,7 @@ namespace LicentaApp
 
             var response = client.PostAsync("", byteContent).Result;
 
-            ExtendTransactionReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<ExtendTransactionReceiveClass>(response.Content.ToString(), jsonSerializerOptions);
+            ExtendTransactionReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<ExtendTransactionReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
 
             if(methodResponse.SAD == null)
             {
@@ -686,7 +725,7 @@ namespace LicentaApp
 
             if(response.StatusCode.ToString() != "NoContent")
             {
-                dynamic inform = JObject.Parse(response.Content.ToString());
+                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                 Console.WriteLine(inform.error_description);
             }
 
@@ -694,7 +733,7 @@ namespace LicentaApp
         }
 
         
-        public void signSingleHash(List<string> pdfName, string credentialName)
+        public void signSingleHash(List<string> pdfName, string credentialName, byte[] hash)
         {
             int index = -1;
             for (int i = 0; i < keysInfo.Count; i++)
@@ -722,14 +761,45 @@ namespace LicentaApp
             method.credentialID = keysInfo[index].credentialName;
             method.SAD = currentSAD.SAD;
 
+            SHA256 shaM = new SHA256Managed();
+            var result = shaM.ComputeHash(hash);
 
-            byte[] hashDocument = SHAClass.Instance.getSHA256Hash("test.pdf");
-            string hashedDocumentB64 = Convert.ToBase64String(hashDocument);
-
+            string hashedDocumentB64 = Convert.ToBase64String(result);
             method.hash.Add(hashedDocumentB64);
 
 
-            if(keysInfo[index].key.algo.ElementAtOrDefault(1) != null)
+
+            //byte[] bytes = Convert.FromBase64String(keysInfo[0].cert.certificates[0]);
+            //var cert = new X509Certificate2(bytes);
+
+            //byte[] bytes2 = Convert.FromBase64String(keysInfo[0].cert.certificates[1]);
+            //var cert1a = new X509Certificate2(bytes2);
+
+            //Org.BouncyCastle.X509.X509Certificate[] chain = new Org.BouncyCastle.X509.X509Certificate[2];
+            //chain[0] = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert);
+            //chain[1] = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert1a);
+
+            //PdfPKCS7 sgn = new PdfPKCS7(null, chain, "SHA-256", false);
+
+            //Stream inputStream = new FileStream(pdfName[0], FileMode.Open);
+            //byte[] hash = DigestAlgorithms.Digest(inputStream, "SHA-256");
+
+            //byte[] sh = sgn.GetAuthenticatedAttributeBytes(hash, PdfSigner.CryptoStandard.CMS, null, null);
+            //inputStream.Close();
+
+            ////byte[] hashDocument = SHAClass.Instance.getSHA256Hash(pdfName[0]);
+            ////string hashedDocumentB64 = Convert.ToBase64String(hashDocument);
+            ////method.hash.Add(hashedDocumentB64);
+
+            //Stream aux1 = new MemoryStream(sh);
+            //byte[] secondHash = DigestAlgorithms.Digest(aux1, "SHA-256");
+            //aux1.Close();
+
+            //string hashedDocumentB64 = Convert.ToBase64String(secondHash);
+            //method.hash.Add(hashedDocumentB64);
+
+
+            if (keysInfo[index].key.algo.ElementAtOrDefault(1) != null)
             {
                 method.hashAlgo = keysInfo[index].key.algo[1];
             }
@@ -758,11 +828,11 @@ namespace LicentaApp
 
             var response = client.PostAsync("", byteContent).Result;
 
-            SignHashReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<SignHashReceiveClass>(response.Content.ToString(), jsonSerializerOptions);
+            SignHashReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<SignHashReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
 
-            if (methodResponse.signatures[0] == null)
+            if (methodResponse.signatures.Count == 0)
             {
-                dynamic inform = JObject.Parse(response.Content.ToString());
+                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                 if (inform.error_description != null)
                 {
                     Console.WriteLine(inform.error_description);
@@ -1007,6 +1077,7 @@ namespace LicentaApp
             string userEncoded = Convert.ToBase64String(plainTextBytes);
             return userEncoded;
         }
+
         
     }
 }

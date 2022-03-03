@@ -9,7 +9,7 @@
                     ItemsSource="{Binding KeyName}" />
             <Label Text="{Binding Key.authMode}" 
                    HorizontalOptions="Center"  />
-            
+
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

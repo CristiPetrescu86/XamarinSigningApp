@@ -52,19 +52,20 @@ namespace XamarinLicentaApp.ViewModel
 
         private void PerformOnSubmit()
         {
-            if(username == null)
-            {
-                DisplayNotSetUsername();
-                return;
-            }
+            //if(username == null)
+            //{
+            //    DisplayNotSetUsername();
+            //    return;
+            //}
 
-            if (password == null)
-            {
-                DisplayNotSetPassword();
-                return;
-            }
+            //if (password == null)
+            //{
+            //    DisplayNotSetPassword();
+            //    return;
+            //}
                 
-            LoginPage.user = new LicentaApp.User(username,password);
+            //LoginPage.user = new LicentaApp.User(username,password);
+            LoginPage.user = new LicentaApp.User("adobedemo","password");
             
             bool ok = LoginPage.user.authLogin();
             
