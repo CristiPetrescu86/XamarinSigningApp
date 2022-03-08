@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using XamarinLicentaApp;
@@ -11,6 +12,8 @@ namespace SigningApp
         {
             InitializeComponent();
             MainPage = new NavigationPage(new LoginPage());
+
+
         }
 
         protected override void OnStart()

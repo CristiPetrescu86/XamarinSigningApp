@@ -132,6 +132,7 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
     <Content Include="Properties\Default.rd.xml" />
+    <Content Include="Resources\enabled.png" />
     <Content Include="Resources\back.png" />
     <Content Include="Resources\Cart.png" />
     <Content Include="Resources\charlesWatch.png" />
@@ -140,11 +141,13 @@
     <Content Include="Resources\favorite.png" />
     <Content Include="Resources\Filter.png" />
     <Content Include="Resources\johnWatch.png" />
+    <Content Include="Resources\key.png" />
     <Content Include="Resources\logout.png" />
     <Content Include="Resources\marekWatch.png" />
     <Content Include="Resources\Menu.png" />
     <Content Include="Resources\order.png" />
     <Content Include="Resources\pdf.png" />
+    <Content Include="Resources\disabled.png" />
     <Content Include="Resources\rutgeWatch.png" />
     <Content Include="Resources\settings.png" />
     <Content Include="Resources\shopping.png" />
@@ -185,6 +188,9 @@
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2337" />
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.13" />
     <PackageReference Include="Xamarin.Essentials" Version="1.7.1" />
+    <PackageReference Include="Xamarin.Forms.PancakeView">
+      <Version>2.3.0.759</Version>
+    </PackageReference>
     <PackageReference Include="Xamarin.Plugin.SharedTransitions">
       <Version>2.4.0</Version>
     </PackageReference>

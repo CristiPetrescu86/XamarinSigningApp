@@ -1,14 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodel="clr-namespace:XamarinLicentaApp.ViewModel" x:DataType="viewmodel:KeysInfoViewModel"
-             x:Class="XamarinLicentaApp.Pages.KeysInfo">
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:viewmodel="clr-namespace:XamarinLicentaApp.ViewModel"
+             x:Class="XamarinLicentaApp.Pages.KeysInfo"
+             BackgroundColor="#F5F6F6">
+
+    <ContentPage.BindingContext>
+        <viewmodel:KeysInfoViewModel x:Name="vm"/>
+    </ContentPage.BindingContext>
+    
     <ContentPage.Content>
         <StackLayout>
-            <Picker Title="Select a key to display info"
-                    TextColor="Black"
-                    ItemsSource="{Binding KeyName}" />
-            <Label Text="{Binding Key.authMode}" 
-                   HorizontalOptions="Center"  />
+
+            <CollectionView Grid.Row="3" SelectionMode="Single" ItemsSource="{Binding Keys}"
+                            SelectedItem="{Binding KeySelected}"
+                            SelectionChanged="CollectionView_SelectionChanged">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <Label Text="No Item found." TextColor="Gray" HorizontalOptions="Center" VerticalOptions="Center"/>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid RowDefinitions="*, 2.5*" HeightRequest="160" BackgroundColor="White" Padding="15">
+                            <Grid.Clip>
+                                <PathGeometry Figures="M20 96.5596C20 92.4719 22.0807 88.6655 25.5215 86.4586L146.521 8.85176C154.508 3.72922 165 9.46434 165 18.9527V185C165 191.627 159.627 197 153 197H32C25.3726 197 20 191.627 20 185V96.5596Z"/>
+                            </Grid.Clip>
+                            <StackLayout Grid.Row="1" Orientation="Horizontal" VerticalOptions="FillAndExpand" 
+                                     HorizontalOptions="FillAndExpand" Padding="10,0,0,0">
+                                <Image Source="key.png"  WidthRequest="45" HorizontalOptions="Start"/>
+                                <StackLayout Padding="10,0,0,0" Spacing="5" VerticalOptions="CenterAndExpand">
+                                    <Label Text="{Binding credentialName}" TextColor="#2D2942" FontSize="14"/>
+                                    <Label Text="{Binding authMode, StringFormat='Key auth mode: {0:N}'}" TextColor="#2D2942" FontSize="12" Opacity="0.5"/>
+                                    <Label Text="{Binding multisign, StringFormat='Multisign supported: {0}'}" TextColor="#2D2942" FontSize="14" 
+                                           FontAttributes="Bold"/>
+                                    <StackLayout Orientation="Horizontal">
+                                        <Label Text="{Binding key.status, StringFormat='Status: '}" TextColor="#2D2942" FontSize="12" Opacity="0.5"/>
+                                        <Image Source="{Binding key.status}" HeightRequest="12"></Image>
+                                    </StackLayout>
+                                </StackLayout>
+                            </StackLayout>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+
 
         </StackLayout>
     </ContentPage.Content>

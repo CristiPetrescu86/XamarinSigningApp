@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:st="clr-namespace:Plugin.SharedTransitions;assembly=Plugin.SharedTransitions"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:vm="clr-namespace:XamarinLicentaApp.ViewModel"
-             x:Class="XamarinLicentaApp.MainPage">
+             x:Class="XamarinLicentaApp.MainPage"
+             BackgroundColor="#F5F6F6">
 
 
     <ContentPage.BindingContext>

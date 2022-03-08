@@ -1,4 +1,5 @@
 ﻿using Plugin.SharedTransitions;
+using SigningApp.Pages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -53,8 +54,9 @@ namespace XamarinLicentaApp
                 await Application.Current.MainPage.Navigation.PushAsync(detailPage);
             }
             else if(type == "Sign XML")
-            {  
-                await DisplayAlert("salut","salut","OK");
+            {
+                var newPage = new XMLSignPage();
+                await Application.Current.MainPage.Navigation.PushAsync(newPage);
             }
             else if(type == "Keys Info")
             {

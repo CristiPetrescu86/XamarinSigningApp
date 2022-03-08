@@ -73,18 +73,6 @@ namespace XamarinLicentaApp
             string fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "test.pdf");
 
 
-            //List<string> pdfList = new List<string>();
-            //pdfList.Add(fileName);
-            //pdfList.Add(@"D:\Facultate\Licenta\Github_Lic\SigningApp\XamarinSigningApp\SigningApp\SigningApp\test.pdf");
-            //LoginPage.user.credentialsAuthorize(pdfList, LoginPage.user.credentialsIDs[1]);
-            //LoginPage.user.signSingleHash(pdfList, LoginPage.user.credentialsIDs[1]);
-
-            //LoginPage.user.signatures[0]
-
-            //label1.Text = LoginPage.user.keysInfo[0].cert.certificates[0];
-
-            //Debug.WriteLine(LoginPage.user.signatures[0]);
-
             byte[] bytes = Convert.FromBase64String(LoginPage.user.keysInfo[0].cert.certificates[0]);
             var cert = new X509Certificate2(bytes);
             Org.BouncyCastle.X509.X509Certificate cert1 = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert);
@@ -92,99 +80,17 @@ namespace XamarinLicentaApp
             byte[] bytes2 = Convert.FromBase64String(LoginPage.user.keysInfo[0].cert.certificates[1]);
             var cert1a = new X509Certificate2(bytes2);
             Org.BouncyCastle.X509.X509Certificate cert1b = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert1a);
-
-
-
-            //for(int i=0;i< LoginPage.user.keysInfo[0].cert.certificates.Count;i++)
-            //{
-            //    string aux1 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "certificate");
-            //    aux1 += i.ToString() + ".cer";
-            //    System.IO.File.WriteAllText(aux1, LoginPage.user.keysInfo[0].cert.certificates[i]);
-            //}
-
-
-            // ---------------------------------------- DEMO
-
-            //string outFileName2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testTEMP.pdf");
-
-            //string fieldname = "sig";
-
-            //PdfReader reader2 = new PdfReader(fileName);
-            //PdfSigner signer2 = new PdfSigner(reader2, new FileStream(outFileName2, FileMode.Create), new StampingProperties());
-            //PdfSignatureAppearance appearance2 = signer2.GetSignatureAppearance();
-            //appearance2.SetPageRect(new iText.Kernel.Geom.Rectangle(36, 648, 200, 100));
-            //appearance2.SetPageNumber(1);
-            //appearance2.SetCertificate(cert1);
-            //appearance2.SetReason("For test");
-            //appearance2.SetLocation("HKSAR");
-            //signer2.SetFieldName(fieldname);
-
-            //IExternalSignatureContainer external = new ExternalBlankSignatureContainer(PdfName.Adobe_PPKLite,PdfName.Adbe_pkcs7_detached);
-            //signer2.SignExternalContainer(external, 8192);
-
-
-            //// trimit pdf temporar
-            //List<string> pdfList = new List<string>();
-            //pdfList.Add(fileName);
-            //LoginPage.user.credentialsAuthorize(pdfList, LoginPage.user.credentialsIDs[1]);
-            //LoginPage.user.signSingleHash(pdfList, LoginPage.user.credentialsIDs[1]);
+          
 
             Org.BouncyCastle.X509.X509Certificate[] cert2 = new Org.BouncyCastle.X509.X509Certificate[2];
             cert2[0] = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert);
             cert2[1] = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert1a);
 
-
-
-
-
-
-            //byte[] sig = Convert.FromBase64String(LoginPage.user.signatures[0]);
-            ////string outFileName43 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "sign.txt");
-
-
-
-            //string outFileName3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testTEMPSigned.pdf");
-            //FileStream outFile3 = new FileStream(outFileName3, FileMode.Create);
-
-            //PdfReader reader3 = new PdfReader(outFileName2);
-            ////PdfReader reader = new PdfReader(@"D:\Facultate\Licenta\Github_Lic\SigningApp\XamarinSigningApp\SigningApp\SigningApp\test.pdf");
-            //PdfSigner signer3 = new PdfSigner(reader3, outFile3, new StampingProperties().UseAppendMode());
-
-            //IExternalSignatureContainer signature3 = new MyExternalSignatureContainer(sig);
-
-            //PdfSigner.SignDeferred(signer3.GetDocument(), fieldname, outFile3, signature3);
-            //outFile3.Close();
-
-            //string outFileName4 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "test2Signed.pdf");
-            //FileStream out4 = new FileStream(outFileName4, FileMode.Create);
-
-            //PdfReader reader4 = new PdfReader(fileName);
-            //PdfSigner signer4 = new PdfSigner(reader4, out4, new StampingProperties());
-            //PdfSignatureAppearance appearance4 = signer4.GetSignatureAppearance();
-            //appearance4.SetPageRect(new iText.Kernel.Geom.Rectangle(36, 648, 200, 100));
-            //appearance4.SetPageNumber(1);
-            //appearance4.SetCertificate(cert1);
-            //appearance4.SetReason("For test");
-            //appearance4.SetLocation("HKSAR");
-            //signer4.SetCertificationLevel(PdfSigner.NOT_CERTIFIED);
-
-
-
-            //IExternalSignature signature2 = new MyExternSign(encodedSig);
-            //signer4.SignDetached(signature2, cert2, null, null, null, 8192, PdfSigner.CryptoStandard.CADES);
-            //out4.Close();
-
-
-
-
-
-            // ---------------------------------------- END DEMO
-
             
 
-            // DEMO GOKU ----------------------------------------------------
+            // Signature ----------------------------------------------------
 
-            string outFileName2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testGOKUtemp.pdf");
+            string outFileName2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testTemp.pdf");
 
             string fieldname = "sig";
 
@@ -222,7 +128,7 @@ namespace XamarinLicentaApp
 
 
 
-            string outFileName3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testGokuSIGNED.pdf");
+            string outFileName3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testSigned.pdf");
 
             FileStream outFile3 = new FileStream(outFileName3, FileMode.Create);
 
@@ -235,50 +141,6 @@ namespace XamarinLicentaApp
             outFile3.Close();
 
 
-            // END DEMO GOKU ------------------------------------------------
-            
-
-
-
-
-
-
-            //string outFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testSigned.pdf");
-
-            //PdfReader reader = new PdfReader(fileName);
-            ////PdfReader reader = new PdfReader(@"D:\Facultate\Licenta\Github_Lic\SigningApp\XamarinSigningApp\SigningApp\SigningApp\test.pdf");
-            //PdfSigner signer = new PdfSigner(reader, new FileStream(outFileName, FileMode.Create), new StampingProperties().UseAppendMode());
-
-
-
-            //// Create the signature appearance
-            //iText.Kernel.Geom.Rectangle rect = new iText.Kernel.Geom.Rectangle(36, 648, 200, 100);
-            //PdfSignatureAppearance appearance = signer.GetSignatureAppearance();
-            //appearance.SetContact("ContactInfo");
-            //appearance.SetLocation("Location");
-            //appearance.SetPageNumber(1);
-            //appearance.SetReason("Reason");
-            //appearance.SetPageRect(rect);
-            //appearance.SetCertificate(cert1);
-
-            //IExternalSignatureContainer signature = new ExternalBlankSignatureContainer(PdfName.Adobe_PPKLite, PdfName.Adbe_pkcs7_detached);
-
-            //signer.SignExternalContainer(signature, 8192);
-
-            //string outFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testSigned.pdf");
-            //FileStream file = new FileStream(outFileName, FileMode.Create, FileAccess.Write);
-
-            //byte[] bytes2 = new byte[newStream.Length];
-            //newStream.Read(bytes2, 0, (int)newStream.Length);
-            //file.Write(bytes2, 0, bytes2.Length);
-            //newStream.Close();
-
-            //newStream.Write(outFileName);
-
-
-            // Sign the document using the detached mode, CMS or CAdES equivalent.
-            //signer.SignDetached(hashedDocumentB64 , signature, cert1, null, null, null,
-            //        0, null);
         }
 
     }

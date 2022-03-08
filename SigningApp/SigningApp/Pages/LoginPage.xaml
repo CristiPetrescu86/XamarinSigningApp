@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodel="clr-namespace:XamarinLicentaApp.ViewModel" x:DataType="viewmodel:LoginViewModel"
-             x:Class="XamarinLicentaApp.LoginPage">
+             x:Class="XamarinLicentaApp.LoginPage"
+             BackgroundColor="#F5F6F6">
     
     <ContentPage.Content>
         <StackLayout Orientation="Vertical" Padding="30" Spacing="40">
