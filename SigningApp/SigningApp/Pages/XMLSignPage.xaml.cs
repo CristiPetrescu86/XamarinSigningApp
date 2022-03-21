@@ -1,12 +1,13 @@
-﻿using System;
+﻿using SigningApp.XadesSignedXML.XML;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -32,34 +33,34 @@ namespace SigningApp.Pages
             LoginPage.user.credentialsInfo(LoginPage.user.credentialsIDs[1]);
 
 
-            byte[] bytes = Convert.FromBase64String(LoginPage.user.keysInfo[0].cert.certificates[0]);
-            var cert = new X509Certificate2(bytes);
+            //byte[] bytes = Convert.FromBase64String(LoginPage.user.keysInfo[0].cert.certificates[0]);
+            //var cert = new X509Certificate2(bytes);
             //Org.BouncyCastle.X509.X509Certificate cert1 = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert);
 
             //var xmlDocument = new XmlDocument();
             //xmlDocument.Load(filePath);
 
-            FileStream fsSource = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            //FileStream fsSource = new FileStream(filePath, FileMode.Open, FileAccess.Read);
 
             // Read the source file into a byte array.
-            byte[] bytes2 = new byte[fsSource.Length];
-            int numBytesToRead = (int)fsSource.Length;
-            int numBytesRead = 0;
-            while (numBytesToRead > 0)
-            {
-                // Read may return anything from 0 to numBytesToRead.
-                int n = fsSource.Read(bytes2, numBytesRead, numBytesToRead);
+            //byte[] bytes2 = new byte[fsSource.Length];
+            //int numBytesToRead = (int)fsSource.Length;
+            //int numBytesRead = 0;
+            //while (numBytesToRead > 0)
+            //{
+            //    // Read may return anything from 0 to numBytesToRead.
+            //    int n = fsSource.Read(bytes2, numBytesRead, numBytesToRead);
 
-                // Break when the end of the file is reached.
-                if (n == 0)
-                    break;
+            //    // Break when the end of the file is reached.
+            //    if (n == 0)
+            //        break;
 
-                numBytesRead += n;
-                numBytesToRead -= n;
-            }
-            numBytesToRead = bytes2.Length;
+            //    numBytesRead += n;
+            //    numBytesToRead -= n;
+            //}
+            //numBytesToRead = bytes2.Length;
 
-
+            /*
             XAdES signature = new XAdES(cert);
             String output = signature.Sign(bytes2, true);
 
@@ -68,8 +69,56 @@ namespace SigningApp.Pages
             FileStream fsOut = new FileStream(filePath2, FileMode.Create, FileAccess.Write);
             fsOut.Write(Encoding.ASCII.GetBytes(output), 0, output.Length);
             fsOut.Close();
+            */
+
+            XmlDocument doc = new XmlDocument();
+            doc.Load(filePath);
+            //Console.WriteLine(doc.OuterXml);
+
+            //string filePFX = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "test-cert.pfx");
+            //X509Certificate2 cert2 = new X509Certificate2(File.ReadAllBytes(filePFX), "cristi");
+
+            byte[] bytes = Convert.FromBase64String(LoginPage.user.keysInfo[0].cert.certificates[0]);
+            var certOK = new X509Certificate2(bytes);
+
+
+            SignedXml signedXml = new SignedXml(doc);
+            signedXml.PublicKeyCert = certOK.PublicKey.Key;
+            Reference reference = new Reference();
+            reference.Uri = "";
+            XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform();
+            reference.AddTransform(env);
+            signedXml.AddReference(reference);
 
            
+            KeyInfo keyInfo = new KeyInfo();
+            //keyInfo.AddClause(new KeyInfoX509Data(cert2));
+            keyInfo.AddClause(new KeyInfoX509Data(certOK));
+
+            signedXml.KeyInfo = keyInfo;
+            signedXml.ComputeSignature();
+            XmlElement xmlSig = signedXml.GetXml();
+
+            doc.DocumentElement.AppendChild(doc.ImportNode(xmlSig, true));
+
+            //Console.WriteLine(xmlSig.OuterXml);
+            //Console.WriteLine(Convert.ToBase64String(signedXml.Signature.SignatureValue));
+
+            string filePath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SignedNow1.xml");
+            doc.Save(filePath2);
+            //File.WriteAllText(filePath2, doc.OuterXml);
+
+            //string filePath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "my-cert.pem");
+            //X509Certificate2 pubCert = new X509Certificate2(filePath3);
+
+            //XmlDocument doc2 = new XmlDocument();
+            //doc2.Load(filePath2);
+            //SignedXml signedXMLVerif = new SignedXml(doc);
+            //XmlNode signNode = doc2.GetElementsByTagName("Signature")[0];
+            //signedXml.LoadXml((XmlElement)signNode);
+            //bool verif = signedXMLVerif.CheckSignature(pubCert, true);
+            //Debug.WriteLine(verif);
+
 
         }
 

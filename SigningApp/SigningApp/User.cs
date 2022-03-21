@@ -505,10 +505,15 @@ namespace LicentaApp
             //    return;
             //}
 
-            SHA256 shaM = new SHA256Managed();
-            var result = shaM.ComputeHash(hash);
+            //  PDF
+            //SHA256 shaM = new SHA256Managed();
+            //var result = shaM.ComputeHash(hash);
 
-            hashedDocumentB64 = Convert.ToBase64String(result);
+            //hashedDocumentB64 = Convert.ToBase64String(result);
+            //method.hash.Add(hashedDocumentB64);
+
+            // XML
+            hashedDocumentB64 = Convert.ToBase64String(hash);
             method.hash.Add(hashedDocumentB64);
 
 
@@ -761,10 +766,15 @@ namespace LicentaApp
             method.credentialID = keysInfo[index].credentialName;
             method.SAD = currentSAD.SAD;
 
-            SHA256 shaM = new SHA256Managed();
-            var result = shaM.ComputeHash(hash);
+            //  PDF
+            //SHA256 shaM = new SHA256Managed();
+            //var result = shaM.ComputeHash(hash);
 
-            string hashedDocumentB64 = Convert.ToBase64String(result);
+            //string hashedDocumentB64 = Convert.ToBase64String(result);
+            //method.hash.Add(hashedDocumentB64);
+
+            // XML
+            string hashedDocumentB64 = Convert.ToBase64String(hash);
             method.hash.Add(hashedDocumentB64);
 
 
