@@ -108,7 +108,7 @@ namespace SigningApp.XadesSignedXML.XML
 
         internal XmlElement GetXml(XmlDocument document)
         {
-            XmlElement objectElement = document.CreateElement("Object", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement objectElement = document.CreateElement("ds", "Object", SignedXml.XmlDsigNamespaceUrl);
 
             if (!string.IsNullOrEmpty(_id))
                 objectElement.SetAttribute("Id", _id);

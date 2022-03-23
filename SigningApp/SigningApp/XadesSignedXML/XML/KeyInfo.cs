@@ -41,7 +41,7 @@ namespace SigningApp.XadesSignedXML.XML
         internal XmlElement GetXml(XmlDocument xmlDocument)
         {
             // Create the KeyInfo element itself
-            XmlElement keyInfoElement = xmlDocument.CreateElement("KeyInfo", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement keyInfoElement = xmlDocument.CreateElement("ds", "KeyInfo", SignedXml.XmlDsigNamespaceUrl);
             if (!string.IsNullOrEmpty(_id))
             {
                 keyInfoElement.SetAttribute("Id", _id);

@@ -97,7 +97,7 @@ namespace SigningApp.XadesSignedXML.XML
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the Signature
-            XmlElement signatureElement = (XmlElement)document.CreateElement("Signature", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement signatureElement = (XmlElement)document.CreateElement("ds", "Signature", SignedXml.XmlDsigNamespaceUrl);
             if (!string.IsNullOrEmpty(_id))
                 signatureElement.SetAttribute("Id", _id);
 
@@ -111,7 +111,7 @@ namespace SigningApp.XadesSignedXML.XML
             if (_signatureValue == null)
                 throw new System.Exception();
 
-            XmlElement signatureValueElement = document.CreateElement("SignatureValue", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement signatureValueElement = document.CreateElement("ds", "SignatureValue", SignedXml.XmlDsigNamespaceUrl);
             signatureValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(_signatureValue)));
             if (!string.IsNullOrEmpty(_signatureValueId))
                 signatureValueElement.SetAttribute("Id", _signatureValueId);

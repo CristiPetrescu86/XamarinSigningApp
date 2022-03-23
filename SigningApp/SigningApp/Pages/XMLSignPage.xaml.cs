@@ -37,29 +37,6 @@ namespace SigningApp.Pages
             //var cert = new X509Certificate2(bytes);
             //Org.BouncyCastle.X509.X509Certificate cert1 = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(cert);
 
-            //var xmlDocument = new XmlDocument();
-            //xmlDocument.Load(filePath);
-
-            //FileStream fsSource = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-
-            // Read the source file into a byte array.
-            //byte[] bytes2 = new byte[fsSource.Length];
-            //int numBytesToRead = (int)fsSource.Length;
-            //int numBytesRead = 0;
-            //while (numBytesToRead > 0)
-            //{
-            //    // Read may return anything from 0 to numBytesToRead.
-            //    int n = fsSource.Read(bytes2, numBytesRead, numBytesToRead);
-
-            //    // Break when the end of the file is reached.
-            //    if (n == 0)
-            //        break;
-
-            //    numBytesRead += n;
-            //    numBytesToRead -= n;
-            //}
-            //numBytesToRead = bytes2.Length;
-
             /*
             XAdES signature = new XAdES(cert);
             String output = signature.Sign(bytes2, true);
@@ -78,12 +55,27 @@ namespace SigningApp.Pages
             //string filePFX = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "test-cert.pfx");
             //X509Certificate2 cert2 = new X509Certificate2(File.ReadAllBytes(filePFX), "cristi");
 
-            byte[] bytes = Convert.FromBase64String(LoginPage.user.keysInfo[0].cert.certificates[0]);
-            var certOK = new X509Certificate2(bytes);
+            //byte[] bytes = Convert.FromBase64String(LoginPage.user.keysInfo[0].cert.certificates[0]);
+            //var certOK = new X509Certificate2(bytes);
 
+            List<X509Certificate2> certList = new List<X509Certificate2>();
+            foreach (string elem in LoginPage.user.keysInfo[0].cert.certificates)
+            {
+                byte[] bytes = Convert.FromBase64String(elem);
+                certList.Add(new X509Certificate2(bytes));
+            }
 
+            if(certList == null)
+            {
+                throw new Exception();
+            }
+
+            Guid myuuid = Guid.NewGuid();
+            string myuuidAsString = "xmldsig-" + myuuid.ToString();
+            
             SignedXml signedXml = new SignedXml(doc);
-            signedXml.PublicKeyCert = certOK.PublicKey.Key;
+            signedXml.PublicKeyCert = certList[0].PublicKey.Key;
+            signedXml.Signature.Id = myuuidAsString;
             Reference reference = new Reference();
             reference.Uri = "";
             XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform();
@@ -92,10 +84,61 @@ namespace SigningApp.Pages
 
            
             KeyInfo keyInfo = new KeyInfo();
-            //keyInfo.AddClause(new KeyInfoX509Data(cert2));
-            keyInfo.AddClause(new KeyInfoX509Data(certOK));
+            KeyInfoX509Data dataCerts = new KeyInfoX509Data();
+            foreach (X509Certificate2 elem in certList)
+            {
+                dataCerts.AddCertificate(elem);
+            }
+            keyInfo.AddClause(dataCerts);
+
 
             signedXml.KeyInfo = keyInfo;
+
+            
+            XadesObject xo = new XadesObject();
+            {
+                Cert cert2 = new Cert();
+
+                cert2.IssuerSerial.X509IssuerName = certList[0].IssuerName.Name;
+                cert2.IssuerSerial.X509SerialNumber = certList[0].SerialNumber;
+
+                {
+                    SHA256 cryptoServiceProvider = new SHA256CryptoServiceProvider();
+                    cert2.CertDigest.DigestValue = cryptoServiceProvider.ComputeHash(certList[0].RawData);
+                    cert2.CertDigest.DigestMethod.Algorithm = SignedXml.XmlDsigSHA256Url;
+                }
+
+                Cert cert3 = new Cert();
+
+                cert3.IssuerSerial.X509IssuerName = certList[1].IssuerName.Name;
+                cert3.IssuerSerial.X509SerialNumber = certList[1].SerialNumber;
+
+                {
+                    SHA256 cryptoServiceProvider = new SHA256CryptoServiceProvider();
+                    cert3.CertDigest.DigestValue = cryptoServiceProvider.ComputeHash(certList[1].RawData);
+                    cert3.CertDigest.DigestMethod.Algorithm = SignedXml.XmlDsigSHA256Url;
+                }
+
+
+
+                xo.QualifyingProperties.Target = "#" + signedXml.Signature.Id;
+                xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningTime = DateTime.Now;
+                xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SignaturePolicyIdentifier.SignaturePolicyImplied = true;
+
+                xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningCertificate.CertCollection.Add(cert2);
+                xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningCertificate.CertCollection.Add(cert3);
+                
+
+                //DataObjectFormat dof = new DataObjectFormat();
+                //dof.ObjectReferenceAttribute = "#Document";
+                //dof.Description = "Document xml[XML]";
+                //dof.Encoding = SignedXml.XmlDsigBase64TransformUrl;
+                //dof.MimeType = "text/plain";
+                //xo.QualifyingProperties.SignedProperties.SignedDataObjectProperties.DataObjectFormatCollection.Add(dof);
+            }
+            signedXml.AddXadesObject(xo);
+            
+
             signedXml.ComputeSignature();
             XmlElement xmlSig = signedXml.GetXml();
 
@@ -105,12 +148,13 @@ namespace SigningApp.Pages
             //Console.WriteLine(Convert.ToBase64String(signedXml.Signature.SignatureValue));
 
             string filePath2 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SignedNow1.xml");
-            doc.Save(filePath2);
-            //File.WriteAllText(filePath2, doc.OuterXml);
+            //doc.Save(filePath2);
+            File.WriteAllText(filePath2, doc.OuterXml);
+
+
 
             //string filePath3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "my-cert.pem");
             //X509Certificate2 pubCert = new X509Certificate2(filePath3);
-
             //XmlDocument doc2 = new XmlDocument();
             //doc2.Load(filePath2);
             //SignedXml signedXMLVerif = new SignedXml(doc);

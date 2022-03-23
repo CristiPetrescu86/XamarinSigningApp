@@ -201,17 +201,17 @@ namespace SigningApp.XadesSignedXML.XML
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
-            XmlElement x509DataElement = xmlDocument.CreateElement("X509Data", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement x509DataElement = xmlDocument.CreateElement("ds", "X509Data", SignedXml.XmlDsigNamespaceUrl);
 
             if (_issuerSerials != null)
             {
                 foreach (X509IssuerSerial issuerSerial in _issuerSerials)
                 {
-                    XmlElement issuerSerialElement = xmlDocument.CreateElement("X509IssuerSerial", SignedXml.XmlDsigNamespaceUrl);
-                    XmlElement issuerNameElement = xmlDocument.CreateElement("X509IssuerName", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement issuerSerialElement = xmlDocument.CreateElement("ds", "X509IssuerSerial", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement issuerNameElement = xmlDocument.CreateElement("ds", "X509IssuerName", SignedXml.XmlDsigNamespaceUrl);
                     issuerNameElement.AppendChild(xmlDocument.CreateTextNode(issuerSerial.IssuerName));
                     issuerSerialElement.AppendChild(issuerNameElement);
-                    XmlElement serialNumberElement = xmlDocument.CreateElement("X509SerialNumber", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement serialNumberElement = xmlDocument.CreateElement("ds", "X509SerialNumber", SignedXml.XmlDsigNamespaceUrl);
                     serialNumberElement.AppendChild(xmlDocument.CreateTextNode(issuerSerial.SerialNumber));
                     issuerSerialElement.AppendChild(serialNumberElement);
                     x509DataElement.AppendChild(issuerSerialElement);
@@ -222,7 +222,7 @@ namespace SigningApp.XadesSignedXML.XML
             {
                 foreach (byte[] subjectKeyId in _subjectKeyIds)
                 {
-                    XmlElement subjectKeyIdElement = xmlDocument.CreateElement("X509SKI", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement subjectKeyIdElement = xmlDocument.CreateElement("ds", "X509SKI", SignedXml.XmlDsigNamespaceUrl);
                     subjectKeyIdElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(subjectKeyId)));
                     x509DataElement.AppendChild(subjectKeyIdElement);
                 }
@@ -232,7 +232,7 @@ namespace SigningApp.XadesSignedXML.XML
             {
                 foreach (string subjectName in _subjectNames)
                 {
-                    XmlElement subjectNameElement = xmlDocument.CreateElement("X509SubjectName", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement subjectNameElement = xmlDocument.CreateElement("ds", "X509SubjectName", SignedXml.XmlDsigNamespaceUrl);
                     subjectNameElement.AppendChild(xmlDocument.CreateTextNode(subjectName));
                     x509DataElement.AppendChild(subjectNameElement);
                 }
@@ -242,7 +242,7 @@ namespace SigningApp.XadesSignedXML.XML
             {
                 foreach (X509Certificate certificate in _certificates)
                 {
-                    XmlElement x509Element = xmlDocument.CreateElement("X509Certificate", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement x509Element = xmlDocument.CreateElement("ds", "X509Certificate", SignedXml.XmlDsigNamespaceUrl);
                     x509Element.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(certificate.GetRawCertData())));
                     x509DataElement.AppendChild(x509Element);
                 }
@@ -250,7 +250,7 @@ namespace SigningApp.XadesSignedXML.XML
 
             if (_CRL != null)
             {
-                XmlElement crlElement = xmlDocument.CreateElement("X509CRL", SignedXml.XmlDsigNamespaceUrl);
+                XmlElement crlElement = xmlDocument.CreateElement("ds", "X509CRL", SignedXml.XmlDsigNamespaceUrl);
                 crlElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(_CRL)));
                 x509DataElement.AppendChild(crlElement);
             }

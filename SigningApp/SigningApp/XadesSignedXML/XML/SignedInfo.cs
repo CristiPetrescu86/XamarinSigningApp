@@ -160,7 +160,7 @@ namespace SigningApp.XadesSignedXML.XML
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the root element
-            XmlElement signedInfoElement = document.CreateElement("SignedInfo", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement signedInfoElement = document.CreateElement("ds","SignedInfo", SignedXml.XmlDsigNamespaceUrl);
             if (!string.IsNullOrEmpty(_id))
                 signedInfoElement.SetAttribute("Id", _id);
 
@@ -172,12 +172,12 @@ namespace SigningApp.XadesSignedXML.XML
             if (string.IsNullOrEmpty(_signatureMethod))
                 throw new System.Exception();
 
-            XmlElement signatureMethodElement = document.CreateElement("SignatureMethod", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement signatureMethodElement = document.CreateElement("ds", "SignatureMethod", SignedXml.XmlDsigNamespaceUrl);
             signatureMethodElement.SetAttribute("Algorithm", _signatureMethod);
             // Add HMACOutputLength tag if we have one
             if (_signatureLength != null)
             {
-                XmlElement hmacLengthElement = document.CreateElement(null, "HMACOutputLength", SignedXml.XmlDsigNamespaceUrl);
+                XmlElement hmacLengthElement = document.CreateElement("ds", "HMACOutputLength", SignedXml.XmlDsigNamespaceUrl);
                 XmlText outputLength = document.CreateTextNode(_signatureLength);
                 hmacLengthElement.AppendChild(outputLength);
                 signatureMethodElement.AppendChild(hmacLengthElement);

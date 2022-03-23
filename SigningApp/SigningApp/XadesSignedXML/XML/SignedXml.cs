@@ -47,6 +47,8 @@ namespace SigningApp.XadesSignedXML.XML
         private const string XmlDsigMoreHMACSHA512Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha512";
         private const string XmlDsigMoreHMACRIPEMD160Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-ripemd160";
 
+        public const string XadesNamespaceUri = "http://uri.etsi.org/01903/v1.3.2#";
+
         // defines the XML encryption processing rules
         private EncryptedXml _exml; 
 
@@ -1060,6 +1062,78 @@ namespace SigningApp.XadesSignedXML.XML
                 return true;
 
             return false;
+        }
+
+        public enum KnownSignatureStandard
+        {
+            /// <summary>
+            /// XML Digital Signature (XMLDSIG)
+            /// </summary>
+            XmlDsig,
+            /// <summary>
+            /// XML Advanced Electronic Signature (XAdES) 
+            /// </summary>
+            Xades
+        }
+
+        public const string SignedPropertiesType = "http://uri.etsi.org/01903/v1.3.2#SignedProperties";
+
+        private KnownSignatureStandard signatureStandard;
+        private XmlDocument cachedXadesObjectDocument;
+        private string signedPropertiesIdBuffer;
+        private string signatureValueId;
+        private bool validationErrorOccurred;
+        private string validationErrorDescription;
+        private string signedInfoIdBuffer;
+
+
+        private void SetPrefix(String prefix, XmlNode node)
+        {
+            if (node.NamespaceURI == SignedXml.XmlDsigNamespaceUrl)
+            {
+                node.Prefix = prefix;
+            }
+
+            foreach (XmlNode child in node.ChildNodes)
+            {
+                SetPrefix(prefix, child);
+            }
+
+            return;
+        }
+
+
+        public void AddXadesObject(XadesObject xadesObject)
+        {
+            Reference reference;
+            DataObject dataObject;
+            XmlElement bufferXmlElement;
+
+
+            dataObject = new DataObject();
+            dataObject.Id = xadesObject.Id;
+            dataObject.Data = xadesObject.GetXml().ChildNodes;
+            this.AddObject(dataObject); //Add the XAdES object
+
+            //reference = new Reference();
+            //signedPropertiesIdBuffer = xadesObject.QualifyingProperties.SignedProperties.Id;
+            //reference.Uri = "#" + signedPropertiesIdBuffer;
+            //reference.Uri = "";
+            //reference.Type = SignedPropertiesType;
+            //this.AddReference(reference); //Add the XAdES object reference
+
+            this.cachedXadesObjectDocument = new XmlDocument();
+            bufferXmlElement = xadesObject.GetXml();
+
+            //Add "ds" namespace prefix to all XmlDsig nodes in the XAdES object
+            //SetPrefix("ds", bufferXmlElement);
+
+            this.cachedXadesObjectDocument.PreserveWhitespace = true;
+            this.cachedXadesObjectDocument.LoadXml(bufferXmlElement.OuterXml); //Cache to XAdES object for later use
+
+            this.signatureStandard = KnownSignatureStandard.Xades;
+            
+
         }
     }
 }

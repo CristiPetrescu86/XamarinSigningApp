@@ -170,7 +170,7 @@ namespace SigningApp.XadesSignedXML.XML
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the Reference
-            XmlElement referenceElement = document.CreateElement("Reference", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement referenceElement = document.CreateElement("ds", "Reference", SignedXml.XmlDsigNamespaceUrl);
 
             if (!string.IsNullOrEmpty(_id))
                 referenceElement.SetAttribute("Id", _id);
@@ -189,7 +189,7 @@ namespace SigningApp.XadesSignedXML.XML
             if (string.IsNullOrEmpty(_digestMethod))
                 throw new System.Exception();
 
-            XmlElement digestMethodElement = document.CreateElement("DigestMethod", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement digestMethodElement = document.CreateElement("ds", "DigestMethod", SignedXml.XmlDsigNamespaceUrl);
             digestMethodElement.SetAttribute("Algorithm", _digestMethod);
             referenceElement.AppendChild(digestMethodElement);
 
@@ -200,7 +200,7 @@ namespace SigningApp.XadesSignedXML.XML
                 DigestValue = _hashAlgorithm.Hash;
             }
 
-            XmlElement digestValueElement = document.CreateElement("DigestValue", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement digestValueElement = document.CreateElement("ds", "DigestValue", SignedXml.XmlDsigNamespaceUrl);
             digestValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(_digestValue)));
             referenceElement.AppendChild(digestValueElement);
 

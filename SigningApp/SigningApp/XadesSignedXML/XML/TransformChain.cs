@@ -142,7 +142,7 @@ namespace SigningApp.XadesSignedXML.XML
 
         internal XmlElement GetXml(XmlDocument document, string ns)
         {
-            XmlElement transformsElement = document.CreateElement("Transforms", ns);
+            XmlElement transformsElement = document.CreateElement("ds","Transforms", ns);
             foreach (Transform transform in _transforms)
             {
                 if (transform != null)

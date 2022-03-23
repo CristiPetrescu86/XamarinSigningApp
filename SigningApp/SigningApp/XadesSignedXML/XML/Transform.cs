@@ -132,7 +132,7 @@ namespace SigningApp.XadesSignedXML.XML
 
         internal XmlElement GetXml(XmlDocument document, string name)
         {
-            XmlElement transformElement = document.CreateElement(name, SignedXml.XmlDsigNamespaceUrl);
+            XmlElement transformElement = document.CreateElement("ds", name, SignedXml.XmlDsigNamespaceUrl);
             if (!string.IsNullOrEmpty(Algorithm))
                 transformElement.SetAttribute("Algorithm", Algorithm);
             XmlNodeList children = GetInnerXml();
