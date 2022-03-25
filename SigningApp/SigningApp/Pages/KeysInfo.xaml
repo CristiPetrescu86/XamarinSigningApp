@@ -37,7 +37,7 @@
                                            FontAttributes="Bold"/>
                                     <StackLayout Orientation="Horizontal">
                                         <Label Text="{Binding key.status, StringFormat='Status: '}" TextColor="#2D2942" FontSize="12" Opacity="0.5"/>
-                                        <Image Source="{Binding key.status}" HeightRequest="12"></Image>
+                                        <Image Source="{Binding key.status, StringFormat='{0}.png'}" HeightRequest="12"></Image>
                                     </StackLayout>
                                 </StackLayout>
                             </StackLayout>

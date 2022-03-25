@@ -12,6 +12,21 @@ namespace SigningApp.ViewModel
 {
     public class KeyDetailViewModel : INotifyPropertyChanged
     {
+        private DateTime valideFrom;
+        private DateTime valideTo;
+
+        public DateTime ValideFrom
+        {
+            get { return valideFrom; }
+            set { valideFrom = value; }
+        }
+
+        public DateTime ValideTo
+        {
+            get { return valideTo; }
+            set { valideTo = value; }
+        }
+
 
         private CredentialsInfoReceiveClass keySelected;
 

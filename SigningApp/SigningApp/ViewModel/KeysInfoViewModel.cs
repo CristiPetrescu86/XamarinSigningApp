@@ -49,14 +49,6 @@ namespace XamarinLicentaApp.ViewModel
 
             foreach (CredentialsInfoReceiveClass elem in LoginPage.user.keysInfo)
             {
-                if (elem.key.status == "enabled")
-                {
-                    elem.key.status = "enabled.png";
-                }
-                else
-                {
-                    elem.key.status = "disabled.png";
-                }
                 newList.Add(elem);
             }
 
@@ -84,7 +76,10 @@ namespace XamarinLicentaApp.ViewModel
 
         public async void ShowDetails()
         {
-            var newPage = new KeyDetailsPage { BindingContext = new KeyDetailViewModel { KeySelected = KeySelected } };
+            DateTime validFrom = new DateTime(int.Parse(KeySelected.cert.validFrom.Substring(0, 4)), int.Parse(KeySelected.cert.validFrom.Substring(4, 2)), int.Parse(KeySelected.cert.validFrom.Substring(6, 2)), int.Parse(KeySelected.cert.validFrom.Substring(8, 2)), int.Parse(KeySelected.cert.validFrom.Substring(10, 2)), int.Parse(KeySelected.cert.validFrom.Substring(12, 2)));
+            DateTime validTo = new DateTime(int.Parse(KeySelected.cert.validTo.Substring(0, 4)), int.Parse(KeySelected.cert.validTo.Substring(4, 2)), int.Parse(KeySelected.cert.validTo.Substring(6, 2)), int.Parse(KeySelected.cert.validTo.Substring(8, 2)), int.Parse(KeySelected.cert.validTo.Substring(10, 2)), int.Parse(KeySelected.cert.validTo.Substring(12, 2)));
+
+            var newPage = new KeyDetailsPage { BindingContext = new KeyDetailViewModel { KeySelected = KeySelected, ValideFrom = validFrom, ValideTo = validTo } };
             await Application.Current.MainPage.Navigation.PushAsync(newPage);
         }
 
