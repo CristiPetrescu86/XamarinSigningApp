@@ -4,12 +4,55 @@
              x:Class="XamarinLicentaApp.PDFSignPage"
              BackgroundColor="#F5F6F6">
     <ContentPage.Content>
-        <StackLayout Padding="12">
+        <StackLayout Padding="12" Margin="20,20,20,40">
             <Button Text="File Picker" Clicked="ButtonClicked" />
-            <Label FontSize="Large" x:Name="LabelInfo"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Text="Tip semnatura"></Label>
+                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="0" Grid.Column="1" Content="Vizibila"
+                 Value="Vizibila" />
+                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="0" Grid.Column="2" Content="Invizibila"
+                 Value="Invizibila" />
+
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="1" Grid.Column="0" Text="Pozitie Widget"></Label>
+                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="1" Grid.Column="1" Placeholder="Stanga sus"/>
+                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="1" Grid.Column="2" Placeholder="Dreapta sus"/>
+                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="2" Grid.Column="1" Placeholder="Stanga jos"/>
+                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="2" Grid.Column="2" Placeholder="Dreapta jos"/>
+
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="0" Text="Adauga descriere"></Label>
+                <Entry WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"/>
+                             
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="0" Text="Adauga locatie"></Label>
+                <Entry WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"/>
+                
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="0" Text="Adauga motiv"></Label>
+                <Entry WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+                <Label Grid.Row="6" HorizontalOptions="Center" VerticalOptions="Center" Text="Timestamp"></Label>
+                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="1" Content="Da"
+                 Value="Vizibila" />
+                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="2" Content="Nu"
+                 Value="Invizibila" />
+
+
+
+            </Grid>
+            
+            
             <Button Text="SignPDF" Clicked="ButtonClicked2"/>
-            <Label x:Name="label1" Text="Salut" TextColor="Red"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

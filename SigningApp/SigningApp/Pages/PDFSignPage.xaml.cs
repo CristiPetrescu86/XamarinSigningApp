@@ -41,20 +41,14 @@ namespace XamarinLicentaApp
                     {
                         FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
                         {
-                            { DevicePlatform.UWP, new [] {".pdf",".xml"} }
+                            { DevicePlatform.UWP, new [] {".pdf",".xml"} },
+                            { DevicePlatform.Android, new [] {".pdf",".xml"} },
+                            { DevicePlatform.macOS, new [] {".pdf",".xml"} },
+                            { DevicePlatform.iOS, new [] {".pdf",".xml"} }
                         })
                     });
 
 
-                if (file == null)
-                {
-                    LabelInfo.Text = "Nu e bun";
-                }
-                else
-                {
-                    LabelInfo.Text = file.FullPath;
-                    path = file.FullPath;
-                }
 
 
             }
