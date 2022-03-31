@@ -142,12 +142,14 @@
     <Content Include="Resources\Filter.png" />
     <Content Include="Resources\johnWatch.png" />
     <Content Include="Resources\key.png" />
+    <Content Include="Resources\keyInfo.png" />
     <Content Include="Resources\logout.png" />
     <Content Include="Resources\marekWatch.png" />
     <Content Include="Resources\Menu.png" />
     <Content Include="Resources\order.png" />
     <Content Include="Resources\pdf.png" />
     <Content Include="Resources\disabled.png" />
+    <Content Include="Resources\pdfs.png" />
     <Content Include="Resources\rutgeWatch.png" />
     <Content Include="Resources\settings.png" />
     <Content Include="Resources\shopping.png" />
@@ -155,6 +157,7 @@
     <Content Include="Resources\user-interface.png" />
     <Content Include="Resources\whiteCart.png" />
     <Content Include="Resources\xml.png" />
+    <Content Include="Resources\xmls.png" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

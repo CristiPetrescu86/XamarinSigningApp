@@ -29,7 +29,7 @@ namespace XamarinLicentaApp
             InitializeComponent();
         }
 
-        private string path;
+
 
         private async void ButtonClicked(object sender, EventArgs e)
         {
@@ -63,6 +63,8 @@ namespace XamarinLicentaApp
             LoginPage.user.credentialsList();
             LoginPage.user.credentialsInfo(LoginPage.user.credentialsIDs[1]);
 
+
+            // Debug.WriteLine(KeyPicker.SelectedItem.ToString());
 
             string fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "test.pdf");
 
@@ -111,10 +113,8 @@ namespace XamarinLicentaApp
             byte[] sh = sgn.GetAuthenticatedAttributeBytes(documentHash, PdfSigner.CryptoStandard.CADES, null, null);
 
 
-            List<string> aux = new List<string>();
-            aux.Add("salut");
-            LoginPage.user.credentialsAuthorize(aux, LoginPage.user.credentialsIDs[1],sh);
-            LoginPage.user.signSingleHash(aux, LoginPage.user.credentialsIDs[1],sh);
+            LoginPage.user.credentialsAuthorize(LoginPage.user.credentialsIDs[1],sh,"PDF","12345678","123456");
+            LoginPage.user.signSingleHash(LoginPage.user.credentialsIDs[1],sh,"PDF");
 
 
             sgn.SetExternalDigest(Convert.FromBase64String(LoginPage.user.signatures[0]), null, "RSA");

@@ -38,7 +38,7 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
-                <!--<BoxView Grid.ColumnSpan="4" Grid.RowSpan="15" BackgroundColor="White"  CornerRadius="10" />-->
+                <BoxView Grid.ColumnSpan="4" Grid.RowSpan="15" BackgroundColor="White"  CornerRadius="10" />
                 <Label Grid.ColumnSpan="4" FontSize="Title" Text="{Binding KeySelected.credentialName, StringFormat='Nume credential: {0}'}" HorizontalOptions="Center" ></Label>
 
 

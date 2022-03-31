@@ -67,7 +67,7 @@ namespace XamarinLicentaApp.ViewModel
             //LoginPage.user = new LicentaApp.User(username,password);
             LoginPage.user = new LicentaApp.User("adobedemo","password");
             
-            bool ok = LoginPage.user.authLogin();
+            bool ok = LoginPage.user.authLogin(false);
             
             if(ok == true)
             {

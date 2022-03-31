@@ -8,25 +8,29 @@
     <ContentPage.BindingContext>
         <viewmodel:KeysInfoViewModel x:Name="vm"/>
     </ContentPage.BindingContext>
-    
+
     <ContentPage.Content>
         <StackLayout>
-
             <CollectionView Grid.Row="3" SelectionMode="Single" ItemsSource="{Binding Keys}"
                             SelectedItem="{Binding KeySelected}"
                             SelectionChanged="CollectionView_SelectionChanged">
                 <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical" Span="2"/>
+                    <GridItemsLayout Orientation="Vertical">
+                        <GridItemsLayout.Span>
+                            <OnPlatform x:TypeArguments="x:Int32">
+                                <On Platform="iOS" Value="1" />
+                                <On Platform="Android" Value="1" />
+                                <On Platform="UWP" Value="2"/>
+                            </OnPlatform>
+                        </GridItemsLayout.Span>
+                    </GridItemsLayout> 
                 </CollectionView.ItemsLayout>
                 <CollectionView.EmptyView>
                     <Label Text="No Item found." TextColor="Gray" HorizontalOptions="Center" VerticalOptions="Center"/>
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Grid RowDefinitions="*, 2.5*" HeightRequest="160" BackgroundColor="White" Padding="15">
-                            <Grid.Clip>
-                                <PathGeometry Figures="M20 96.5596C20 92.4719 22.0807 88.6655 25.5215 86.4586L146.521 8.85176C154.508 3.72922 165 9.46434 165 18.9527V185C165 191.627 159.627 197 153 197H32C25.3726 197 20 191.627 20 185V96.5596Z"/>
-                            </Grid.Clip>
+                        <Grid RowDefinitions="*, 2.5*" HeightRequest="260" BackgroundColor="White" Padding="15">
                             <StackLayout Grid.Row="1" Orientation="Horizontal" VerticalOptions="FillAndExpand" 
                                      HorizontalOptions="FillAndExpand" Padding="10,0,0,0">
                                 <Image Source="key.png"  WidthRequest="45" HorizontalOptions="Start"/>

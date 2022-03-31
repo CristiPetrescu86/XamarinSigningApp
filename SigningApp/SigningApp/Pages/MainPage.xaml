@@ -31,23 +31,7 @@
             </BoxView>
             <Grid x:Name="MenuView" WidthRequest="220" BackgroundColor="#34495E"
                   HorizontalOptions="Start" TranslationX="-220">
-                <!--
-                <StackLayout Margin="30,100" Spacing="20" BindableLayout.ItemsSource="{Binding MenuList}">
-                    <BindableLayout.ItemTemplate>
-                        <DataTemplate>
-                            <StackLayout Orientation="Horizontal" Spacing="20">
-                                <Grid Grid.Row="2" HorizontalOptions="Start" VerticalOptions="Start"
-                                      HeightRequest="46" WidthRequest="46">
-                                    <ImageButton Source="{Binding Icon}" WidthRequest="22" HeightRequest="22"
-                                            HorizontalOptions="Center" VerticalOptions="Center" Clicked="PDFPage"/>
-                                </Grid>
-                                <Label Text="{Binding Name}" TextColor="White" FontSize="16" VerticalOptions="Center"
-                                        FontFamily="NormalFont"/>
-                            </StackLayout>
-                        </DataTemplate>
-                    </BindableLayout.ItemTemplate>
-                </StackLayout>
-                -->
+                
                 <StackLayout Margin="30,100" Spacing="20" >
                     <CollectionView SelectionMode="Single" ItemsSource="{Binding MenuList}" 
                                 SelectedItem="{Binding SelectedMenuOption}" SelectionChanged="MenuOptionSelected">

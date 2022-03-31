@@ -1,8 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:SigningApp.ViewModel"
              x:Class="XamarinLicentaApp.PDFSignPage"
              BackgroundColor="#F5F6F6">
+
+    <ContentPage.BindingContext>
+        <viewmodel:PDFSignPageViewModel x:Name="vm"/>
+    </ContentPage.BindingContext>
+
+
     <ContentPage.Content>
         <StackLayout Padding="12" Margin="20,20,20,40">
             <Button Text="File Picker" Clicked="ButtonClicked" />
@@ -20,32 +27,36 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Label HorizontalOptions="Center" VerticalOptions="Center" Text="Tip semnatura"></Label>
-                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="0" Grid.Column="1" Content="Vizibila"
+
+                <StackLayout Grid.Row="0" Grid.Column="1">
+                    <Picker Title="Selecteaza credential" x:Name="KeyPicker" ItemsSource="{Binding Keys}"></Picker>
+                </StackLayout>
+
+                <Label Grid.Row="1" HorizontalOptions="Center" VerticalOptions="Center" Text="Tip semnatura"></Label>
+
+                <RadioButton GroupName="tipSemnatura" IsChecked="True" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="1" Grid.Column="1" Content="Vizibila"
                  Value="Vizibila" />
-                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="0" Grid.Column="2" Content="Invizibila"
+                <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="1" Grid.Column="2" Content="Invizibila"
                  Value="Invizibila" />
 
-                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="1" Grid.Column="0" Text="Pozitie Widget"></Label>
-                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="1" Grid.Column="1" Placeholder="Stanga sus"/>
-                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="1" Grid.Column="2" Placeholder="Dreapta sus"/>
-                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="2" Grid.Column="1" Placeholder="Stanga jos"/>
-                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="2" Grid.Column="2" Placeholder="Dreapta jos"/>
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="2" Grid.Column="0" Text="Pozitie Widget"></Label>
+                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="2" Grid.Column="1" Placeholder="Stanga sus"/>
+                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="2" Grid.Column="2" Placeholder="Dreapta sus"/>
+                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="1" Placeholder="Stanga jos"/>
+                <Entry WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="2" Placeholder="Dreapta jos"/>
 
-                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="0" Text="Adauga descriere"></Label>
-                <Entry WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"/>
-                             
-                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="0" Text="Adauga locatie"></Label>
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="0" Text="Adauga descriere"></Label>
                 <Entry WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"/>
-                
-                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="0" Text="Adauga motiv"></Label>
+                             
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="0" Text="Adauga locatie"></Label>
                 <Entry WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+                
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="0" Text="Adauga motiv"></Label>
+                <Entry WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"/>
 
-                <Label Grid.Row="6" HorizontalOptions="Center" VerticalOptions="Center" Text="Timestamp"></Label>
-                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="1" Content="Da"
-                 Value="Vizibila" />
-                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="2" Content="Nu"
-                 Value="Invizibila" />
+                <Label Grid.Row="7" HorizontalOptions="Center" VerticalOptions="Center" Text="Timestamp"></Label>
+                <RadioButton GroupName="timestamp" IsChecked="True" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="7" Grid.Column="1" Content="Da" />
+                <RadioButton GroupName="timestamp" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="7" Grid.Column="2" Content="Nu" />
 
 
 

@@ -355,7 +355,7 @@ namespace SigningApp.XadesSignedXML.XML
             return true;
         }
 
-        public void ComputeSignature()
+        public byte[] ComputeSignature()
         {
 
             BuildDigestedReferences();
@@ -394,14 +394,14 @@ namespace SigningApp.XadesSignedXML.XML
 
             byte[] hash2 = GetC14NDigest(hashAlg);
 
-
-            List<string> aux = new List<string>();
-            aux.Add("salut");
-            LoginPage.user.credentialsAuthorize(aux, LoginPage.user.credentialsIDs[1], hash2);
-            LoginPage.user.signSingleHash(aux, LoginPage.user.credentialsIDs[1], hash2);
-
-            m_signature.SignatureValue = Convert.FromBase64String(LoginPage.user.signatures[0]);
+            return hash2;
         }
+
+        public void setSignatureValue(string singature)
+        {
+            m_signature.SignatureValue = Convert.FromBase64String(singature);
+        }
+
 
         public void ComputeSignature(KeyedHashAlgorithm macAlg)
         {

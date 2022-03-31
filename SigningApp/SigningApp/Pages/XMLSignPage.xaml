@@ -4,9 +4,19 @@
              x:Class="SigningApp.Pages.XMLSignPage"
              BackgroundColor="#F5F6F6">
     <ContentPage.Content>
-        <StackLayout>
+        <StackLayout Margin="20,20,20,40">
+            <Button Text="File Picker" Clicked="filePickerButton" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="0" Content="XML-DSIG"></RadioButton>
+                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="XAdES"></RadioButton>
+            </Grid>
+            
             <Button Text="Sign XML" Clicked="btnSignClicked"></Button>
-            <Label Text="Salut" x:Name="label1"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

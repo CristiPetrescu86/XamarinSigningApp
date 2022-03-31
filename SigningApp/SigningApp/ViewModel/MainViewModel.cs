@@ -39,7 +39,9 @@ namespace XamarinLicentaApp.ViewModel
             {
                 new Menu { Icon = "pdf.png", Name = "Sign PDF"},
                 new Menu { Icon = "xml.png", Name = "Sign XML"},
-                new Menu { Icon = "pdf.png", Name = "Keys Info"},
+                new Menu { Icon = "pdfs.png", Name = "Sign PDFs"},
+                new Menu { Icon = "xmls.png", Name = "Sign XMLs"},
+                new Menu { Icon = "keyInfo.png", Name = "Keys Info"},
                 new Menu { Icon = "logout.png", Name = "Logout"}
             };
         }

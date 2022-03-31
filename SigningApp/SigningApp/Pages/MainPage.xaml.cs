@@ -63,9 +63,25 @@ namespace XamarinLicentaApp
                 var newPage = new KeysInfo();
                 await Application.Current.MainPage.Navigation.PushAsync(newPage);
             }
+            else if (type == "Sign PDFs")
+            {
+                var newPage = new MultiplePDFSignPage();
+                await Application.Current.MainPage.Navigation.PushAsync(newPage);
+            }
+            else if (type == "Sign XMLs")
+            {
+                var newPage = new MultipleXMLSignPage();
+                await Application.Current.MainPage.Navigation.PushAsync(newPage);
+            }
             else if(type == "Logout")
             {
-                await DisplayAlert("salut2", "salut2", "OK2");
+                bool ok = LoginPage.user.authRevoke();
+                //if (!ok)
+                //{
+                //    await DisplayAlert("ERROR", "TOKEN_MALFORMED", "CLOSE");
+                //}
+                var newPage = new LoginPage();
+                await Application.Current.MainPage.Navigation.PushAsync(newPage);
             }
 
             
