@@ -50,8 +50,8 @@ namespace XamarinLicentaApp
             String type = vm.SelectedMenuOption.Name;
             if(type == "Sign PDF")
             {
-                var detailPage = new PDFSignPage();
-                await Application.Current.MainPage.Navigation.PushAsync(detailPage);
+                var newPage = new PDFSignPage();
+                await Application.Current.MainPage.Navigation.PushAsync(newPage);
             }
             else if(type == "Sign XML")
             {
@@ -81,7 +81,7 @@ namespace XamarinLicentaApp
                 //    await DisplayAlert("ERROR", "TOKEN_MALFORMED", "CLOSE");
                 //}
                 var newPage = new LoginPage();
-                await Application.Current.MainPage.Navigation.PushAsync(newPage);
+                await Application.Current.MainPage.Navigation.PushModalAsync(newPage);
             }
 
             

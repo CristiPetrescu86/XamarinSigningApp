@@ -4,9 +4,7 @@
              x:Class="SigningApp.Pages.MultiplePDFSignPage">
     <ContentPage.Content>
         <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+            <Button Clicked="SignPDFS"></Button>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

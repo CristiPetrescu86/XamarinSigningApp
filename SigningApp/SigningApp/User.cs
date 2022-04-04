@@ -419,15 +419,15 @@ namespace LicentaApp
             {
                 methodResponse.credentialName = credentialName;
                
-                bool exists = true;
+                bool exists = false;
                 foreach (var elem in keysInfo)
                 {
                     if (ObjectComparerUtility.ObjectsAreEqual(elem, methodResponse))
                     {
-                        exists = false;
+                        exists = true;
                     }
                 }
-                if (exists)
+                if (!exists)
                 {
                     keysInfo.Add(methodResponse);
                 }
