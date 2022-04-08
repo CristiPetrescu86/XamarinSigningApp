@@ -1,22 +1,52 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:SigningApp.ViewModel"
              x:Class="SigningApp.Pages.XMLSignPage"
              BackgroundColor="#F5F6F6">
+
+    <ContentPage.BindingContext>
+        <viewmodel:XMLSignPageViewModel x:Name="vm"/>
+    </ContentPage.BindingContext>
+
     <ContentPage.Content>
         <StackLayout Margin="20,20,20,40">
-            <Button Text="File Picker" Clicked="filePickerButton" />
+            <Button Text="Pick XML document" Command="{Binding PickDoc }"/>
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="0" Content="XML-DSIG"></RadioButton>
-                <RadioButton HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="XAdES"></RadioButton>
+                <StackLayout Grid.Row="0" Grid.Column="1">
+                    <Picker Title="Selecteaza credentialul" ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}"></Picker>
+                </StackLayout>
+
+                <StackLayout Grid.Row="1" Grid.ColumnSpan="3" RadioButtonGroup.GroupName="tipSemnatura" RadioButtonGroup.SelectedValue="{Binding SelectedType}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="0" Content="XML-DSIG" Value="XML-DSIG"></RadioButton>
+                        <RadioButton GroupName="tipSemnatura" IsChecked="True" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="XAdES" Value="XAdES"></RadioButton>
+                    </Grid>
+                </StackLayout>
             </Grid>
-            
-            <Button Text="Sign XML" Clicked="btnSignClicked"></Button>
+
+            <Button Text="Sign XML" Command="{Binding SignDoc}"></Button>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

@@ -31,25 +31,14 @@ namespace XamarinLicentaApp
             vm.DisplayVisibilityNotSet += () => DisplayAlert("Eroare", "Vizibilitate chenar nu a fost setata", "Close");
             vm.DisplayPageNotSelected += () => DisplayAlert("Eroare", "Amplasamentul pe pagina nu a fost setat", "Close");
             vm.DisplayCoordError += () => DisplayAlert("Eroare", "Toate coordonatele trebuie sa fie numere intregi", "Close");
-        }
+            vm.DisplayPINandOTPnotSet += () => DisplayAlert("Eroare", "PIN sau OTP nu este setat","Close");
+            vm.DisplayPINnotSet += () => DisplayAlert("Eroare", "PIN nu este setat", "Close");
+            vm.DisplayOTPnotSet += () => DisplayAlert("Eroare", "OTP nu este setat", "Close");
+            vm.DisplayCredAuthNotOK += () => DisplayAlert("Eroare", "Autorizarea cheii nu a putut fi realizata", "Close");
+            vm.DisplaySignMethNotOK += () => DisplayAlert("Eroare", "Eroare la semnarea hash-ului", "Close");
+            vm.DisplayTipSemnaturaNotChecked += () => DisplayAlert("Eroare", "Tip semnatura nu a fost bifat", "Close");
+            vm.DisplayTimestampNotChecked += () => DisplayAlert("Eroare", "Timestamp nu a fost bifat", "Close");
 
-        private async void Button_Clicked(object sender, EventArgs e)
-        {
-            //var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
-            var result = await Navigation.ShowPopupAsync(new OTPPopup());
-
-            if(result.ToString() == "UNSET")
-            {
-                Debug.WriteLine("SALUT");
-                return;
-            }
-
-            Debug.WriteLine(result.ToString());
-
-            //PINandOTP credObj = System.Text.Json.JsonSerializer.Deserialize<PINandOTP>(result.ToString());
-
-            //Debug.WriteLine(credObj.PIN);
-            //Debug.WriteLine(credObj.OTP);
         }
     }  
 }

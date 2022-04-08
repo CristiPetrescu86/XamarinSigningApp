@@ -36,6 +36,13 @@ namespace SigningApp.ViewModel
         public Action DisplayVisibilityNotSet;
         public Action DisplayPageNotSelected;
         public Action DisplayCoordError;
+        public Action DisplayPINnotSet;
+        public Action DisplayPINandOTPnotSet;
+        public Action DisplayOTPnotSet;
+        public Action DisplayCredAuthNotOK;
+        public Action DisplaySignMethNotOK;
+        public Action DisplayTipSemnaturaNotChecked;
+        public Action DisplayTimestampNotChecked;
 
 
         public PDFSignPageViewModel()
@@ -76,7 +83,7 @@ namespace SigningApp.ViewModel
 
         private ObservableCollection<int> pageNumber;
 
-        public int SelectedTimestamp { get; set; }
+        public string SelectedTimestamp { get; set; }
 
         public ObservableCollection<int> PageNumber
         {
@@ -192,7 +199,7 @@ namespace SigningApp.ViewModel
 
             if (SelectedType == null)
             {
-                DisplayHeightNotSet();
+                DisplayTipSemnaturaNotChecked();
                 return;
             }
 
@@ -277,22 +284,34 @@ namespace SigningApp.ViewModel
 
             // Signature ----------------------------------------------------
 
-            string outTempFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testTemp.pdf");
+            string outTempFileName = Path.GetDirectoryName(DocPath);
+            Guid myuuid = Guid.NewGuid();
+            outTempFileName += @"\";
+            outTempFileName += myuuid.ToString();
+            outTempFileName += ".TEMP";
+            Debug.WriteLine(outTempFileName);
 
             string fieldname = "sig";
 
+            FileStream outFile2 = new FileStream(outTempFileName, FileMode.Create);
             PdfReader reader = new PdfReader(fileName);
-            PdfSigner signer = new PdfSigner(reader, new FileStream(outTempFileName, FileMode.Create), new StampingProperties());
+            PdfSigner signer = new PdfSigner(reader, outFile2, new StampingProperties());
 
             PdfSignatureAppearance appearance2 = signer.GetSignatureAppearance();
-            if(SelectedType == "Invizibila")
+            if (SelectedType == "Invizibila")
             {
                 appearance2.SetPageRect(new iText.Kernel.Geom.Rectangle(0, 0, 0, 0));
             }
-            else
+            else if (SelectedType == "Vizibila")
             {
                 appearance2.SetPageRect(new iText.Kernel.Geom.Rectangle(castedXCoord, castedYCoord, castedWidthDist, castedHeightDist));
             }
+            else
+            {
+                DisplayTipSemnaturaNotChecked();
+                return;
+            }
+
             appearance2.SetPageNumber(SelectedPage);
             appearance2.SetCertificate(certListX509[0]);
 
@@ -311,41 +330,128 @@ namespace SigningApp.ViewModel
 
             PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED);
             signer.SignExternalContainer(external, 16000);
-            byte[] documentHash = external.getHash();
+            byte[] documentHash = external.getHash();          
+
+            outFile2.Dispose();
+            outFile2.Close();
 
             PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, "SHA-256", false);
             byte[] sh = sgn.GetAuthenticatedAttributeBytes(documentHash, PdfSigner.CryptoStandard.CADES, null, null);
-
 
             if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true")
             {
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
 
+                if (result.ToString() == "UNSET")
+                {
+                    DisplayPINandOTPnotSet();
+                    return;
+                }
+
                 PINandOTP credObj = System.Text.Json.JsonSerializer.Deserialize<PINandOTP>(result.ToString());
 
-                LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", credObj.PIN, credObj.OTP); // 12345678 123456
-                LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", credObj.PIN, credObj.OTP); // 12345678 123456
+                if(!ok)
+                {
+                    DisplayCredAuthNotOK();
+                    return;
+                }
+
+                ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                if(!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
             else if(keyObject.PIN.presence == "true")
             {
-                var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
+                var result = await Navigation.ShowPopupAsync(new PINPopup());
+
+                if (result.ToString() == "UNSET")
+                {
+                    DisplayPINnotSet();
+                    return;
+                }
 
                 string pin = result.ToString();
 
-                Debug.WriteLine(pin);
-                
+                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", pin, null); // 12345678 123456
+                if (!ok)
+                {
+                    DisplayCredAuthNotOK();
+                    return;
+                }
+
+                ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
+            }
+            else if (keyObject.OTP.presence == "true")
+            {
+                var result = await Navigation.ShowPopupAsync(new OTPPopup());
+
+                if (result.ToString() == "UNSET")
+                {
+                    DisplayOTPnotSet();
+                    return;
+                }
+
+                string otp = result.ToString();
+
+                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, otp); // 12345678 123456
+                if (!ok)
+                {
+                    DisplayCredAuthNotOK();
+                    return;
+                }
+
+                ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
+            }
+            else
+            {
+                LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, null);
+                LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
             }
 
-
-            LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", "12345678", "123456");
-            LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
-
+            //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", "12345678", "123456");
+            //LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
 
             sgn.SetExternalDigest(Convert.FromBase64String(LoginPage.user.signatures[0]), null, "RSA");
-            byte[] encodedSig = sgn.GetEncodedPKCS7(documentHash, PdfSigner.CryptoStandard.CADES, null, null, null);
-            
 
-            string outFileName3 = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "testSigned.pdf");
+
+            byte[] encodedSig = null;
+
+            if (SelectedTimestamp == "Da")
+            {
+                ITSAClient tsa = new TSAClientBouncyCastle("http://timestamp.digicert.com");
+                //signer.Timestamp(tsa, "SignatureTimestamp");
+
+                encodedSig = sgn.GetEncodedPKCS7(documentHash, PdfSigner.CryptoStandard.CADES, tsa, null, null);
+            }
+            else if (SelectedTimestamp == "Nu")
+            {
+                encodedSig = sgn.GetEncodedPKCS7(documentHash, PdfSigner.CryptoStandard.CADES, null, null, null);
+            }
+            else
+            {
+                DisplayTimestampNotChecked();
+                return;
+            }
+
+            string outFileName3 = Path.GetDirectoryName(DocPath);
+            outFileName3 += @"\";
+            outFileName3 += Path.GetFileNameWithoutExtension(DocPath);
+            outFileName3 += "SIGNED";
+            outFileName3 += Path.GetExtension(DocPath);
 
             FileStream outFile3 = new FileStream(outFileName3, FileMode.Create);
 
@@ -355,9 +461,13 @@ namespace SigningApp.ViewModel
             IExternalSignatureContainer signature3 = new MyExternalSignatureContainer(encodedSig);
 
             PdfSigner.SignDeferred(signer3.GetDocument(), fieldname, outFile3, signature3);
+            outFile3.Dispose();
             outFile3.Close();
 
-            
+            //if (File.Exists(outTempFileName))
+            //{
+            //    File.Delete(outTempFileName);
+            //}
         }
 
     }
