@@ -1,10 +1,95 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="SigningApp.Pages.MultiplePDFSignPage">
+             xmlns:viewmodel="clr-namespace:SigningApp.ViewModel"
+             x:Class="SigningApp.Pages.MultiplePDFSignPage"
+             BackgroundColor="#F5F6F6">
+
+    <ContentPage.BindingContext>
+        <viewmodel:MultiplePDFSignPageViewModel x:Name="vm"/>
+    </ContentPage.BindingContext>
+
     <ContentPage.Content>
-        <StackLayout>
-            <Button Clicked="SignPDFS"></Button>
+        <StackLayout Padding="12" Margin="20,20,20,40">
+            <Button Text="Pick PDFs" Command="{Binding PickDocs }" />
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="2*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackLayout Grid.Row="0" Grid.Column="1">
+                    <Picker Title="Selecteaza credentialul" ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}"></Picker>
+                </StackLayout>
+
+                <StackLayout Grid.Row="1" Grid.ColumnSpan="3" RadioButtonGroup.GroupName="tipSemnatura" RadioButtonGroup.SelectedValue="{Binding SelectedType}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" Text="Tip semnatura"></Label>
+                        <RadioButton GroupName="tipSemnatura" IsChecked="True" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="Vizibila" Value="Vizibila" />
+                        <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="2" Content="Invizibila" Value="Invizibila" />
+                    </Grid>
+                </StackLayout>
+
+                <StackLayout Grid.Row="2" Grid.ColumnSpan="3" RadioButtonGroup.GroupName="pageNumber" RadioButtonGroup.SelectedValue="{Binding SelectedPage}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="2*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" Text="Pagina semnaturii"></Label>
+                        <RadioButton GroupName="pageNumber" IsChecked="True" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="First Page" Value="FirstPage" />
+                        <RadioButton GroupName="pageNumber" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="2" Content="Last Page" Value="LastPage" />
+                    </Grid>
+                </StackLayout>
+
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="0" Text="Pozitie Widget"></Label>
+                <Entry Text="{Binding XCoord}" WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="1" Placeholder="X point"/>
+                <Entry Text="{Binding YCoord}" WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="3" Grid.Column="2" Placeholder="Y point"/>
+                <Entry Text="{Binding WidthDist}" WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="1" Placeholder="Width"/>
+                <Entry Text="{Binding HeightDist}" WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="2" Placeholder="Heigth"/>
+
+
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="0" Text="Creator semnatura"></Label>
+                <Entry Text="{Binding CreatorSemnatura}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="0" Text="Adauga locatie"></Label>
+                <Entry Text="{Binding Locatie}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"/>
+
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="7" Grid.Column="0" Text="Adauga motiv"></Label>
+                <Entry Text="{Binding Motiv}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2"/>
+                
+
+            </Grid>
+
+
+            <Button Text="Sign PDFs" Command="{Binding SignDocs}" ></Button>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

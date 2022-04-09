@@ -345,7 +345,7 @@ namespace SigningApp.ViewModel
             outFileName += "SIGNED";
             outFileName += Path.GetExtension(DocPath);
 
-            //doc.Save(filePath2);
+            //doc.Save(outFileName);
             File.WriteAllText(outFileName, doc.OuterXml);
 
 

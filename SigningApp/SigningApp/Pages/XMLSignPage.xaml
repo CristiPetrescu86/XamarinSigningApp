@@ -11,12 +11,9 @@
 
     <ContentPage.Content>
         <StackLayout Margin="20,20,20,40">
-            <Button Text="Pick XML document" Command="{Binding PickDoc }"/>
+            <Button Text="Pick XML documents" Command="{Binding PickDocs }"/>
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="2*" />
-                    <RowDefinition Height="2*" />
-                    <RowDefinition Height="2*" />
                     <RowDefinition Height="2*" />
                     <RowDefinition Height="2*" />
                 </Grid.RowDefinitions>
