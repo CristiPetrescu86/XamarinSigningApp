@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SigningApp.Pages.OauthLoginPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label x:Name="labelLoading" Text="Loading..." IsVisible="false" />
+            <WebView HeightRequest="1000" WidthRequest="1000" Source="https://msign-test.transsped.ro/csc/v0/oauth2/authorize?response_type=token&amp;client_id=ts_csc&amp;client_secret=h767ujHG654GHhgI&amp;redirect_uri=http://localhost:8080&amp;lang=en-US" Navigated="webviewNavigated" Navigating="webviewNavigating" />
+            <!--<WebView HeightRequest="1000" WidthRequest="1000" Source="https://service.csctest.online/csc/v0/oauth2/authorize?response_type=code&amp;client_id=bBdNs9Fa7kMx0qnFsPk66sklrDw&amp;redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin.html&amp;scope=service&amp;state=12345678" Navigated="webviewNavigated" Navigating="webviewNavigating" />-->
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

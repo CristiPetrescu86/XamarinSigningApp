@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SigningApp.Pages;
+using System;
 using System.Collections.Generic;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -11,8 +12,8 @@ namespace SigningApp
         public App()
         {
             InitializeComponent();
-            MainPage = new NavigationPage(new LoginPage());
-
+            //MainPage = new NavigationPage(new LoginPage());
+            MainPage = new NavigationPage(new OauthLoginPage());
 
         }
 
