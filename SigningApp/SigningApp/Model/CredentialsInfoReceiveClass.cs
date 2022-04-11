@@ -24,7 +24,7 @@ namespace LicentaApp.JsonClass
 
         public OTP_Class OTP { get; set; }
 
-        public int multisign { get; set; } = 1;
+        public bool multisign { get; set; }
         public string lang { get; set; }
 
 

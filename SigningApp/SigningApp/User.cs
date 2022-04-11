@@ -310,7 +310,8 @@ namespace LicentaApp
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/list");
+            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/list");
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/list");
      
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -400,7 +401,8 @@ namespace LicentaApp
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/info");
+            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/info");
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/info");
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -408,6 +410,8 @@ namespace LicentaApp
             client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
 
             var response = client.PostAsync("", byteContent).Result;
+
+            //Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
 
             CredentialsInfoReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsInfoReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
 
@@ -489,14 +493,14 @@ namespace LicentaApp
             method.credentialID = keysInfo[index].credentialName;
 
             
-            if (numSignatures > keysInfo[index].multisign)
-            {
-                return false;
-            }
-            else
-            {
-                method.numSignatures = numSignatures;
-            }
+            //if (numSignatures > keysInfo[index].multisign)
+            //{
+            //    return false;
+            //}
+            //else
+            //{
+            //    method.numSignatures = numSignatures;
+            //}
 
 
             if(docType == "PDF")
