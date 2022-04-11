@@ -12,9 +12,7 @@ namespace SigningApp
         public App()
         {
             InitializeComponent();
-            //MainPage = new NavigationPage(new LoginPage());
-            MainPage = new NavigationPage(new OauthLoginPage());
-
+            MainPage = new NavigationPage(new LoginPage());
         }
 
         protected override void OnStart()

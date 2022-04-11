@@ -123,6 +123,11 @@ namespace LicentaApp
             password = Password;
         }
 
+        public User()
+        {
+
+        }
+
 
         public string getInfo()
         {
@@ -948,90 +953,65 @@ namespace LicentaApp
 
         public void oauth2Auth()
         {     
-
             // https://service.csctest.online/csc/v0/oauth2/authorize?response_type=code&client_id=bBdNs9Fa7kMx0qnFsPk66sklrDw&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin.html&scope=service&state=12345678
-        
-        }
-
-        public void oauth2Token()
-        {
-            // N5ZWR5JwAdYUSM5qhmgOFfe7GGBrIjqPA3wumm41rLwCT9vE
-            bool redirectURL = true;
-            string data = "{";
-            string grant_type = "authorization_code";
-            string code = "3qEX5qwNoQhezcPvxItTiACMuTbjLT3MCL403sVKDiweNGXs";
-
-            data += "\"grant_type\": \"" + grant_type + "\"";
-
-            if (grant_type == "authorization_code")
-            {
-                data += ",";
-                data += "\"code\": \"" + code + "\"";
-            }
-            else if(grant_type == "refresh_token")
-            {
-                data += ",";
-                data += "\"refresh_token\": \"" + refresh_token + "\"";
-            }
-            else if(grant_type == "client_credentials")
-            {
-
-            }
-
-            string clientID = "bBdNs9Fa7kMx0qnFsPk66sklrDw";
-            data += ",\"client_id\": \"" + clientID + "\"";
-
-
-            string clientSecret = "QOui8WD8wX07hGd73KjO6pF3xwKj09PlKzx2e6Z8iILg2fmA";
-            string clientAssertion = "salut";
-            string clientAssertionType = "salut";
-
-            data += ",\"client_secret\": \"" + clientSecret + "\"";
-
-            //if (clientSecret != null)
-            //{
-            //    data += ",\"client_secret\": \"" + clientSecret + "\"";
-            //}
-            //else if(clientAssertion != null)
-            //{
-            //    data += ",\"client_assertion\": \"" + clientAssertion + "\"";
-            //    data += ",\"client_assertion_type\": \"" + clientAssertionType + "\"";
-            //}
-
-            //string redirectURL_path = "http%3A%2F%2Flocalhost%3A8080%2Flogin.html";
-            string redirectURL_path = "http://localhost:8080/login.html";
-            if (redirectURL == true)
-            {
-                data += ",\"redirect_uri\": \"" + redirectURL_path + "\"";
-            }
-
-            // if clientDataBool
-            // data += ",\"clientData\": \"" + clientDataString + "\"";
-
-            /*
-            data += "}";
-
-            Console.WriteLine(data);
-
-            var client = new RestClient("https://service.csctest.online/csc/v0/oauth2/token");
-
-            var request = new RestRequest();
-            
-            request.AddHeader("Content-Type", "application/json");
-            request.AddJsonBody(data);
-
-            var response = client.Post(request);
-
-            Console.WriteLine(response.Content.ToString());
-
-            */
-            // curl -i -X POST -H "Content-Type: application/json" -d "{"""client_id""":"""bBdNs9Fa7kMx0qnFsPk66sklrDw""","""grant_type""":"""authorization_code""","""code""":"""TewAD21Y3Ayxo782OwCE2TURm4l9O0SJ6v2yRLvfPFOBehoM""","""client_secret""":"""QOui8WD8wX07hGd73KjO6pF3xwKj09PlKzx2e6Z8iILg2fmA""","""redirect_uri""":"""http://localhost:8080/login.html"""}" https://service.csctest.online/csc/v0/oauth2/token
         }
 
         public void oauth2Revoke()
         {
 
         }
+
+
+        public bool oauth2Token(string code, string grant_type)
+        {
+
+            var method = new OauthTokenSendClass
+            {
+                client_id = "ts_csc",
+                client_secret = "h767ujHG654GHhgI",
+                redirect_uri = "http://localhost:8080/login.html"
+            };
+
+            method.grant_type = grant_type;
+            method.code = code;
+
+            var jsonSerializerOptions = new JsonSerializerOptions()
+            {
+                IgnoreNullValues = true
+            };
+
+            var client = new System.Net.Http.HttpClient();
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/oauth2/token");
+
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
+            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
+            var byteContent = new ByteArrayContent(buffer);
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var result = client.PostAsync("", byteContent).Result;
+
+            var methodResponse = JsonConvert.DeserializeObject<OauthTokenReceiveClass>(result.Content.ReadAsStringAsync().Result);
+
+            if (methodResponse.access_token == null)
+            {
+                return false;
+            }
+
+            accessToken = methodResponse.access_token;
+            //if (rememberMe)
+            //{
+            //    refresh_token = methodResponse.refresh_token;
+            //}
+
+            if (methodResponse.expires_in != 3600)
+            {
+                accessTokenExpiresIn = methodResponse.expires_in;
+            }
+
+
+            return true;
+        }
+
+        
         
 
 

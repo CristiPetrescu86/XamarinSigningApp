@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SigningApp.Pages;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
@@ -52,24 +53,24 @@ namespace XamarinLicentaApp.ViewModel
 
         private void PerformOnSubmit()
         {
-            //if(username == null)
-            //{
-            //    DisplayNotSetUsername();
-            //    return;
-            //}
+            if (username == null)
+            {
+                DisplayNotSetUsername();
+                return;
+            }
 
-            //if (password == null)
-            //{
-            //    DisplayNotSetPassword();
-            //    return;
-            //}
-                
-            //LoginPage.user = new LicentaApp.User(username,password);
-            LoginPage.user = new LicentaApp.User("adobedemo","password");
-            
+            if (password == null)
+            {
+                DisplayNotSetPassword();
+                return;
+            }
+
+            LoginPage.user = new LicentaApp.User(username, password);
+            //LoginPage.user = new LicentaApp.User("adobedemo","password");
+
             bool ok = LoginPage.user.authLogin(false);
-            
-            if(ok == true)
+
+            if (ok == true)
             {
                 Application.Current.MainPage = new NavigationPage(new MainPage());
             }
@@ -79,6 +80,28 @@ namespace XamarinLicentaApp.ViewModel
                 Password = null;
                 DisplayInvalidLoginPrompt();
             }
+        }
+
+
+        private Command changeLogin;
+
+        public ICommand ChangeLogin
+        {
+            get
+            {
+                if (changeLogin == null)
+                {
+                    changeLogin = new Command(ChangeLoginPage);
+                }
+
+                return changeLogin;
+            }
+        }
+
+        private async void ChangeLoginPage()
+        {
+            var newPage = new OauthLoginPage();
+            await Application.Current.MainPage.Navigation.PushAsync(newPage);
         }
     }
 }
