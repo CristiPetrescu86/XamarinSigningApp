@@ -426,11 +426,12 @@ namespace SigningApp.ViewModel
 
                 var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, 1, hashedDocumentB64));
 
-                if (result.ToString() == "UNSET")
+                if(result == null)
                 {
-                    DisplayOTPnotSet();
+                    DisplayCredAuthNotOK();
                     return;
                 }
+
 
                 //string otp = result.ToString();
 

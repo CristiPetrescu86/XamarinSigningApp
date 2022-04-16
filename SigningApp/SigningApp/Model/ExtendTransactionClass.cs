@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,17 +11,9 @@ namespace LicentaApp.JsonClass
     {
         public string credentialID { get; set; }
 
-        public List<string> hash { get; set; }
-
         public string SAD { get; set; }
 
         public string clientData { get; set; }
-
-
-        public ExtendTransactionSendClass()
-        {
-            hash = new List<string>();
-        }
 
     }
 

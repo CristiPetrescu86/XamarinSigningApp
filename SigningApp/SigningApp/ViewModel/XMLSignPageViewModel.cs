@@ -19,6 +19,7 @@ using SigningApp.PopupPages;
 using SigningApp.Model;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Diagnostics;
 
 namespace SigningApp.ViewModel
 {
@@ -332,8 +333,8 @@ namespace SigningApp.ViewModel
             }
             else if (keyObject.OTP.type.Equals("online") && LoginPage.user.authModeSelected.Equals("oauth"))
             {
-                //var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, 1, hashedDocumentB64));
                 var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, 1, HashedDocumentB64));
+
 
                 if (result == null)
                 {

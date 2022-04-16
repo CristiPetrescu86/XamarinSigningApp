@@ -1,6 +1,7 @@
 ﻿using LicentaApp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,17 +16,37 @@ namespace SigningApp.PopupPages
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class OauthOTPPopup : Popup
     {
-        // Source="https://msign-test.transsped.ro/csc/v0/oauth2/authorize?response_type=token&amp;client_id=ts_csc&amp;client_secret=h767ujHG654GHhgI&amp;redirect_uri=http://localhost:8080&amp;scope=credential&amp;credentialID=28A69CAF5B0CC71C4C14CC5B01B639D59227A93D&amp;numSignatures=1&amp;hash=ue3JiD4EmDyEIrrmeVRzxXh1jzne0ZwUd1tqVR7BDwE=&amp;lang=en-US"
-
-
         public OauthOTPPopup(string credentialID, int numSignatures, string hash)
         {
-            string linkAux = "https://msign-test.transsped.ro/csc/v0/oauth2/authorize?response_type=token&client_id=ts_csc&client_secret=h767ujHG654GHhgI&redirect_uri=http://localhost:8080&scope=credential&" + "credentialID=" + credentialID + "&" + "numSignatures=" + numSignatures.ToString() + "&" + "hash=" + hash + "&lang=en-US";
+            string linkAux = "https://msign-test.transsped.ro/csc/v0/oauth2/authorize?response_type=token&client_id=ts_csc&client_secret=h767ujHG654GHhgI&redirect_uri=http://localhost:8080&scope=credential&";
             linkAux += "credentialID=" + credentialID + "&";
             linkAux += "numSignatures=" + numSignatures.ToString() + "&";
-            linkAux += "hash=" + hash + "&lang=en-US";
+            string hashAux = hash.Replace("+", "-");
+            hashAux = hashAux.Replace("/", "_");
+            linkAux += "hash=" + hashAux + "&lang=en-US";
 
+            InitializeComponent();
+            linkAuth.Source = linkAux;
+        }
 
+        public OauthOTPPopup(string credentialID, int numSignatures, List<string> hash)
+        {
+            string linkAux = "https://msign-test.transsped.ro/csc/v0/oauth2/authorize?response_type=token&client_id=ts_csc&client_secret=h767ujHG654GHhgI&redirect_uri=http://localhost:8080&scope=credential&";
+            linkAux += "credentialID=" + credentialID + "&";
+            linkAux += "numSignatures=" + numSignatures.ToString() + "&";
+
+            linkAux += "hash="; 
+            foreach(string elem in hash)
+            {
+                string hashAux = elem.Replace("+", "-");
+                hashAux = hashAux.Replace("/", "_");
+                linkAux += hashAux;
+                linkAux += ",";    
+            }
+            linkAux = linkAux.Remove(linkAux.Length - 1);
+            linkAux += "&lang=en-US";
+
+            Debug.WriteLine(linkAux);
 
             InitializeComponent();
             linkAuth.Source = linkAux;

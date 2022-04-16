@@ -591,7 +591,7 @@ namespace LicentaApp
         }
 
         
-        public void credentialsExtendTransaction(List<string> pdfName, string credentialName)
+        public bool credentialsExtendTransaction(byte[] hash, string credentialName, string docType)
         {
             byte[] hashDocument;
             string hashedDocumentB64;
@@ -608,38 +608,39 @@ namespace LicentaApp
 
             var method = new ExtendTransactionSendClass();
 
+
             var jsonSerializerOptions = new JsonSerializerOptions()
             {
                 IgnoreNullValues = true
             };
 
             method.credentialID = keysInfo[index].credentialName;
-
-
-            if (numSignatures == 1)
-            {
-                hashDocument = SHAClass.Instance.getSHA256Hash("uart.pdf");
-                hashedDocumentB64 = Convert.ToBase64String(hashDocument);
-
-                method.hash.Add(hashedDocumentB64);
-            }
-            else
-            {
-                //foreach var el in listDocuments..
-            }
-
             method.SAD = currentSAD.SAD;
 
-            //if (credAuthorizeClientDataBool)
+            //if (docType == "PDF")
             //{
-            //    //add clientdatabool
-            //    method.clientData = clientDataAuthString;
+            //    //  PDF
+            //    SHA256 shaM = new SHA256Managed();
+            //    var result = shaM.ComputeHash(hash);
+
+            //    hashedDocumentB64 = Convert.ToBase64String(result);
+            //    method.hash.Add(hashedDocumentB64);
+            //}
+            //else if (docType == "XML")
+            //{
+            //    // XML
+            //    hashedDocumentB64 = Convert.ToBase64String(hash);
+            //    method.hash.Add(hashedDocumentB64);
+            //}
+            //else
+            //{
+            //    return false;
             //}
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/extendTransaction");
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/extendTransaction");
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -652,19 +653,22 @@ namespace LicentaApp
 
             if(methodResponse.SAD == null)
             {
-                dynamic inform = JObject.Parse(response.Content.ToString());
-                if (inform.error == "invalid_request")
+                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+                if (inform.error_description != null)
                 {
-                    Console.WriteLine(inform.error_description);
-                    return;
+                    //Debug.WriteLine(inform.error_description);
+                    return false;
                 }
             }
 
+
             currentSAD.SAD = methodResponse.SAD;
-            if(methodResponse.expiresIn != 3600 && methodResponse.expiresIn != null)
+            if(methodResponse.expiresIn != 0)
             {
                 currentSAD.expiresIn = methodResponse.expiresIn;
             }
+
+            return true;
         }
 
         
@@ -805,6 +809,7 @@ namespace LicentaApp
                 dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
                 if (inform.error_description != null)
                 {
+                    //Debug.WriteLine(inform.error_description);
                     return false;
                 }
             }
@@ -815,11 +820,10 @@ namespace LicentaApp
             }
 
             return true;
-
         }
 
         
-        public bool signMultipleHash(string credentialName, List<byte[]> hash, string docType)
+        public bool signMultipleHash(string credentialName, List<string> hash, string docType)
         {
             int index = -1;
             for (int i = 0; i < keysInfo.Count; i++)
@@ -848,24 +852,19 @@ namespace LicentaApp
 
             if (docType == "PDF")
             {
-                foreach (byte[] docToHash in hash)
+                foreach (string docToHash in hash)
                 {
-                    //  PDF
-                    SHA256 shaM = new SHA256Managed();
-                    var result = shaM.ComputeHash(docToHash);
-
-                    string hashedDocumentB64 = Convert.ToBase64String(result);
-                    method.hash.Add(hashedDocumentB64);
+                    method.hash.Add(docToHash);
                 }
             }
             else if (docType == "XML")
             {
-                foreach (byte[] docToHash in hash)
-                {
-                    // XML
-                    string hashedDocumentB64 = Convert.ToBase64String(docToHash);
-                    method.hash.Add(hashedDocumentB64);
-                }
+                //foreach (byte[] docToHash in hash)
+                //{
+                //    // XML
+                //    string hashedDocumentB64 = Convert.ToBase64String(docToHash);
+                //    method.hash.Add(hashedDocumentB64);
+                //}
             }
             else
             {
@@ -873,22 +872,23 @@ namespace LicentaApp
             }
 
 
-            if (keysInfo[index].key.algo.ElementAtOrDefault(1) != null)
-            {
-                method.hashAlgo = keysInfo[index].key.algo[1];
-            }
-            else
-            {
-                method.hashAlgo = "2.16.840.1.101.3.4.2.1";
-            }
+            //if (keysInfo[index].key.algo.ElementAtOrDefault(1) != null)
+            //{
+            //    method.hashAlgo = keysInfo[index].key.algo[1];
+            //}
+            //else
+            //{
+            //    method.hashAlgo = "2.16.840.1.101.3.4.2.1";
+            //}
 
-            method.signAlgo = keysInfo[index].key.algo[0];
+            method.signAlgo = keysInfo[index].key.algo[2];
 
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/signatures/signHash");
+            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/signatures/signHash");
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/signatures/signHash");
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -916,68 +916,6 @@ namespace LicentaApp
             return true;
         }
 
-
-        public void signatureTimestamp(List<string> pdfName, string credentialName)
-        {
-            byte[] hashDocument;
-            string hashedDocumentB64;
-
-            int index = -1;
-            for (int i = 0; i < keysInfo.Count; i++)
-            {
-                if (keysInfo[i].credentialName == credentialName)
-                {
-                    index = i;
-                    break;
-                }
-            }
-
-            var method = new SignatureTimestampSendClass();
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            hashDocument = SHAClass.Instance.getSHA256Hash(pdfName[0]);
-            hashedDocumentB64 = Convert.ToBase64String(hashDocument);
-
-            method.hash = hashedDocumentB64;
-
-            method.hashAlgo = keysInfo[index].key.algo[1];
-
-
-            //if (credAuthorizeClientDataBool)
-            //{
-            //    //add clientdatabool
-            //    method.clientData = clientDataAuthString;
-            //}
-            /*
-            var jsonString = JsonSerializer.Serialize(method, jsonSerializerOptions);
-
-            var client = new RestClient("https://service.csctest.online/csc/v1/signatures/timestamp");
-
-            var request = new RestRequest();
-            request.AddHeader("Authorization", "Bearer " + accessToken);
-            request.AddJsonBody(jsonString);
-            var response = client.Post(request);
-
-            SignatureTimestampReceiveClass methodResponse = JsonSerializer.Deserialize<SignatureTimestampReceiveClass>(response.Content.ToString(), jsonSerializerOptions);
-
-            if (methodResponse.timestamp == null)
-            {
-                dynamic inform = JObject.Parse(response.Content.ToString());
-                if (inform.error == "invalid_request")
-                {
-                    Console.WriteLine(inform.error_description);
-                    return;
-                }
-            }
-            */
-
-            // save timestamp
-        }
-
         public void oauth2Auth()
         {     
             // https://service.csctest.online/csc/v0/oauth2/authorize?response_type=code&client_id=bBdNs9Fa7kMx0qnFsPk66sklrDw&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin.html&scope=service&state=12345678
@@ -988,6 +926,8 @@ namespace LicentaApp
 
         }
 
+
+        private string codeAux { get; set; }
 
         public bool oauth2Token(string code, string grant_type)
         {
@@ -1001,6 +941,8 @@ namespace LicentaApp
 
             method.grant_type = grant_type;
             method.code = code;
+
+            codeAux = code;
 
             var jsonSerializerOptions = new JsonSerializerOptions()
             {
@@ -1089,6 +1031,59 @@ namespace LicentaApp
 
             return true;
         }
+
+        public bool oauth2TokenCredentialRenew(string grant_type)
+        {
+            var method = new OauthTokenSendClass
+            {
+                client_id = "ts_csc",
+                client_secret = "h767ujHG654GHhgI",
+                redirect_uri = "http://localhost:8080/login.html"
+            };
+
+            method.code = codeAux;
+            method.grant_type = grant_type;
+
+            var jsonSerializerOptions = new JsonSerializerOptions()
+            {
+                IgnoreNullValues = true
+            };
+
+            var client = new System.Net.Http.HttpClient();
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/oauth2/token");
+
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
+            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
+            var byteContent = new ByteArrayContent(buffer);
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var result = client.PostAsync("", byteContent).Result;
+
+            var methodResponse = JsonConvert.DeserializeObject<OauthTokenReceiveClass>(result.Content.ReadAsStringAsync().Result);
+
+            dynamic inform = JObject.Parse(result.Content.ReadAsStringAsync().Result);
+            if (inform.error_description != null)
+            {
+                //Debug.WriteLine(inform.error_description);
+                return false;
+            }
+
+            if (methodResponse.access_token == null)
+            {
+                return false;
+            }
+
+            currentSAD = new CredentialsAuthorizeReceiveClass();
+            currentSAD.SAD = methodResponse.access_token;
+
+            if (methodResponse.expires_in != 3600)
+            {
+                currentSAD.expiresIn = methodResponse.expires_in;
+            }
+
+
+            return true;
+        }
+
 
 
 
