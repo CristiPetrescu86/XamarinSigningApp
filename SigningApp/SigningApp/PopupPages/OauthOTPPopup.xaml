@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<xct:Popup xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:xct="http://xamarin.com/schemas/2020/toolkit"
+             x:Class="SigningApp.PopupPages.OauthOTPPopup"
+             Color="#F5F6F6"
+             Size="350,500">
+
+    <StackLayout Orientation="Vertical">
+        <WebView x:Name="linkAuth" HeightRequest="1000" WidthRequest="1000" Navigating="webviewNavigating" />
+    </StackLayout>
+    
+</xct:Popup>

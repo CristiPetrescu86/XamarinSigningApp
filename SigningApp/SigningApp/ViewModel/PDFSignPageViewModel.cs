@@ -21,6 +21,7 @@ using Xamarin.Essentials;
 using Xamarin.CommunityToolkit.Extensions;
 using SigningApp.PopupPages;
 using SigningApp.Model;
+using System.Security.Cryptography;
 
 namespace SigningApp.ViewModel 
 {
@@ -338,7 +339,7 @@ namespace SigningApp.ViewModel
             PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, "SHA-256", false);
             byte[] sh = sgn.GetAuthenticatedAttributeBytes(documentHash, PdfSigner.CryptoStandard.CADES, null, null);
 
-            if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true")
+            if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true" && keyObject.OTP.type == "offline")
             {
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
 
@@ -415,6 +416,27 @@ namespace SigningApp.ViewModel
                     DisplaySignMethNotOK();
                     return;
                 }
+            }
+            else if(keyObject.OTP.type.Equals("online") && LoginPage.user.authModeSelected.Equals("oauth"))
+            {
+                SHA256 shaM = new SHA256Managed();
+                var resultAux = shaM.ComputeHash(sh);
+
+                string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+
+                var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, 1, hashedDocumentB64));
+
+                if (result.ToString() == "UNSET")
+                {
+                    DisplayOTPnotSet();
+                    return;
+                }
+
+                //string otp = result.ToString();
+
+                //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, otp);
+                LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+
             }
             else
             {

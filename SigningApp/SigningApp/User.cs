@@ -36,6 +36,14 @@ namespace LicentaApp
         {
             get; set;
         }
+
+        public string authModeSelected { get; set; }
+
+        public void setAccess(string a)
+        {
+            accessToken = a;
+        }
+
         private string refresh_token
         {
             get; set;
@@ -139,7 +147,8 @@ namespace LicentaApp
             };
 
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/info");
+            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/info");
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/info");
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method);
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
@@ -461,6 +470,8 @@ namespace LicentaApp
             byte[] hashDocument;
             string hashedDocumentB64;
 
+            //getInfo();
+            
 
             int index = -1;
             for (int i = 0; i < keysInfo.Count; i++)
@@ -492,7 +503,8 @@ namespace LicentaApp
 
             method.credentialID = keysInfo[index].credentialName;
 
-            
+            method.numSignatures = 1;
+
             //if (numSignatures > keysInfo[index].multisign)
             //{
             //    return false;
@@ -503,7 +515,7 @@ namespace LicentaApp
             //}
 
 
-            if(docType == "PDF")
+            if (docType == "PDF")
             {
                 //  PDF
                 SHA256 shaM = new SHA256Managed();
@@ -535,6 +547,11 @@ namespace LicentaApp
                 {
                     method.OTP = OTP;
                 }
+
+                if(keysInfo[index].OTP.type == "online")
+                {
+                    method.OTP = OTP;
+                }
             }
 
             if(credAuthorizeDescription != null)
@@ -546,7 +563,8 @@ namespace LicentaApp
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/authorize");
+            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/authorize");
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/authorize");
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -684,7 +702,8 @@ namespace LicentaApp
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/sendOTP");
+            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/sendOTP");
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/sendOTP");
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -693,13 +712,13 @@ namespace LicentaApp
 
             var response = client.PostAsync("", byteContent).Result;
 
-            if(response.StatusCode.ToString() != "NoContent")
+            if(response.StatusCode.ToString() != "No Content")
             {
-                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                Console.WriteLine(inform.error_description);
+                //dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+                //Console.WriteLine(inform.error_description);
             }
 
-            Console.WriteLine("OTP send");
+            //Console.WriteLine("OTP send");
         }
 
         
@@ -750,7 +769,7 @@ namespace LicentaApp
                 return false;
             }
 
-
+            /*
             if (keysInfo[index].key.algo.ElementAtOrDefault(1) != null)
             {
                 method.hashAlgo = keysInfo[index].key.algo[1];
@@ -759,14 +778,18 @@ namespace LicentaApp
             {
                 method.hashAlgo = "2.16.840.1.101.3.4.2.1";   
             }
+            
+            method.signAlgo = keysInfo[index].key.algo[0];*/
 
-            method.signAlgo = keysInfo[index].key.algo[0];
+            method.signAlgo = keysInfo[index].key.algo[2];
+
 
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/signatures/signHash");
+            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/signatures/signHash");
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/signatures/signHash");
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -1015,8 +1038,58 @@ namespace LicentaApp
             return true;
         }
 
-        
-        
+        public bool oauth2TokenCredential(string code, string grant_type)
+        {
+            var method = new OauthTokenSendClass
+            {
+                client_id = "ts_csc",
+                client_secret = "h767ujHG654GHhgI",
+                redirect_uri = "http://localhost:8080/login.html"
+            };
+
+            method.grant_type = grant_type;
+            method.code = code;
+
+            var jsonSerializerOptions = new JsonSerializerOptions()
+            {
+                IgnoreNullValues = true
+            };
+
+            var client = new System.Net.Http.HttpClient();
+            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/oauth2/token");
+
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
+            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
+            var byteContent = new ByteArrayContent(buffer);
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var result = client.PostAsync("", byteContent).Result;
+
+            var methodResponse = JsonConvert.DeserializeObject<OauthTokenReceiveClass>(result.Content.ReadAsStringAsync().Result);
+
+            dynamic inform = JObject.Parse(result.Content.ReadAsStringAsync().Result);
+            if (inform.error_description != null)
+            {
+                //Debug.WriteLine(inform.error_description);
+                return false;
+            }
+
+            if (methodResponse.access_token == null)
+            {
+                return false;
+            }
+
+            currentSAD = new CredentialsAuthorizeReceiveClass();
+            currentSAD.SAD = methodResponse.access_token;
+
+            if (methodResponse.expires_in != 3600)
+            {
+                currentSAD.expiresIn = methodResponse.expires_in;
+            }
+
+
+            return true;
+        }
+
 
 
         private string Base64Encode(string plaintext)

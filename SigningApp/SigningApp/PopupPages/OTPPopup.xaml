@@ -7,7 +7,7 @@
 
     <StackLayout Margin="20,20,20,40" Orientation="Vertical">
         <Entry x:Name="otpEntry" Keyboard="Default" Placeholder="Introduceti OTP"/>
-        <Button Text="Send OTP"></Button>
+        <Button Text="Send OTP" Clicked="Send_OTP"></Button>
         <Button Text="Close" VerticalOptions="EndAndExpand" Clicked="Close_Button"/>
     </StackLayout>
     

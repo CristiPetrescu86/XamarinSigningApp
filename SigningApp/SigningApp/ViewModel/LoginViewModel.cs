@@ -1,9 +1,11 @@
 ﻿using SigningApp.Pages;
+using SigningApp.PopupPages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Input;
+using Xamarin.CommunityToolkit.Extensions;
 using Xamarin.Forms;
 
 namespace XamarinLicentaApp.ViewModel
@@ -72,6 +74,7 @@ namespace XamarinLicentaApp.ViewModel
 
             if (ok == true)
             {
+                LoginPage.user.authModeSelected = "explicit";
                 Application.Current.MainPage = new NavigationPage(new MainPage());
             }
             else
@@ -103,5 +106,38 @@ namespace XamarinLicentaApp.ViewModel
             var newPage = new OauthLoginPage();
             await Application.Current.MainPage.Navigation.PushAsync(newPage);
         }
+
+
+
+
+        private Command logAux;
+
+        public ICommand LogAux
+        {
+            get
+            {
+                if (logAux == null)
+                {
+                    logAux = new Command(LogFunc);
+                }
+
+                return logAux;
+            }
+        }
+
+
+        public string Token { get; set; }
+
+        private async void LogFunc()
+        {
+            LoginPage.user = new LicentaApp.User();
+            LoginPage.user.setAccess(Token);
+            LoginPage.user.authModeSelected = "oauth";
+
+            var newPage = new MainPage();
+            await Application.Current.MainPage.Navigation.PushAsync(newPage);
+        }
+
+
     }
 }

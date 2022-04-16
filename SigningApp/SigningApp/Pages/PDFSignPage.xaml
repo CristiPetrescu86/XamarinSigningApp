@@ -44,7 +44,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Label Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" Text="Tip semnatura"></Label>
-                        <RadioButton GroupName="tipSemnatura" IsChecked="True" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="Vizibila" Value="Vizibila" />
+                        <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="Vizibila" Value="Vizibila" />
                         <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="2" Content="Invizibila" Value="Invizibila" />
                     </Grid>
                 </StackLayout>
@@ -81,8 +81,8 @@
                         </Grid.ColumnDefinitions>
 
                         <Label HorizontalOptions="Center" VerticalOptions="Center" Text="Timestamp"></Label>
-                        <RadioButton GroupName="timestamp" IsChecked="True" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="Da" />
-                        <RadioButton GroupName="timestamp" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="2" Content="Nu" />
+                        <RadioButton GroupName="timestamp" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="Da" Value="Da" />
+                        <RadioButton GroupName="timestamp" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="2" Content="Nu" Value="Nu" />
 
                     </Grid>
                 </StackLayout>

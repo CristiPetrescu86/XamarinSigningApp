@@ -28,6 +28,9 @@
                     FontAttributes="Bold" FontSize="Medium" HorizontalOptions="FillAndExpand"  
                     BackgroundColor="#34495E" />
 
+            <Entry Text="{Binding Token}"></Entry>
+            <Button Command="{Binding LogAux}"></Button>
+
         </StackLayout>
     </ContentPage.Content>
     

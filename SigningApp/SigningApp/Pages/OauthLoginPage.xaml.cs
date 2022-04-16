@@ -44,6 +44,7 @@ namespace SigningApp.Pages
 
                     if(ok)
                     {
+                        LoginPage.user.authModeSelected = "oauth";
                         Application.Current.MainPage = new NavigationPage(new MainPage());
                     }
 

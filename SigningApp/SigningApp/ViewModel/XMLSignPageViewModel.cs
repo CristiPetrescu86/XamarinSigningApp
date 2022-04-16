@@ -17,6 +17,8 @@ using LicentaApp.JsonClass;
 using Xamarin.CommunityToolkit.Extensions;
 using SigningApp.PopupPages;
 using SigningApp.Model;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace SigningApp.ViewModel
 {
@@ -125,6 +127,8 @@ namespace SigningApp.ViewModel
                 return signDoc;
             }
         }
+
+        public string HashedDocumentB64 { get; set; }
 
         private async void SignXMLButtonClicked()
         {
@@ -245,6 +249,8 @@ namespace SigningApp.ViewModel
             }
              
             toBeSigned = signedXml.ComputeSignature();
+            
+            HashedDocumentB64 = Convert.ToBase64String(toBeSigned);
 
             if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true")
             {
@@ -323,6 +329,22 @@ namespace SigningApp.ViewModel
                     DisplaySignMethNotOK();
                     return;
                 }
+            }
+            else if (keyObject.OTP.type.Equals("online") && LoginPage.user.authModeSelected.Equals("oauth"))
+            {
+                //var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, 1, hashedDocumentB64));
+                var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, 1, HashedDocumentB64));
+
+                if (result == null)
+                {
+                    return;
+                }
+
+                //string otp = result.ToString();
+
+                //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, otp);
+                LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+
             }
             else
             {
