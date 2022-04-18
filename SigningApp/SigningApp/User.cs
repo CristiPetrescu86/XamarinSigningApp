@@ -859,12 +859,10 @@ namespace LicentaApp
             }
             else if (docType == "XML")
             {
-                //foreach (byte[] docToHash in hash)
-                //{
-                //    // XML
-                //    string hashedDocumentB64 = Convert.ToBase64String(docToHash);
-                //    method.hash.Add(hashedDocumentB64);
-                //}
+                foreach (string docToHash in hash)
+                {
+                    method.hash.Add(docToHash);
+                }
             }
             else
             {

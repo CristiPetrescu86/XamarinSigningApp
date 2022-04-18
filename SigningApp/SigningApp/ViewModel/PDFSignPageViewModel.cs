@@ -296,7 +296,7 @@ namespace SigningApp.ViewModel
 
             FileStream outFile2 = new FileStream(outTempFileName, FileMode.Create);
             PdfReader reader = new PdfReader(fileName);
-            PdfSigner signer = new PdfSigner(reader, outFile2, new StampingProperties());
+            PdfSigner signer = new PdfSigner(reader, outFile2, new StampingProperties().UseAppendMode());
 
             PdfSignatureAppearance appearance2 = signer.GetSignatureAppearance();
             if (SelectedType == "Invizibila")
