@@ -18,11 +18,9 @@
                 <Label Grid.Column="1" Text="Digital Signatures" TextColor="#2D2942" FontSize="20" FontAttributes="Bold" 
                        VerticalOptions="Center" HorizontalOptions="Center"/>
             </Grid>
-           
-            
+            <Image Grid.Row="1" BackgroundColor="WhiteSmoke" Source="logoCrypto2.png" Margin="100,100,30,30" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"></Image>
         </Grid>
-        
-        
+
         <Grid x:Name="MenuGrid" IsVisible="False">
             <BoxView x:Name="MenuOverlay" BackgroundColor="Black" Opacity="0.35">
                 <BoxView.GestureRecognizers>
@@ -31,7 +29,7 @@
             </BoxView>
             <Grid x:Name="MenuView" WidthRequest="220" BackgroundColor="#34495E"
                   HorizontalOptions="Start" TranslationX="-220">
-                
+
                 <StackLayout Margin="30,100" Spacing="20" >
                     <CollectionView SelectionMode="Single" ItemsSource="{Binding MenuList}" 
                                 SelectedItem="{Binding SelectedMenuOption}" SelectionChanged="MenuOptionSelected">

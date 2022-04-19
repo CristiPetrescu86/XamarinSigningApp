@@ -132,6 +132,7 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
     <Content Include="Properties\Default.rd.xml" />
+    <Content Include="Resources\cryptologo.png" />
     <Content Include="Resources\enabled.png" />
     <Content Include="Resources\back.png" />
     <Content Include="Resources\Cart.png" />
@@ -143,6 +144,7 @@
     <Content Include="Resources\johnWatch.png" />
     <Content Include="Resources\key.png" />
     <Content Include="Resources\keyInfo.png" />
+    <Content Include="Resources\logoCrypto2.png" />
     <Content Include="Resources\logout.png" />
     <Content Include="Resources\marekWatch.png" />
     <Content Include="Resources\Menu.png" />
