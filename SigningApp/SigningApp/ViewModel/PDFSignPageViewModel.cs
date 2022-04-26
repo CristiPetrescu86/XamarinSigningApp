@@ -45,6 +45,21 @@ namespace SigningApp.ViewModel
         public Action DisplayTipSemnaturaNotChecked;
         public Action DisplayTimestampNotChecked;
 
+        Dictionary <string, string> keysAlgo = new Dictionary<string, string>(){
+            {"1.2.840.113549.1.1.1", "RSA"},
+            {"1.3.14.3.2.29", "RSA-SHA1"},
+            {"1.2.840.113549.1.1.14", "RSA-SHA224"},
+            {"1.2.840.113549.1.1.11", "RSA-SHA256"},   
+            {"1.2.840.113549.1.1.12", "RSA-SHA384"}, 
+            {"1.2.840.113549.1.1.13", "RSA-SHA512"},
+            {"1.2.840.113549.1.1.4", "RSA-MD5"},
+            {"2.16.840.1.101.3.4.2", "SHA224"},
+            {"2.16.840.1.101.3.4.2.1", "SHA256"},
+            {"2.16.840.1.101.3.4.2.2", "SHA384"},
+            {"2.16.840.1.101.3.4.2.3", "SHA512"},
+            {"1.2.840.113549.2.5", "MD5"}
+        };
+
 
         public PDFSignPageViewModel()
         {
