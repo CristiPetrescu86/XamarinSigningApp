@@ -22,10 +22,11 @@ using Xamarin.CommunityToolkit.Extensions;
 using SigningApp.PopupPages;
 using SigningApp.Model;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace SigningApp.ViewModel 
 {
-    public class PDFSignPageViewModel : ContentView, INotifyPropertyChanged
+    public sealed class PDFSignPageViewModel : ContentView, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged = delegate { };
         public Action DisplayKeyNotSelected;
@@ -45,6 +46,7 @@ namespace SigningApp.ViewModel
         public Action DisplayTipSemnaturaNotChecked;
         public Action DisplayTimestampNotChecked;
 
+
         Dictionary <string, string> keysAlgo = new Dictionary<string, string>(){
             {"1.2.840.113549.1.1.1", "RSA"},
             {"1.3.14.3.2.29", "RSA-SHA1"},
@@ -57,9 +59,14 @@ namespace SigningApp.ViewModel
             {"2.16.840.1.101.3.4.2.1", "SHA256"},
             {"2.16.840.1.101.3.4.2.2", "SHA384"},
             {"2.16.840.1.101.3.4.2.3", "SHA512"},
-            {"1.2.840.113549.2.5", "MD5"}
+            {"1.2.840.113549.2.5", "MD5"},
+            {"1.2.840.10045.4.3.2", "ECDSA-SHA256"},
+            {"1.2.840.10045.4.3.3", "ECDSA-SHA384"},
+            {"1.2.840.10045.4.3.4", "ECDSA-SHA512"}
         };
 
+        private static PDFSignPageViewModel instance = null;
+        private static readonly object padlock = new object();
 
         public PDFSignPageViewModel()
         {
@@ -67,12 +74,42 @@ namespace SigningApp.ViewModel
             PageNumber = new ObservableCollection<int>();
         }
 
+        public static PDFSignPageViewModel Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new PDFSignPageViewModel();
+                    }
+                    return instance;
+                }
+            }
+        }
+
+        public void deleteInstance()
+        {
+            instance = null;
+        }
+
+
         private ObservableCollection<string> keys;
         public ObservableCollection<string> Keys
         {
             get { return keys; }
             set { keys = value; }
         }
+
+        private ObservableCollection<string> algoForKeys;
+        public ObservableCollection<string> AlgoForKeys
+        {
+            get { return algoForKeys; }
+            set { algoForKeys = value; }
+        }
+
+        public string SelectedAlgo { get; set; }
 
         public string SelectedKey { get; set; }
 
@@ -119,6 +156,30 @@ namespace SigningApp.ViewModel
             }
 
             return newList;
+        }
+
+        public void LoadSignAlgos()
+        {
+            LoginPage.user.credentialsInfo(SelectedKey);
+
+            CredentialsInfoReceiveClass keyObject = new CredentialsInfoReceiveClass();
+            foreach (CredentialsInfoReceiveClass elem in LoginPage.user.keysInfo)
+            {
+                if (elem.credentialName == SelectedKey)
+                {
+                    keyObject = elem;
+                    break;
+                }
+            }
+
+            AlgoForKeys = new ObservableCollection<string>();
+
+            foreach (string elem in keyObject.key.algo)
+            {
+                AlgoForKeys.Add(elem);
+            }
+
+            PropertyChanged(this, new PropertyChangedEventArgs("AlgoForKeys"));
         }
 
 

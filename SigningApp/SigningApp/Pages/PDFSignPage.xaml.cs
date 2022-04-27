@@ -20,7 +20,7 @@ namespace XamarinLicentaApp
         {
             InitializeComponent();
 
-            var vm = new PDFSignPageViewModel();
+            var vm = PDFSignPageViewModel.Instance;
             this.BindingContext = vm;
             vm.DisplayKeyNotSelected += () => DisplayAlert("Eroare", "Key Not Selected", "Close");
             vm.DisplayXCoordNotSet += () => DisplayAlert("Eroare", "X nu are valoare", "Close");
@@ -38,7 +38,20 @@ namespace XamarinLicentaApp
             vm.DisplaySignMethNotOK += () => DisplayAlert("Eroare", "Eroare la semnarea hash-ului", "Close");
             vm.DisplayTipSemnaturaNotChecked += () => DisplayAlert("Eroare", "Tip semnatura nu a fost bifat", "Close");
             vm.DisplayTimestampNotChecked += () => DisplayAlert("Eroare", "Timestamp nu a fost bifat", "Close");
+        }
 
+        private void LoadAlgos(object sender, EventArgs e)
+        {
+            var vm = PDFSignPageViewModel.Instance;
+            vm.LoadSignAlgos();
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            var vm = PDFSignPageViewModel.Instance;
+            vm.deleteInstance();
+
+            return false;
         }
     }  
 }
