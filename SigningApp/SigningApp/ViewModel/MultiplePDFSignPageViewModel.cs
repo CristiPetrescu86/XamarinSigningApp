@@ -40,6 +40,34 @@ namespace SigningApp.ViewModel
         public Action DisplaySignMethNotOK;
         public Action DisplayTipSemnaturaNotChecked;
         public Action DisplayTimestampNotChecked;
+        public Action DisplayAlgoNotSelected;
+        public Action DisplaySignNameNotSet;
+
+        Dictionary<string, string> keysAlgo = new Dictionary<string, string>(){
+            {"1.2.840.113549.1.1.1", "RSA"},
+            {"1.3.14.3.2.29", "RSA-SHA1"},
+            {"1.2.840.113549.1.1.14", "RSA-SHA224"},
+            {"1.2.840.113549.1.1.11", "RSA-SHA256"},
+            {"1.2.840.113549.1.1.12", "RSA-SHA384"},
+            {"1.2.840.113549.1.1.13", "RSA-SHA512"},
+            {"1.2.840.113549.1.1.4", "RSA-MD5"},
+            {"RSA", "1.2.840.113549.1.1.1"},
+            {"RSA-SHA1", "1.3.14.3.2.29"},
+            {"RSA-SHA224", "1.2.840.113549.1.1.14"},
+            {"RSA-SHA256", "1.2.840.113549.1.1.11"},
+            {"RSA-SHA384", "1.2.840.113549.1.1.12"},
+            {"RSA-SHA512", "1.2.840.113549.1.1.13"},
+            {"RSA-MD5", "1.2.840.113549.1.1.4"},
+            {"SHA224","2.16.840.1.101.3.4.2"},
+            {"SHA256","2.16.840.1.101.3.4.2.1"},
+            {"SHA-256","2.16.840.1.101.3.4.2.1"},
+            {"SHA384","2.16.840.1.101.3.4.2.2"},
+            {"SHA512","2.16.840.1.101.3.4.2.3"},
+            {"MD5","1.2.840.113549.2.5"},
+            {"1.2.840.10045.4.3.2", "ECDSA-SHA256"},
+            {"1.2.840.10045.4.3.3", "ECDSA-SHA384"},
+            {"1.2.840.10045.4.3.4", "ECDSA-SHA512"}
+        };
 
         private List<string> docsPath;
 
@@ -47,6 +75,29 @@ namespace SigningApp.ViewModel
         {
             get { return docsPath; }
             set { docsPath = value; }
+        }
+
+        private static MultiplePDFSignPageViewModel instance = null;
+        private static readonly object padlock = new object();
+
+        public static MultiplePDFSignPageViewModel Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new MultiplePDFSignPageViewModel();
+                    }
+                    return instance;
+                }
+            }
+        }
+
+        public void deleteInstance()
+        {
+            instance = null;
         }
 
         private List<string> GetDocsPath(IEnumerable<FileResult> collection)
@@ -68,6 +119,15 @@ namespace SigningApp.ViewModel
             set { keys = value; }
         }
 
+        private ObservableCollection<string> algoForKeys;
+        public ObservableCollection<string> AlgoForKeys
+        {
+            get { return algoForKeys; }
+            set { algoForKeys = value; }
+        }
+
+        public string SelectedAlgo { get; set; }
+
         public string SelectedKey { get; set; }
 
         public string SelectedType { get; set; }
@@ -86,7 +146,7 @@ namespace SigningApp.ViewModel
 
         public string Locatie { get; set; }
 
-        public string CreatorSemnatura { get; set; }
+        public string NumeSemnatura { get; set; }
 
         public string SelectedTimestamp { get; set; }
 
@@ -107,6 +167,32 @@ namespace SigningApp.ViewModel
         public MultiplePDFSignPageViewModel()
         {
             Keys = GetKeys();
+        }
+
+        public void LoadSignAlgos()
+        {
+            LoginPage.user.credentialsInfo(SelectedKey);
+
+            CredentialsInfoReceiveClass keyObject = new CredentialsInfoReceiveClass();
+            foreach (CredentialsInfoReceiveClass elem in LoginPage.user.keysInfo)
+            {
+                if (elem.credentialName == SelectedKey)
+                {
+                    keyObject = elem;
+                    break;
+                }
+            }
+
+            AlgoForKeys = new ObservableCollection<string>();
+
+            string outValue;
+            foreach (string elem in keyObject.key.algo)
+            {
+                keysAlgo.TryGetValue(elem, out outValue);
+                AlgoForKeys.Add(outValue);
+            }
+
+            PropertyChanged(this, new PropertyChangedEventArgs("AlgoForKeys"));
         }
 
 
@@ -186,7 +272,11 @@ namespace SigningApp.ViewModel
                 return;
             }
 
-            LoginPage.user.credentialsInfo(SelectedKey);
+            if (SelectedAlgo == null)
+            {
+                DisplayAlgoNotSelected();
+                return;
+            }
 
             if (SelectedType == null)
             {
@@ -241,20 +331,22 @@ namespace SigningApp.ViewModel
 
             int pageNumber = 0;
 
-            if (SelectedPage == "FirstPage")
-            {
-                pageNumber = 1;
-            }
-            else if (SelectedPage == "LastPage")
-            {
-                pageNumber = 2;
-            }
-            else
+            if (SelectedPage == null && SelectedType != "Invizibila")
             {
                 DisplayPageNotSelected();
                 return;
             }
-
+            else
+            {
+                if (SelectedPage == "FirstPage")
+                {
+                    pageNumber = 1;
+                }
+                else if (SelectedPage == "LastPage")
+                {
+                    pageNumber = 2;
+                }
+            }
 
             CredentialsInfoReceiveClass keyObject = new CredentialsInfoReceiveClass();
             foreach (CredentialsInfoReceiveClass elem in LoginPage.user.keysInfo)
@@ -285,8 +377,18 @@ namespace SigningApp.ViewModel
 
             List<byte[]> docContent = new List<byte[]>();
             List<byte[]> docHashes = new List<byte[]>();
-            string fieldname = "sig";
             List<string> outTempFileList = new List<string>();
+
+            string signAlgo = SelectedAlgo.GetUntilOrEmpty();
+            if (signAlgo == string.Empty)
+            {
+                signAlgo = SelectedAlgo;
+            }
+            string hashAlgo = SelectedAlgo.GetAfterOrEmpty();
+            if (hashAlgo == string.Empty)
+            {
+                hashAlgo = "SHA-256";
+            }
 
             foreach (string fileName in DocsPath)
             {
@@ -317,18 +419,26 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                if (pageNumber == 1)
+                if (SelectedType == "Invizibila")
                 {
                     appearance2.SetPageNumber(1);
                 }
                 else
                 {
-                    PdfDocument pdfDocument = new PdfDocument(reader);
-                    int pageNumberValue = pdfDocument.GetNumberOfPages();
-                    pdfDocument.Close();
+                    if (pageNumber == 1)
+                    {
+                        appearance2.SetPageNumber(1);
+                    }
+                    else
+                    {
+                        PdfDocument pdfDocument = new PdfDocument(reader);
+                        int pageNumberValue = pdfDocument.GetNumberOfPages();
+                        pdfDocument.Close();
 
-                    appearance2.SetPageNumber(pageNumberValue);
+                        appearance2.SetPageNumber(pageNumberValue);
+                    }
                 }
+                
                 appearance2.SetCertificate(certListX509[0]);
 
                 if (Motiv != null)
@@ -339,12 +449,14 @@ namespace SigningApp.ViewModel
 
                 appearance2.SetSignatureCreator("iTextSharp7 with Bounty Castle");
 
-                if (CreatorSemnatura != null)
-                    appearance2.SetContact(CreatorSemnatura);
+                if (NumeSemnatura == null)
+                {
+                    DisplaySignNameNotSet();
+                    return;
+                }
+                signer.SetFieldName(NumeSemnatura);
 
-                signer.SetFieldName(fieldname);
-
-                PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED, "");
+                PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED, hashAlgo);
                 signer.SignExternalContainer(external, 16000);
                 byte[] documentHash = external.getHash();
                 docContent.Add(documentHash);
@@ -352,13 +464,11 @@ namespace SigningApp.ViewModel
                 outFile2.Dispose();
                 outFile2.Close();
 
-                PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, "SHA-256", false);
+                PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, hashAlgo, false);
                 byte[] sh = sgn.GetAuthenticatedAttributeBytes(documentHash, PdfSigner.CryptoStandard.CADES, null, null);
 
                 docHashes.Add(sh);
-            }
-
-
+            }    
 
             if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true" && keyObject.OTP.type == "offline")
             {
@@ -441,15 +551,51 @@ namespace SigningApp.ViewModel
             else if (keyObject.OTP.type.Equals("online") && LoginPage.user.authModeSelected.Equals("oauth"))
             {
                 List<string> docToBeSigned = new List<string>();
-                foreach (byte[] sh in docHashes)
+                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
                 {
-                    SHA256 shaM = new SHA256Managed();
-                    var resultAux = shaM.ComputeHash(sh);
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA256 shaM = new SHA256Managed();
+                        var resultAux = shaM.ComputeHash(sh);
 
-                    string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                    docToBeSigned.Add(hashedDocumentB64);
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
                 }
-                
+                else if (hashAlgo == "SHA1")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA1 shaM = new SHA1Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA384")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA384 shaM = new SHA384Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA512")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA512 shaM = new SHA512Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+
                 var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, docHashes.Count, docToBeSigned));
 
                 if (result == null)
@@ -458,7 +604,20 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                LoginPage.user.signMultipleHash(SelectedKey, docToBeSigned, "PDF");
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                bool ok = LoginPage.user.signMultipleHash(SelectedKey, docToBeSigned, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
             else
             {
@@ -469,10 +628,10 @@ namespace SigningApp.ViewModel
             int j = 0;
             foreach (string fileName in DocsPath)
             {
-                PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, "SHA-256", false);
+                PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, hashAlgo, false);
                 byte[] sh = sgn.GetAuthenticatedAttributeBytes(docContent[j], PdfSigner.CryptoStandard.CADES, null, null);
 
-                sgn.SetExternalDigest(Convert.FromBase64String(LoginPage.user.signatures[j]), null, "RSA");
+                sgn.SetExternalDigest(Convert.FromBase64String(LoginPage.user.signatures[j]), null, signAlgo);
                 
                 byte[] encodedSig = null;
 
@@ -506,7 +665,7 @@ namespace SigningApp.ViewModel
 
                 IExternalSignatureContainer signature3 = new MyExternalSignatureContainer(encodedSig);
 
-                PdfSigner.SignDeferred(signer3.GetDocument(), fieldname, outFile3, signature3);
+                PdfSigner.SignDeferred(signer3.GetDocument(), NumeSemnatura, outFile3, signature3);
                 outFile3.Dispose();
                 outFile3.Close();
 

@@ -17,7 +17,7 @@ namespace SigningApp.Pages
         {
             InitializeComponent();
 
-            var vm = new MultiplePDFSignPageViewModel();
+            var vm = MultiplePDFSignPageViewModel.Instance;
             this.BindingContext = vm;
             vm.DisplayKeyNotSelected += () => DisplayAlert("Eroare", "Key Not Selected", "Close");
             vm.DisplayXCoordNotSet += () => DisplayAlert("Eroare", "X nu are valoare", "Close");
@@ -35,8 +35,23 @@ namespace SigningApp.Pages
             vm.DisplaySignMethNotOK += () => DisplayAlert("Eroare", "Eroare la semnarea hash-ului", "Close");
             vm.DisplayTipSemnaturaNotChecked += () => DisplayAlert("Eroare", "Tip semnatura nu a fost bifat", "Close");
             vm.DisplayTimestampNotChecked += () => DisplayAlert("Eroare", "Timestamp nu a fost bifat", "Close");
+            vm.DisplayAlgoNotSelected += () => DisplayAlert("Eroare", "Algoritmul nu a fost selectat", "Close");
+            vm.DisplaySignNameNotSet += () => DisplayAlert("Eroare", "Numele semnaturii nu a fost introdus", "Close");
         }
 
-        
+        private void LoadAlgos(object sender, EventArgs e)
+        {
+            var vm = MultiplePDFSignPageViewModel.Instance;
+            vm.LoadSignAlgos();
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            var vm = MultiplePDFSignPageViewModel.Instance;
+            vm.deleteInstance();
+
+            return false;
+        }
+
     }
 }

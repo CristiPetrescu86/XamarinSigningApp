@@ -368,7 +368,7 @@ namespace SigningApp.ViewModel
                 //string otp = result.ToString();
 
                 //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, otp);
-                LoginPage.user.signMultipleHash(SelectedKey, hashB64Documents, "XML");
+                //LoginPage.user.signMultipleHash(SelectedKey, hashB64Documents, "XML");
 
             }
             else

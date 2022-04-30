@@ -31,8 +31,12 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <StackLayout Grid.Row="0" Grid.Column="1">
-                    <Picker Title="Selecteaza credentialul" ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}"></Picker>
+                <StackLayout Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="20,0,20,0">
+                    <Picker Title="Selecteaza credentialul" ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}" SelectedIndexChanged="LoadAlgos"></Picker>
+                </StackLayout>
+
+                <StackLayout Grid.Row="0" Grid.Column="2" Margin="0,0,20,0">
+                    <Picker Title="Selecteaza algoritmul" ItemsSource="{Binding AlgoForKeys}" SelectedItem="{Binding SelectedAlgo}"></Picker>
                 </StackLayout>
 
                 <StackLayout Grid.Row="1" Grid.ColumnSpan="3" RadioButtonGroup.GroupName="tipSemnatura" RadioButtonGroup.SelectedValue="{Binding SelectedType}">
@@ -76,8 +80,8 @@
                 <Entry Text="{Binding HeightDist}" WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="2" Placeholder="Heigth"/>
 
 
-                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="0" Text="Creator semnatura"></Label>
-                <Entry Text="{Binding CreatorSemnatura}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="0" Text="Denumirea semnaturii"></Label>
+                <Entry Text="{Binding NumeSemnatura}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
 
                 <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="0" Text="Adauga locatie"></Label>
                 <Entry Text="{Binding Locatie}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"/>

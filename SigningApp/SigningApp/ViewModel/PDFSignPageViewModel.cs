@@ -269,9 +269,6 @@ namespace SigningApp.ViewModel
 
         private async void SignPDFButtonClicked()
         {
-            //LoginPage.user.credentialsList();
-            //LoginPage.user.credentialsInfo(LoginPage.user.credentialsIDs[1]);
-
             if(DocPath == null)
             {
                 DisplayFileNotUploaded();
@@ -341,7 +338,7 @@ namespace SigningApp.ViewModel
                 }    
             }
 
-            if (SelectedPage < 1)
+            if (SelectedPage < 1 && SelectedType != "Invizibila")
             {
                 DisplayPageNotSelected();
                 return;
@@ -569,7 +566,7 @@ namespace SigningApp.ViewModel
                     keysAlgo.TryGetValue(hashAlgo, out hashParam);
                 }
                 
-                bool ok = LoginPage.user.signSingleHash(SelectedKey, resultAux, signParam, hashParam);
+                bool ok = LoginPage.user.signSingleHash(SelectedKey, hashedDocumentB64, signParam, hashParam);
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
