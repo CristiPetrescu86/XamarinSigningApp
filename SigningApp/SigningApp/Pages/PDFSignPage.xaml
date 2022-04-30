@@ -64,8 +64,8 @@
                 <Entry Text="{Binding HeightDist}" WidthRequest="100" Keyboard="Numeric" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="4" Grid.Column="2" Placeholder="Heigth"/>
 
 
-                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="0" Text="Creator semnatura"></Label>
-                <Entry Text="{Binding CreatorSemnatura}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+                <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="0" Text="Nume semnatura"></Label>
+                <Entry Text="{Binding NumeSemnatura}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
 
                 <Label HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="0" Text="Adauga locatie"></Label>
                 <Entry Text="{Binding Locatie}" WidthRequest="300" HorizontalOptions="Center" VerticalOptions="Center" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"/>

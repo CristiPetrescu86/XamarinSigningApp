@@ -38,6 +38,9 @@ namespace XamarinLicentaApp
             vm.DisplaySignMethNotOK += () => DisplayAlert("Eroare", "Eroare la semnarea hash-ului", "Close");
             vm.DisplayTipSemnaturaNotChecked += () => DisplayAlert("Eroare", "Tip semnatura nu a fost bifat", "Close");
             vm.DisplayTimestampNotChecked += () => DisplayAlert("Eroare", "Timestamp nu a fost bifat", "Close");
+            vm.DisplayAlgoNotSelected += () => DisplayAlert("Eroare", "Algoritmul nu a fost selectat", "Close");
+            vm.DisplaySignNameNotSet += () => DisplayAlert("Eroare", "Numele semnaturii nu a fost introdus", "Close");
+
         }
 
         private void LoadAlgos(object sender, EventArgs e)

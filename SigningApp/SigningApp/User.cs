@@ -518,8 +518,11 @@ namespace LicentaApp
             if (docType == "PDF")
             {
                 //  PDF
-                SHA256 shaM = new SHA256Managed();
-                var result = shaM.ComputeHash(hash);
+                //SHA256 shaM = new SHA256Managed();
+                //var result = shaM.ComputeHash(hash);
+
+                SHA1 shaM_aux = new SHA1Managed();
+                var result = shaM_aux.ComputeHash(hash);
 
                 hashedDocumentB64 = Convert.ToBase64String(result);
                 method.hash.Add(hashedDocumentB64);
@@ -726,7 +729,7 @@ namespace LicentaApp
         }
 
         
-        public bool signSingleHash(string credentialName, byte[] hash, string docType)
+        public bool signSingleHash(string credentialName, byte[] hash, string signOID , string hashOID)
         {
             int index = -1;
             for (int i = 0; i < keysInfo.Count; i++)
@@ -753,41 +756,15 @@ namespace LicentaApp
             method.credentialID = keysInfo[index].credentialName;
             method.SAD = currentSAD.SAD;
 
-            if(docType == "PDF")
-            {
-                //  PDF
-                SHA256 shaM = new SHA256Managed();
-                var result = shaM.ComputeHash(hash);
+            string hashedDocumentB64 = Convert.ToBase64String(hash);
+            method.hash.Add(hashedDocumentB64);
 
-                string hashedDocumentB64 = Convert.ToBase64String(result);
-                method.hash.Add(hashedDocumentB64);
-            }
-            else if(docType == "XML")
-            {
-                // XML
-                string hashedDocumentB64 = Convert.ToBase64String(hash);
-                method.hash.Add(hashedDocumentB64);
-            }
-            else
-            {
-                return false;
-            }
+            method.signAlgo = signOID;
 
-            /*
-            if (keysInfo[index].key.algo.ElementAtOrDefault(1) != null)
+            if (hashOID != string.Empty)
             {
-                method.hashAlgo = keysInfo[index].key.algo[1];
+                method.hashAlgo = hashOID;
             }
-            else
-            {
-                method.hashAlgo = "2.16.840.1.101.3.4.2.1";   
-            }
-            
-            method.signAlgo = keysInfo[index].key.algo[0];*/
-
-            method.signAlgo = keysInfo[index].key.algo[2];
-
-
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 

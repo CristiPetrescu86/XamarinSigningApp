@@ -45,21 +45,31 @@ namespace SigningApp.ViewModel
         public Action DisplaySignMethNotOK;
         public Action DisplayTipSemnaturaNotChecked;
         public Action DisplayTimestampNotChecked;
+        public Action DisplayAlgoNotSelected;
+        public Action DisplaySignNameNotSet;
 
 
         Dictionary <string, string> keysAlgo = new Dictionary<string, string>(){
             {"1.2.840.113549.1.1.1", "RSA"},
             {"1.3.14.3.2.29", "RSA-SHA1"},
             {"1.2.840.113549.1.1.14", "RSA-SHA224"},
-            {"1.2.840.113549.1.1.11", "RSA-SHA256"},   
+            {"1.2.840.113549.1.1.11", "RSA-SHA256"},
             {"1.2.840.113549.1.1.12", "RSA-SHA384"}, 
             {"1.2.840.113549.1.1.13", "RSA-SHA512"},
             {"1.2.840.113549.1.1.4", "RSA-MD5"},
-            {"2.16.840.1.101.3.4.2", "SHA224"},
-            {"2.16.840.1.101.3.4.2.1", "SHA256"},
-            {"2.16.840.1.101.3.4.2.2", "SHA384"},
-            {"2.16.840.1.101.3.4.2.3", "SHA512"},
-            {"1.2.840.113549.2.5", "MD5"},
+            {"RSA", "1.2.840.113549.1.1.1"},
+            {"RSA-SHA1", "1.3.14.3.2.29"},
+            {"RSA-SHA224", "1.2.840.113549.1.1.14"},
+            {"RSA-SHA256", "1.2.840.113549.1.1.11"},
+            {"RSA-SHA384", "1.2.840.113549.1.1.12"},
+            {"RSA-SHA512", "1.2.840.113549.1.1.13"},
+            {"RSA-MD5", "1.2.840.113549.1.1.4"},
+            {"SHA224","2.16.840.1.101.3.4.2"},
+            {"SHA256","2.16.840.1.101.3.4.2.1"},
+            {"SHA-256","2.16.840.1.101.3.4.2.1"},
+            {"SHA384","2.16.840.1.101.3.4.2.2"},
+            {"SHA512","2.16.840.1.101.3.4.2.3"},
+            {"MD5","1.2.840.113549.2.5"},
             {"1.2.840.10045.4.3.2", "ECDSA-SHA256"},
             {"1.2.840.10045.4.3.3", "ECDSA-SHA384"},
             {"1.2.840.10045.4.3.4", "ECDSA-SHA512"}
@@ -130,7 +140,7 @@ namespace SigningApp.ViewModel
         public string Motiv { get; set; }
 
         public string Locatie { get; set; }
-        public string CreatorSemnatura { get; set; }
+        public string NumeSemnatura { get; set; }
 
 
 
@@ -174,9 +184,11 @@ namespace SigningApp.ViewModel
 
             AlgoForKeys = new ObservableCollection<string>();
 
+            string outValue;
             foreach (string elem in keyObject.key.algo)
             {
-                AlgoForKeys.Add(elem);
+                keysAlgo.TryGetValue(elem, out outValue);
+                AlgoForKeys.Add(outValue);
             }
 
             PropertyChanged(this, new PropertyChangedEventArgs("AlgoForKeys"));
@@ -272,7 +284,11 @@ namespace SigningApp.ViewModel
                 return;
             }
 
-            LoginPage.user.credentialsInfo(SelectedKey);
+            if(SelectedAlgo == null)
+            {
+                DisplayAlgoNotSelected();
+                return;
+            }
 
             if (SelectedType == null)
             {
@@ -368,8 +384,6 @@ namespace SigningApp.ViewModel
             outTempFileName += ".TEMP";
             Debug.WriteLine(outTempFileName);
 
-            string fieldname = "sig";
-
             FileStream outFile2 = new FileStream(outTempFileName, FileMode.Create);
             PdfReader reader = new PdfReader(fileName);
             PdfSigner signer = new PdfSigner(reader, outFile2, new StampingProperties().UseAppendMode());
@@ -390,29 +404,49 @@ namespace SigningApp.ViewModel
             }
 
             appearance2.SetPageNumber(SelectedPage);
-            appearance2.SetCertificate(certListX509[0]);
+            appearance2.SetCertificate(certListX509[0]);       
 
             if(Motiv != null)
                 appearance2.SetReason(Motiv);
 
             if(Locatie != null)
                 appearance2.SetLocation(Locatie);
-            
+
             appearance2.SetSignatureCreator("iTextSharp7 with Bounty Castle");
-            
-            if(CreatorSemnatura != null)
-                appearance2.SetContact(CreatorSemnatura);
 
-            signer.SetFieldName(fieldname);
+            if (NumeSemnatura == null)
+            {
+                DisplaySignNameNotSet();
+                return;
+            }
+            signer.SetFieldName(NumeSemnatura);
 
-            PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED);
+            if (SelectedTimestamp == null)
+            {
+                DisplayTimestampNotChecked();
+                return;
+            }
+
+            string signAlgo = SelectedAlgo.GetUntilOrEmpty();
+            if(signAlgo == string.Empty)
+            {
+                signAlgo = SelectedAlgo;
+            }
+            string hashAlgo = SelectedAlgo.GetAfterOrEmpty();
+            if(hashAlgo == string.Empty)
+            {
+                hashAlgo = "SHA-256";
+            }
+
+            PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED, hashAlgo);
             signer.SignExternalContainer(external, 16000);
-            byte[] documentHash = external.getHash();          
+            byte[] documentHash = external.getHash();
 
             outFile2.Dispose();
             outFile2.Close();
 
-            PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, "SHA-256", false);
+
+            PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, hashAlgo, false);
             byte[] sh = sgn.GetAuthenticatedAttributeBytes(documentHash, PdfSigner.CryptoStandard.CADES, null, null);
 
             if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true" && keyObject.OTP.type == "offline")
@@ -434,7 +468,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
                 if(!ok)
                 {
                     DisplaySignMethNotOK();
@@ -460,7 +494,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -486,7 +520,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -495,36 +529,64 @@ namespace SigningApp.ViewModel
             }
             else if(keyObject.OTP.type.Equals("online") && LoginPage.user.authModeSelected.Equals("oauth"))
             {
-                SHA256 shaM = new SHA256Managed();
-                var resultAux = shaM.ComputeHash(sh);
+                byte[] resultAux = null;
+                if(hashAlgo == "SHA256" || hashAlgo == "SHA-256")
+                {
+                    SHA256 shaM = new SHA256Managed();
+                    resultAux = shaM.ComputeHash(sh);
+                }
+                else if(hashAlgo == "SHA1")
+                {
+                    SHA1 shaM = new SHA1Managed();
+                    resultAux = shaM.ComputeHash(sh);
+                }
+                else if (hashAlgo == "SHA384")
+                {
+                    SHA384 shaM = new SHA384Managed();
+                    resultAux = shaM.ComputeHash(sh);
+                }
+                else if (hashAlgo == "SHA512")
+                {
+                    SHA512 shaM = new SHA512Managed();
+                    resultAux = shaM.ComputeHash(sh);
+                }
 
                 string hashedDocumentB64 = Convert.ToBase64String(resultAux);
 
                 var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, 1, hashedDocumentB64));
 
-                if(result == null)
+                if (result == null)
                 {
                     DisplayCredAuthNotOK();
                     return;
                 }
 
-
-                //string otp = result.ToString();
-
-                //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, otp);
-                LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
-
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if(SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+                
+                bool ok = LoginPage.user.signSingleHash(SelectedKey, resultAux, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
             else
             {
                 LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, null);
-                LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                //LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
             }
 
             //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", "12345678", "123456");
             //LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
 
-            sgn.SetExternalDigest(Convert.FromBase64String(LoginPage.user.signatures[0]), null, "RSA");
+            // ORIGINAL
+            sgn.SetExternalDigest(Convert.FromBase64String(LoginPage.user.signatures[0]), null, signAlgo);
 
 
             byte[] encodedSig = null;
@@ -540,11 +602,7 @@ namespace SigningApp.ViewModel
             {
                 encodedSig = sgn.GetEncodedPKCS7(documentHash, PdfSigner.CryptoStandard.CADES, null, null, null);
             }
-            else
-            {
-                DisplayTimestampNotChecked();
-                return;
-            }
+            
 
             string outFileName3 = Path.GetDirectoryName(DocPath);
             outFileName3 += @"\";
@@ -559,9 +617,11 @@ namespace SigningApp.ViewModel
 
             IExternalSignatureContainer signature3 = new MyExternalSignatureContainer(encodedSig);
 
-            PdfSigner.SignDeferred(signer3.GetDocument(), fieldname, outFile3, signature3);
+            PdfSigner.SignDeferred(signer3.GetDocument(), NumeSemnatura, outFile3, signature3);
             outFile3.Dispose();
             outFile3.Close();
+
+            LoginPage.user.signatures.Clear();
 
             //if (File.Exists(outTempFileName))
             //{
@@ -570,6 +630,7 @@ namespace SigningApp.ViewModel
         }
 
     }
+
     public class MyExternalSignatureContainer : IExternalSignatureContainer
     {
 
@@ -591,16 +652,19 @@ namespace SigningApp.ViewModel
         }
     }
 
+
     public class PreSignatureContainer : IExternalSignatureContainer
     {
         private PdfDictionary sigDic;
         private byte[] hash;
+        private string hashAlgo;
 
-        public PreSignatureContainer(PdfName filter, PdfName subFilter)
+        public PreSignatureContainer(PdfName filter, PdfName subFilter, string algo)
         {
             sigDic = new PdfDictionary();
             sigDic.Put(PdfName.Filter, filter);
             sigDic.Put(PdfName.SubFilter, subFilter);
+            hashAlgo = algo;
         }
 
         public void ModifySigningDictionary(PdfDictionary signDic)
@@ -610,11 +674,16 @@ namespace SigningApp.ViewModel
 
         public byte[] Sign(Stream data)
         {
-            string hashAlgorithm = "SHA256";
+            if (hashAlgo == string.Empty)
+            {
+                this.hash = DigestAlgorithms.Digest(data, DigestAlgorithms.SHA256);
+
+                return new byte[0];
+            }
 
             try
             {
-                this.hash = DigestAlgorithms.Digest(data, hashAlgorithm);
+                this.hash = DigestAlgorithms.Digest(data, hashAlgo);
             }
             catch (IOException e)
             {
@@ -629,4 +698,41 @@ namespace SigningApp.ViewModel
             return hash;
         }
     }
+
+
+    public static class Helper
+    {
+        public static string GetUntilOrEmpty(this string text, string stopAt = "-")
+        {
+            if (!String.IsNullOrWhiteSpace(text))
+            {
+                int charLocation = text.IndexOf(stopAt, StringComparison.Ordinal);
+
+                if (charLocation > 0)
+                {
+                    return text.Substring(0, charLocation);
+                }
+            }
+
+            return String.Empty;
+        }
+
+        public static string GetAfterOrEmpty(this string text, string stopAt = "-")
+        {
+            if (!String.IsNullOrWhiteSpace(text))
+            {
+                int charLocation = text.IndexOf(stopAt, StringComparison.Ordinal);
+
+                if (charLocation > 0)
+                {
+                    return text.Substring(charLocation + 1);
+                }
+            }
+
+            return String.Empty;
+        }
+
+
+    }
+
 }

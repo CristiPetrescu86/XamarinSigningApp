@@ -272,7 +272,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -298,7 +298,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -324,7 +324,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -344,13 +344,13 @@ namespace SigningApp.ViewModel
                 //string otp = result.ToString();
 
                 //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, otp);
-                LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                //LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
 
             }
             else
             {
                 LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", null, null);
-                LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                //LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
             }
 
             //LoginPage.user.credentialsAuthorize(LoginPage.user.credentialsIDs[1], toBeSigned, "XML", "12345678", "123456");

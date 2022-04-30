@@ -344,7 +344,7 @@ namespace SigningApp.ViewModel
 
                 signer.SetFieldName(fieldname);
 
-                PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED);
+                PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED, "");
                 signer.SignExternalContainer(external, 16000);
                 byte[] documentHash = external.getHash();
                 docContent.Add(documentHash);
@@ -379,7 +379,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -405,7 +405,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -431,7 +431,7 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
+                //ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
