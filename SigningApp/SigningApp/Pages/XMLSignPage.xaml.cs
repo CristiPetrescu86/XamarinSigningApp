@@ -26,7 +26,7 @@ namespace SigningApp.Pages
         {
             InitializeComponent();
 
-            var vm = new XMLSignPageViewModel();
+            var vm = XMLSignPageViewModel.Instance;
             this.BindingContext = vm;
             vm.DisplayKeyNotSelected += () => DisplayAlert("Eroare", "Key Not Selected", "Close");
             vm.DisplayFileNotUploaded += () => DisplayAlert("Eroare", "Fisierul nu a fost incarcat", "Close");
@@ -38,6 +38,22 @@ namespace SigningApp.Pages
             vm.DisplayNoCerts += () => DisplayAlert("Eroare", "Nu exista certificat pentru semnatar", "Close");
             vm.DisplayCredAuthNotOK += () => DisplayAlert("Eroare", "Autorizarea cheii nu a putut fi realizata", "Close");
             vm.DisplaySignMethNotOK += () => DisplayAlert("Eroare", "Eroare la semnarea hash-ului", "Close");
+            vm.DisplayAlgoNotSelected += () => DisplayAlert("Eroare", "Algoritmul nu a fost selectat", "Close");
+
+        }
+
+        private void LoadAlgos(object sender, EventArgs e)
+        {
+            var vm = XMLSignPageViewModel.Instance;
+            vm.LoadSignAlgos();
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            var vm = XMLSignPageViewModel.Instance;
+            vm.deleteInstance();
+
+            return false;
         }
 
     }

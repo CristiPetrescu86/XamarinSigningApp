@@ -34,7 +34,33 @@ namespace SigningApp.ViewModel
         public Action DisplayNoCerts;
         public Action DisplayCredAuthNotOK;
         public Action DisplaySignMethNotOK;
+        public Action DisplayAlgoNotSelected;
 
+        readonly Dictionary<string, string> keysAlgo = new Dictionary<string, string>(){
+            {"1.2.840.113549.1.1.1", "RSA"},
+            {"1.3.14.3.2.29", "RSA-SHA1"},
+            {"1.2.840.113549.1.1.14", "RSA-SHA224"},
+            {"1.2.840.113549.1.1.11", "RSA-SHA256"},
+            {"1.2.840.113549.1.1.12", "RSA-SHA384"},
+            {"1.2.840.113549.1.1.13", "RSA-SHA512"},
+            {"1.2.840.113549.1.1.4", "RSA-MD5"},
+            {"RSA", "1.2.840.113549.1.1.1"},
+            {"RSA-SHA1", "1.3.14.3.2.29"},
+            {"RSA-SHA224", "1.2.840.113549.1.1.14"},
+            {"RSA-SHA256", "1.2.840.113549.1.1.11"},
+            {"RSA-SHA384", "1.2.840.113549.1.1.12"},
+            {"RSA-SHA512", "1.2.840.113549.1.1.13"},
+            {"RSA-MD5", "1.2.840.113549.1.1.4"},
+            {"SHA224","2.16.840.1.101.3.4.2"},
+            {"SHA256","2.16.840.1.101.3.4.2.1"},
+            {"SHA-256","2.16.840.1.101.3.4.2.1"},
+            {"SHA384","2.16.840.1.101.3.4.2.2"},
+            {"SHA512","2.16.840.1.101.3.4.2.3"},
+            {"MD5","1.2.840.113549.2.5"},
+            {"1.2.840.10045.4.3.2", "ECDSA-SHA256"},
+            {"1.2.840.10045.4.3.3", "ECDSA-SHA384"},
+            {"1.2.840.10045.4.3.4", "ECDSA-SHA512"}
+        };
 
         private List<string> docsPath;
 
@@ -81,9 +107,67 @@ namespace SigningApp.ViewModel
             return newList;
         }
 
+        private static MultipleXMLSignPageViewModel instance = null;
+        private static readonly object padlock = new object();
+
+        public static MultipleXMLSignPageViewModel Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new MultipleXMLSignPageViewModel();
+                    }
+                    return instance;
+                }
+            }
+        }
+
+        public void deleteInstance()
+        {
+            instance = null;
+        }
+
         public MultipleXMLSignPageViewModel()
         {
             Keys = GetKeys();
+        }
+
+        private ObservableCollection<string> algoForKeys;
+        public ObservableCollection<string> AlgoForKeys
+        {
+            get { return algoForKeys; }
+            set { algoForKeys = value; }
+        }
+
+        public string SelectedAlgo { get; set; }
+
+        public void LoadSignAlgos()
+        {
+            LoginPage.user.credentialsInfo(SelectedKey);
+
+            CredentialsInfoReceiveClass keyObject = new CredentialsInfoReceiveClass();
+            foreach (CredentialsInfoReceiveClass elem in LoginPage.user.keysInfo)
+            {
+                if (elem.credentialName == SelectedKey)
+                {
+                    keyObject = elem;
+                    break;
+                }
+            }
+
+            AlgoForKeys = new ObservableCollection<string>();
+
+            string outValue;
+            foreach (string elem in keyObject.key.algo)
+            {
+                keysAlgo.TryGetValue(elem, out outValue);
+                AlgoForKeys.Add(outValue);
+            }
+
+            PropertyChanged(this, new PropertyChangedEventArgs("AlgoForKeys"));
         }
 
         private Command signDocs;
@@ -161,7 +245,11 @@ namespace SigningApp.ViewModel
                 return;
             }
 
-            LoginPage.user.credentialsInfo(SelectedKey);
+            if (SelectedAlgo == null)
+            {
+                DisplayAlgoNotSelected();
+                return;
+            }
 
             if (SelectedType == null)
             {
@@ -184,24 +272,34 @@ namespace SigningApp.ViewModel
             List<XmlDocument> xmlDocs = new List<XmlDocument>();
             List<SignedXml> signedDocs = new List<SignedXml>();
 
+            string signAlgo = SelectedAlgo.GetUntilOrEmpty();
+            if (signAlgo == string.Empty)
+            {
+                signAlgo = SelectedAlgo;
+            }
+            string hashAlgo = SelectedAlgo.GetAfterOrEmpty();
+            if (hashAlgo == string.Empty)
+            {
+                hashAlgo = "SHA-256";
+            }
+
+            List<X509Certificate2> certList = new List<X509Certificate2>();
+            foreach (string elem in keyObject.cert.certificates)
+            {
+                byte[] bytes = Convert.FromBase64String(elem);
+                certList.Add(new X509Certificate2(bytes));
+            }
+
+            if (certList == null)
+            {
+                DisplayNoCerts();
+                return;
+            }
+
             foreach (string fileName in DocsPath)
             {
                 XmlDocument doc = new XmlDocument();
                 doc.Load(fileName);
-
-
-                List<X509Certificate2> certList = new List<X509Certificate2>();
-                foreach (string elem in keyObject.cert.certificates)
-                {
-                    byte[] bytes = Convert.FromBase64String(elem);
-                    certList.Add(new X509Certificate2(bytes));
-                }
-
-                if (certList == null)
-                {
-                    DisplayNoCerts();
-                    return;
-                }
 
                 Guid myuuid = Guid.NewGuid();
                 string myuuidAsString = "xmldsig-" + myuuid.ToString();
@@ -210,6 +308,15 @@ namespace SigningApp.ViewModel
                 signedXml.PublicKeyCert = certList[0].PublicKey.Key;
                 signedXml.Signature.Id = myuuidAsString;
                 Reference reference = new Reference();
+                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
+                    reference.DigestMethod = SignedXml.XmlDsigSHA256Url;
+                else if (hashAlgo == "SHA1")
+                    reference.DigestMethod = SignedXml.XmlDsigSHA1Url;
+                else if (hashAlgo == "SHA384")
+                    reference.DigestMethod = SignedXml.XmlDsigSHA384Url;
+                else if (hashAlgo == "SHA512")
+                    reference.DigestMethod = SignedXml.XmlDsigSHA512Url;
+
                 reference.Uri = "";
                 XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform();
                 reference.AddTransform(env);
@@ -269,6 +376,17 @@ namespace SigningApp.ViewModel
                     }
                     signedXml.AddXadesObject(xo);
                 }
+
+                if (SelectedAlgo == "RSA-SHA1")
+                    signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA1Url;
+                else if (SelectedAlgo == "RSA-SHA256")
+                    signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA256Url;
+                else if (SelectedAlgo == "RSA-SHA384")
+                    signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA384Url;
+                else if (SelectedAlgo == "RSA-SHA512")
+                    signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA512Url;
+                else if (signAlgo == "RSA" && hashAlgo == "SHA-256")
+                    signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA256Url;
 
                 toBeSigned = signedXml.ComputeSignature();
 
@@ -365,11 +483,20 @@ namespace SigningApp.ViewModel
                     return;
                 }
 
-                //string otp = result.ToString();
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
 
-                //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, otp);
-                //LoginPage.user.signMultipleHash(SelectedKey, hashB64Documents, "XML");
-
+                bool ok = LoginPage.user.signMultipleHash(SelectedKey, hashB64Documents, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
             else
             {
@@ -395,6 +522,8 @@ namespace SigningApp.ViewModel
                 //doc.Save(outFileName);
                 File.WriteAllText(outFileName, xmlDocs[j].OuterXml);
             }
+
+            LoginPage.user.signatures.Clear();
         }
 
     }

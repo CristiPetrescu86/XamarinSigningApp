@@ -23,8 +23,12 @@
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <StackLayout Grid.Row="0" Grid.Column="1">
-                    <Picker Title="Selecteaza credentialul" ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}"></Picker>
+                <StackLayout Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="20,0,20,0">
+                    <Picker Title="Selecteaza credentialul" ItemsSource="{Binding Keys}" SelectedItem="{Binding SelectedKey}" SelectedIndexChanged="LoadAlgos"></Picker>
+                </StackLayout>
+
+                <StackLayout Grid.Row="0" Grid.Column="2" Margin="0,0,20,0">
+                    <Picker Title="Selecteaza algoritmul" ItemsSource="{Binding AlgoForKeys}" SelectedItem="{Binding SelectedAlgo}"></Picker>
                 </StackLayout>
 
                 <StackLayout Grid.Row="1" Grid.ColumnSpan="3" RadioButtonGroup.GroupName="tipSemnatura" RadioButtonGroup.SelectedValue="{Binding SelectedType}">
@@ -38,7 +42,7 @@
                         </Grid.ColumnDefinitions>
 
                         <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="0" Content="XML-DSIG" Value="XML-DSIG"></RadioButton>
-                        <RadioButton GroupName="tipSemnatura" IsChecked="True" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="XAdES" Value="XAdES"></RadioButton>
+                        <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="XAdES" Value="XAdES"></RadioButton>
                     </Grid>
                 </StackLayout>
             </Grid>
