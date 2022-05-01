@@ -39,12 +39,13 @@ namespace SigningApp.Pages
                     string cod = username.Substring(5);
 
                     LoginPage.user = new User();
+                    LoginPage.user.serviceLink = "https://msign-test.transsped.ro/csc/v0/";
+                    LoginPage.user.authModeSelected = "oauth";
 
                     bool ok = LoginPage.user.oauth2Token(cod, "authorization_code");
 
                     if(ok)
                     {
-                        LoginPage.user.authModeSelected = "oauth";
                         Application.Current.MainPage = new NavigationPage(new MainPage());
                     }
 

@@ -68,13 +68,13 @@ namespace XamarinLicentaApp.ViewModel
             }
 
             LoginPage.user = new LicentaApp.User(username, password);
-            //LoginPage.user = new LicentaApp.User("adobedemo","password");
+            LoginPage.user.serviceLink = "https://service.csctest.online/csc/v1/";
+            LoginPage.user.authModeSelected = "explicit";
 
             bool ok = LoginPage.user.authLogin(false);
 
             if (ok == true)
             {
-                LoginPage.user.authModeSelected = "explicit";
                 Application.Current.MainPage = new NavigationPage(new MainPage());
             }
             else

@@ -472,6 +472,53 @@ namespace SigningApp.ViewModel
 
             if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true" && keyObject.OTP.type == "offline")
             {
+                List<string> docToBeSigned = new List<string>();
+                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA256 shaM = new SHA256Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA1")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA1 shaM = new SHA1Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA384")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA384 shaM = new SHA384Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA512")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA512 shaM = new SHA512Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+
+
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
 
                 if (result.ToString() == "UNSET")
@@ -482,7 +529,7 @@ namespace SigningApp.ViewModel
 
                 PINandOTP credObj = System.Text.Json.JsonSerializer.Deserialize<PINandOTP>(result.ToString());
 
-                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, docHashes[0], "PDF", credObj.PIN, credObj.OTP); // 12345678 123456
+                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, docToBeSigned[0], credObj.PIN, credObj.OTP); // 12345678 123456
                 if (!ok)
                 {
                     DisplayCredAuthNotOK();

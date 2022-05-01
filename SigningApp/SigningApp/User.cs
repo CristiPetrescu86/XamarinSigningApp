@@ -22,107 +22,28 @@ namespace LicentaApp
     public class User
     {
         // Credentiale
-        private string username{ get; set; }
-        private string password{ get; set; }
-
-     
-        // Credentiale aplicatie
-        
-        
-        private int expiresIn{ get; set; }
-
-
-        private string accessToken
-        {
-            get; set;
-        }
+        private string username { get; set; }
+        private string password { get; set; }
 
         public string authModeSelected { get; set; }
+        public string serviceLink { get; set; }
+        private string accessToken { get; set; }
 
+        
         public void setAccess(string a)
         {
             accessToken = a;
         }
 
-        private string refresh_token
-        {
-            get; set;
-        }
-
-        private int accessTokenExpiresIn;
-
-
-        #region CREDENTIALS/LIST
-        // campuri CREDENTIALS/LIST --------------------
-
-        // input =====
-
-        private string userID = null;
-        private int maxResults = 0;
-        private string clientDataCredListString = null;
-
-        // output =====
+        private string refresh_token { get; set; }
 
         public List<string> credentialsIDs = new List<string>();
 
-        // ---------------------------------------------
-        #endregion CREDENTIALS/LIST
-
-
-        #region CREDENTIALS/INFO
-        // campuri CREDENTIALS/INFO --------------------
-
-        // input =====
-
-        private string credentialsCertificatesSelect = "single";
-        private bool credentialsCertInfoBool = true;
-        private bool credentialsAuthInfoBool = true;
-        private string credentialsLang;
-        private string clientDataCredInfoString = null;
-
-        // output =====
-
         public List<CredentialsInfoReceiveClass> keysInfo = new List<CredentialsInfoReceiveClass>();
-
-        // ---------------------------------------------
-        #endregion CREDENTIALS/INFO
-
-
-        #region AUTH/REVOKE
-
-        private bool revokeAccessTokenBool = true;
-        private bool revokeRefreshTokenBool = false;
-        private bool clientDataRevokeBool = false;
-        private int expiresTokensIn;
-
-        #endregion AUTH/REVOKE
-
-
-        #region CREDENTIALS/AUTHORIZE
-
-        // campuri CREDENTIALS/AUTHORIZE --------------------
-
-        // input =====
-
-        private string credAuthorizeDescription = null;
-        private string credAuthorizeClientData = null;
-        //private string PIN = "12345678";
-        //private string OTP = "123456";
-        int numSignatures = 1;
-
-        // output =====
 
         CredentialsAuthorizeReceiveClass currentSAD { get; set; }
 
-
-        // --------------------------------------------------
-        #endregion CREDENTIALS/AUTHORIZE
-
-
-        #region SIGN/SIGNHASH
         public List<string> signatures = new List<string>();
-        #endregion SIGN/SIGNHASH
-
 
 
         public User(string Username, string Password)
@@ -131,10 +52,7 @@ namespace LicentaApp
             password = Password;
         }
 
-        public User()
-        {
-
-        }
+        public User() { }
 
 
         public string getInfo()
@@ -146,9 +64,10 @@ namespace LicentaApp
                 lang = language
             };
 
+            string address = serviceLink + "info";
+
             var client = new System.Net.Http.HttpClient();
-            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/info");
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/info");
+            client.BaseAddress = new Uri(address);
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method);
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
@@ -194,8 +113,10 @@ namespace LicentaApp
             string userInfo = username + ":" + password;
             string userCredEncoded = Base64Encode(userInfo);
 
+            string address = serviceLink + "auth/login";
+
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/auth/login");
+            client.BaseAddress = new Uri(address);
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
@@ -218,11 +139,6 @@ namespace LicentaApp
                 {
                     refresh_token = methodResponse.refresh_token;
                 }
-
-                if (methodResponse.expires_in != 3600)
-                {
-                    accessTokenExpiresIn = methodResponse.expires_in;
-                }
             }
 
             return true;
@@ -244,8 +160,10 @@ namespace LicentaApp
 
                 string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
+                string address = serviceLink + "auth/revoke";
+
                 var client = new System.Net.Http.HttpClient();
-                client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/auth/revoke");
+                client.BaseAddress = new Uri(address);
 
                 var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
                 var byteContent = new ByteArrayContent(buffer);
@@ -271,8 +189,10 @@ namespace LicentaApp
             method2.token = accessToken;
             method2.token_type_hint = "access_token";
 
+            string adress = serviceLink + "auth/revoke";
+
             var client2 = new System.Net.Http.HttpClient();
-            client2.BaseAddress = new Uri("https://service.csctest.online/csc/v1/auth/revoke");
+            client2.BaseAddress = new Uri(adress);
 
             string jsonString2 = System.Text.Json.JsonSerializer.Serialize(method2, jsonSerializerOptions2);
             var buffer2 = System.Text.Encoding.UTF8.GetBytes(jsonString2);
@@ -300,15 +220,11 @@ namespace LicentaApp
             }
 
             var method = new CredentialsListSendClass();
-            maxResults = 10;
+            int maxResults = 10;
                
             if (maxResults != 0)
             {
                 method.maxResults = maxResults;
-            }
-            if (clientDataCredListString != null)
-            {
-                method.clientData = clientDataCredListString;
             }
           
             var jsonSerializerOptions = new JsonSerializerOptions()
@@ -318,9 +234,10 @@ namespace LicentaApp
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
+            string adress = serviceLink + "credentials/list";
+
             var client = new System.Net.Http.HttpClient();
-            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/list");
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/list");
+            client.BaseAddress = new Uri(adress);
      
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -331,7 +248,7 @@ namespace LicentaApp
 
             CredentialsListReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsListReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
 
-            if (methodResponse.credentialIDs.Count < 1)
+            if (methodResponse.credentialIDs.Count == null)
             {
                 dynamic inform = JObject.Parse(response.Content.ToString());
                 if (inform.error_description != null)
@@ -363,7 +280,9 @@ namespace LicentaApp
         
         public void credentialsInfo(string credentialName)
         {
-            credentialsCertificatesSelect = "chain";
+            string credentialsCertificatesSelect = "chain";
+            bool credentialsCertInfoBool = true;
+            bool credentialsAuthInfoBool = true;
 
             bool ok = true;
             foreach (var credential in credentialsIDs)
@@ -397,10 +316,6 @@ namespace LicentaApp
             {
                 method.authInfo = true;
             }
-            if(clientDataCredInfoString != null)
-            {
-                method.clientData = clientDataCredInfoString;
-            }
 
             var jsonSerializerOptions = new JsonSerializerOptions()
             {
@@ -409,9 +324,10 @@ namespace LicentaApp
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
+            string adress = serviceLink + "credentials/info";
+
             var client = new System.Net.Http.HttpClient();
-            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/info");
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/info");
+            client.BaseAddress = new Uri(adress);
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -420,36 +336,80 @@ namespace LicentaApp
 
             var response = client.PostAsync("", byteContent).Result;
 
-            //Debug.WriteLine(response.Content.ReadAsStringAsync().Result);
-
-            CredentialsInfoReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsInfoReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
-
-            if(methodResponse.key.status == null)
+            if (authModeSelected == "explicit")
             {
-                dynamic inform = JObject.Parse(response.Content.ToString());
-                if (inform.error_description != null)
+                CredentialInfoReceiveClassExplicit methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialInfoReceiveClassExplicit>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
+                CredentialsInfoReceiveClass aux = new CredentialsInfoReceiveClass();
+                aux.authMode = methodResponse.authMode;
+                aux.cert = methodResponse.cert;
+                aux.description = methodResponse.description;
+                aux.key = methodResponse.key;
+                if (methodResponse.multisign > 0)
+                    aux.multisign = true;
+                aux.lang = methodResponse.lang;
+                aux.OTP = methodResponse.OTP;
+                aux.PIN = methodResponse.PIN;
+                aux.SCAL = methodResponse.SCAL;
+
+                if (methodResponse.key.status == null)
                 {
-                    Console.WriteLine(inform.error_description);
-                    return;
+                    dynamic inform = JObject.Parse(response.Content.ToString());
+                    if (inform.error_description != null)
+                    {
+                        Console.WriteLine(inform.error_description);
+                        return;
+                    }
+                }
+                else
+                {
+                    aux.credentialName = credentialName;
+
+                    bool exists = false;
+                    foreach (var elem in keysInfo)
+                    {
+                        if (ObjectComparerUtility.ObjectsAreEqual(elem, aux))
+                        {
+                            exists = true;
+                        }
+                    }
+                    if (!exists)
+                    {
+                        keysInfo.Add(aux);
+                    }
+
                 }
             }
             else
             {
-                methodResponse.credentialName = credentialName;
-               
-                bool exists = false;
-                foreach (var elem in keysInfo)
+                CredentialsInfoReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsInfoReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
+
+                if (methodResponse.key.status == null)
                 {
-                    if (ObjectComparerUtility.ObjectsAreEqual(elem, methodResponse))
+                    dynamic inform = JObject.Parse(response.Content.ToString());
+                    if (inform.error_description != null)
                     {
-                        exists = true;
+                        Console.WriteLine(inform.error_description);
+                        return;
                     }
                 }
-                if (!exists)
+                else
                 {
-                    keysInfo.Add(methodResponse);
-                }
+                    methodResponse.credentialName = credentialName;
 
+                    bool exists = false;
+                    foreach (var elem in keysInfo)
+                    {
+                        if (ObjectComparerUtility.ObjectsAreEqual(elem, methodResponse))
+                        {
+                            exists = true;
+                        }
+                    }
+                    if (!exists)
+                    {
+                        keysInfo.Add(methodResponse);
+                    }
+
+                }
             }
         }
 
@@ -465,14 +425,8 @@ namespace LicentaApp
         }
 
 
-        public bool credentialsAuthorize(string credentialName, byte[] hash, string docType, string PIN, string OTP)
+        public bool credentialsAuthorize(string credentialName, string hash, string PIN, string OTP)
         {
-            byte[] hashDocument;
-            string hashedDocumentB64;
-
-            //getInfo();
-            
-
             int index = -1;
             for (int i = 0; i < keysInfo.Count; i++)
             {
@@ -490,13 +444,12 @@ namespace LicentaApp
                 IgnoreNullValues = true
             };
 
-            //if(keysInfo[index].SCAL == "1")
-            //{
-            //    Console.WriteLine("Nu este nevoie de SAD");
-            //    return;
-            //}
+            if (keysInfo[index].SCAL == "1")
+            {
+                return true;
+            }
 
-            
+
             //if isset PIN
             //if isset OTP
             //if isset credID
@@ -505,38 +458,7 @@ namespace LicentaApp
 
             method.numSignatures = 1;
 
-            //if (numSignatures > keysInfo[index].multisign)
-            //{
-            //    return false;
-            //}
-            //else
-            //{
-            //    method.numSignatures = numSignatures;
-            //}
-
-
-            if (docType == "PDF")
-            {
-                //  PDF
-                //SHA256 shaM = new SHA256Managed();
-                //var result = shaM.ComputeHash(hash);
-
-                SHA1 shaM_aux = new SHA1Managed();
-                var result = shaM_aux.ComputeHash(hash);
-
-                hashedDocumentB64 = Convert.ToBase64String(result);
-                method.hash.Add(hashedDocumentB64);
-            }
-            else if(docType == "XML")
-            {
-                // XML
-                hashedDocumentB64 = Convert.ToBase64String(hash);
-                method.hash.Add(hashedDocumentB64);
-            }
-            else
-            {
-                return false;
-            }
+            method.hash.Add(hash);
 
 
             if (keysInfo[index].authMode == "explicit")
@@ -557,17 +479,12 @@ namespace LicentaApp
                 }
             }
 
-            if(credAuthorizeDescription != null)
-            {
-                //add description
-            }
-
-
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
+            string adress = serviceLink + "credentials/authorize";
+
             var client = new System.Net.Http.HttpClient();
-            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/authorize");
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/authorize");
+            client.BaseAddress = new Uri(adress);
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -642,8 +559,10 @@ namespace LicentaApp
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
+            string adress = serviceLink + "credentials/extendTransaction";
+
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/extendTransaction");
+            client.BaseAddress = new Uri(adress);
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -708,9 +627,10 @@ namespace LicentaApp
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
+            string adress = serviceLink + "credentials/sendOTP";
+
             var client = new System.Net.Http.HttpClient();
-            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/credentials/sendOTP");
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/credentials/sendOTP");
+            client.BaseAddress = new Uri(adress);
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -767,9 +687,10 @@ namespace LicentaApp
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
+            string adress = serviceLink + "signatures/signHash";
+
             var client = new System.Net.Http.HttpClient();
-            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/signatures/signHash");
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/signatures/signHash");
+            client.BaseAddress = new Uri(adress);
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -840,9 +761,10 @@ namespace LicentaApp
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
 
+            string adress = serviceLink + "signatures/signHash";
+
             var client = new System.Net.Http.HttpClient();
-            //client.BaseAddress = new Uri("https://service.csctest.online/csc/v1/signatures/signHash");
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/signatures/signHash");
+            client.BaseAddress = new Uri(adress);
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
             var byteContent = new ByteArrayContent(buffer);
@@ -903,8 +825,10 @@ namespace LicentaApp
                 IgnoreNullValues = true
             };
 
+            string adress = serviceLink + "oauth2/token";
+
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/oauth2/token");
+            client.BaseAddress = new Uri(adress);
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
@@ -924,12 +848,6 @@ namespace LicentaApp
             //{
             //    refresh_token = methodResponse.refresh_token;
             //}
-
-            if (methodResponse.expires_in != 3600)
-            {
-                accessTokenExpiresIn = methodResponse.expires_in;
-            }
-
 
             return true;
         }
@@ -951,8 +869,10 @@ namespace LicentaApp
                 IgnoreNullValues = true
             };
 
+            string adress = serviceLink + "oauth2/token";
+
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/oauth2/token");
+            client.BaseAddress = new Uri(adress);
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
@@ -1003,8 +923,10 @@ namespace LicentaApp
                 IgnoreNullValues = true
             };
 
+            string adress = serviceLink + "oauth2/token";
+
             var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri("https://msign-test.transsped.ro/csc/v0/oauth2/token");
+            client.BaseAddress = new Uri(adress);
 
             string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
             var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
