@@ -510,7 +510,94 @@ namespace LicentaApp
             return true;
         }
 
-        
+
+        public bool credentialsAuthorizeMultipleHash(string credentialName, List<string> hashList, string PIN, string OTP, int numSign)
+        {
+            int index = -1;
+            for (int i = 0; i < keysInfo.Count; i++)
+            {
+                if (keysInfo[i].credentialName == credentialName)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            var method = new CredentialsAuthorizeSendClass();
+
+            var jsonSerializerOptions = new JsonSerializerOptions()
+            {
+                IgnoreNullValues = true
+            };
+
+            if (keysInfo[index].SCAL == "1")
+            {
+                return true;
+            }
+
+
+            //if isset PIN
+            //if isset OTP
+            //if isset credID
+
+            method.credentialID = keysInfo[index].credentialName;
+
+            method.numSignatures = numSign;
+
+            foreach(var hash in hashList)
+                method.hash.Add(hash);
+
+
+            if (keysInfo[index].authMode == "explicit")
+            {
+                if (keysInfo[index].PIN.presence == "true")
+                {
+                    method.PIN = PIN;
+                }
+
+                if (keysInfo[index].OTP.presence == "true")
+                {
+                    method.OTP = OTP;
+                }
+
+                if (keysInfo[index].OTP.type == "online")
+                {
+                    method.OTP = OTP;
+                }
+            }
+
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
+
+            string adress = serviceLink + "credentials/authorize";
+
+            var client = new System.Net.Http.HttpClient();
+            client.BaseAddress = new Uri(adress);
+
+            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
+            var byteContent = new ByteArrayContent(buffer);
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
+
+            var response = client.PostAsync("", byteContent).Result;
+
+            CredentialsAuthorizeReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsAuthorizeReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
+
+            if (methodResponse.SAD == null)
+            {
+                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+                if (inform.error_description != null)
+                {
+                    //Debug.WriteLine(inform.error_description);
+                    return false;
+                }
+            }
+
+            currentSAD = methodResponse;
+
+            return true;
+        }
+
+
         public bool credentialsExtendTransaction(byte[] hash, string credentialName, string docType)
         {
             byte[] hashDocument;

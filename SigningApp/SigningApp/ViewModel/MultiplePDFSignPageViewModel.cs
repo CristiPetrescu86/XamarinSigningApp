@@ -518,7 +518,6 @@ namespace SigningApp.ViewModel
                     }
                 }
 
-
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
 
                 if (result.ToString() == "UNSET")
@@ -529,14 +528,22 @@ namespace SigningApp.ViewModel
 
                 PINandOTP credObj = System.Text.Json.JsonSerializer.Deserialize<PINandOTP>(result.ToString());
 
-                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, docToBeSigned[0], credObj.PIN, credObj.OTP); // 12345678 123456
+                bool ok = LoginPage.user.credentialsAuthorizeMultipleHash(SelectedKey, docToBeSigned, credObj.PIN, credObj.OTP, docToBeSigned.Count); // 12345678 123456
                 if (!ok)
                 {
                     DisplayCredAuthNotOK();
                     return;
                 }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signMultipleHash(SelectedKey, docToBeSigned, signParam, hashParam);
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -545,6 +552,52 @@ namespace SigningApp.ViewModel
             }
             else if (keyObject.PIN.presence == "true")
             {
+                List<string> docToBeSigned = new List<string>();
+                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA256 shaM = new SHA256Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA1")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA1 shaM = new SHA1Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA384")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA384 shaM = new SHA384Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA512")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA512 shaM = new SHA512Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+
                 var result = await Navigation.ShowPopupAsync(new PINPopup());
 
                 if (result.ToString() == "UNSET")
@@ -555,14 +608,22 @@ namespace SigningApp.ViewModel
 
                 string pin = result.ToString();
 
-                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, docHashes[0], "PDF", pin, null); // 12345678 123456
+                bool ok = LoginPage.user.credentialsAuthorizeMultipleHash(SelectedKey, docToBeSigned, pin,null, docToBeSigned.Count); // 12345678 123456
                 if (!ok)
                 {
                     DisplayCredAuthNotOK();
                     return;
                 }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signMultipleHash(SelectedKey, docToBeSigned, signParam, hashParam);
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -571,6 +632,52 @@ namespace SigningApp.ViewModel
             }
             else if (keyObject.OTP.presence == "true")
             {
+                List<string> docToBeSigned = new List<string>();
+                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA256 shaM = new SHA256Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA1")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA1 shaM = new SHA1Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA384")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA384 shaM = new SHA384Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA512")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA512 shaM = new SHA512Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+
                 var result = await Navigation.ShowPopupAsync(new OTPPopup());
 
                 if (result.ToString() == "UNSET")
@@ -581,14 +688,22 @@ namespace SigningApp.ViewModel
 
                 string otp = result.ToString();
 
-                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, docHashes[0], "PDF", null, otp); // 12345678 123456
+                bool ok = LoginPage.user.credentialsAuthorizeMultipleHash(SelectedKey, docToBeSigned, null, otp, docToBeSigned.Count); // 12345678 123456
                 if (!ok)
                 {
                     DisplayCredAuthNotOK();
                     return;
                 }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, docHashes[0], "PDF");
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signMultipleHash(SelectedKey, docToBeSigned, signParam, hashParam);
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -668,8 +783,66 @@ namespace SigningApp.ViewModel
             }
             else
             {
-                //LoginPage.user.credentialsAuthorize(SelectedKey, sh, "PDF", null, null);
-                //LoginPage.user.signSingleHash(SelectedKey, sh, "PDF");
+                List<string> docToBeSigned = new List<string>();
+                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA256 shaM = new SHA256Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA1")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA1 shaM = new SHA1Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA384")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA384 shaM = new SHA384Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+                else if (hashAlgo == "SHA512")
+                {
+                    foreach (byte[] sh in docHashes)
+                    {
+                        SHA512 shaM = new SHA512Managed();
+                        var resultAux = shaM.ComputeHash(sh);
+
+                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
+                        docToBeSigned.Add(hashedDocumentB64);
+                    }
+                }
+
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                bool ok = LoginPage.user.signMultipleHash(SelectedKey, docToBeSigned, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
 
             int j = 0;

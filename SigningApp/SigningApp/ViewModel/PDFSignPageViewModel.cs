@@ -704,8 +704,12 @@ namespace SigningApp.ViewModel
                     keysAlgo.TryGetValue(hashAlgo, out hashParam);
                 }
 
-                LoginPage.user.credentialsAuthorize(SelectedKey, hashedDocumentB64, null, null);
-                LoginPage.user.signSingleHash(SelectedKey, hashedDocumentB64, signParam, hashParam);
+                bool ok = LoginPage.user.signSingleHash(SelectedKey, hashedDocumentB64, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
 
             // ORIGINAL

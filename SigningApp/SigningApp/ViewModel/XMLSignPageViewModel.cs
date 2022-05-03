@@ -384,14 +384,22 @@ namespace SigningApp.ViewModel
 
                 PINandOTP credObj = System.Text.Json.JsonSerializer.Deserialize<PINandOTP>(result.ToString());
 
-                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", credObj.PIN, credObj.OTP); // 12345678 123456
+                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, HashedDocumentB64, credObj.PIN, credObj.OTP); // 12345678 123456
                 if (!ok)
                 {
                     DisplayCredAuthNotOK();
                     return;
                 }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signSingleHash(SelectedKey, HashedDocumentB64, signParam, hashParam);
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -410,14 +418,22 @@ namespace SigningApp.ViewModel
 
                 string pin = result.ToString();
 
-                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", pin, null); // 12345678 123456
+                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, HashedDocumentB64, pin, null); // 12345678 123456
                 if (!ok)
                 {
                     DisplayCredAuthNotOK();
                     return;
                 }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signSingleHash(SelectedKey, HashedDocumentB64, signParam, hashParam);
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -436,14 +452,22 @@ namespace SigningApp.ViewModel
 
                 string otp = result.ToString();
 
-                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", null, otp); // 12345678 123456
+                bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, HashedDocumentB64, null, otp); // 12345678 123456
                 if (!ok)
                 {
                     DisplayCredAuthNotOK();
                     return;
                 }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signSingleHash(SelectedKey, HashedDocumentB64, signParam, hashParam);
                 if (!ok)
                 {
                     DisplaySignMethNotOK();
@@ -453,7 +477,6 @@ namespace SigningApp.ViewModel
             else if (keyObject.OTP.type.Equals("online") && LoginPage.user.authModeSelected.Equals("oauth"))
             {
                 var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, 1, HashedDocumentB64));
-
 
                 if (result == null)
                 {
@@ -477,12 +500,21 @@ namespace SigningApp.ViewModel
             }
             else
             {
-                LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", null, null);
-                //LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
-            }
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
 
-            //LoginPage.user.credentialsAuthorize(LoginPage.user.credentialsIDs[1], toBeSigned, "XML", "12345678", "123456");
-            //LoginPage.user.signSingleHash(LoginPage.user.credentialsIDs[1], toBeSigned, "XML");
+                bool ok = LoginPage.user.signSingleHash(SelectedKey, HashedDocumentB64, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
+            }
 
             signedXml.setSignatureValue(LoginPage.user.signatures[0]);
 

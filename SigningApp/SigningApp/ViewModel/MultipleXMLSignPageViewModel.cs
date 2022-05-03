@@ -408,19 +408,27 @@ namespace SigningApp.ViewModel
 
                 PINandOTP credObj = System.Text.Json.JsonSerializer.Deserialize<PINandOTP>(result.ToString());
 
-                //bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", credObj.PIN, credObj.OTP); // 12345678 123456
-                //if (!ok)
-                //{
-                //    DisplayCredAuthNotOK();
-                //    return;
-                //}
+                bool ok = LoginPage.user.credentialsAuthorizeMultipleHash(SelectedKey, hashB64Documents, credObj.PIN, credObj.OTP, hashB64Documents.Count); // 12345678 123456
+                if (!ok)
+                {
+                    DisplayCredAuthNotOK();
+                    return;
+                }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
-                //if (!ok)
-                //{
-                //    DisplaySignMethNotOK();
-                //    return;
-                //}
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signMultipleHash(SelectedKey, hashB64Documents, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
             else if (keyObject.PIN.presence == "true")
             {
@@ -434,19 +442,27 @@ namespace SigningApp.ViewModel
 
                 string pin = result.ToString();
 
-                //bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", pin, null); // 12345678 123456
-                //if (!ok)
-                //{
-                //    DisplayCredAuthNotOK();
-                //    return;
-                //}
+                bool ok = LoginPage.user.credentialsAuthorizeMultipleHash(SelectedKey, hashB64Documents, pin, null, hashB64Documents.Count); // 12345678 123456
+                if (!ok)
+                {
+                    DisplayCredAuthNotOK();
+                    return;
+                }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
-                //if (!ok)
-                //{
-                //    DisplaySignMethNotOK();
-                //    return;
-                //}
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signMultipleHash(SelectedKey, hashB64Documents, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
             else if (keyObject.OTP.presence == "true")
             {
@@ -460,19 +476,27 @@ namespace SigningApp.ViewModel
 
                 string otp = result.ToString();
 
-                //bool ok = LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", null, otp); // 12345678 123456
-                //if (!ok)
-                //{
-                //    DisplayCredAuthNotOK();
-                //    return;
-                //}
+                bool ok = LoginPage.user.credentialsAuthorizeMultipleHash(SelectedKey, hashB64Documents, null, otp, hashB64Documents.Count); // 12345678 123456
+                if (!ok)
+                {
+                    DisplayCredAuthNotOK();
+                    return;
+                }
 
-                //ok = LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
-                //if (!ok)
-                //{
-                //    DisplaySignMethNotOK();
-                //    return;
-                //}
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                ok = LoginPage.user.signMultipleHash(SelectedKey, hashB64Documents, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
             else if (keyObject.OTP.type.Equals("online") && LoginPage.user.authModeSelected.Equals("oauth"))
             {
@@ -500,8 +524,20 @@ namespace SigningApp.ViewModel
             }
             else
             {
-                //LoginPage.user.credentialsAuthorize(SelectedKey, toBeSigned, "XML", null, null);
-                //LoginPage.user.signSingleHash(SelectedKey, toBeSigned, "XML");
+                string signParam = null;
+                string hashParam = null;
+                keysAlgo.TryGetValue(SelectedAlgo, out signParam);
+                if (SelectedAlgo == "RSA")
+                {
+                    keysAlgo.TryGetValue(hashAlgo, out hashParam);
+                }
+
+                bool ok = LoginPage.user.signMultipleHash(SelectedKey, hashB64Documents, signParam, hashParam);
+                if (!ok)
+                {
+                    DisplaySignMethNotOK();
+                    return;
+                }
             }
 
 
