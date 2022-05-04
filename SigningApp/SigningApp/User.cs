@@ -199,10 +199,9 @@ namespace LicentaApp
             var byteContent2 = new ByteArrayContent(buffer2);
             byteContent2.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             client2.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-            //byteContent.Headers.Add("Authorization", "Basic" + userCredEncoded);
             var response2 = client2.PostAsync("", byteContent2).Result;
 
-            if (response2.Content.ReadAsStringAsync().Result != "NoContent")
+            if (response2.Content.ReadAsStringAsync().Result != string.Empty)
             {
                 return false;
             }

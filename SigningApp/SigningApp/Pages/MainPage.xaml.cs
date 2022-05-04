@@ -75,13 +75,20 @@ namespace XamarinLicentaApp
             }
             else if(type == "Logout")
             {
-                bool ok = LoginPage.user.authRevoke();
-                //if (!ok)
-                //{
-                //    await DisplayAlert("ERROR", "TOKEN_MALFORMED", "CLOSE");
-                //}
+                if (LoginPage.user.authModeSelected == "explicit")
+                    LoginPage.user.authRevoke();
+                else
+                {
+                    bool ok = LoginPage.user.authRevoke();
+                    if (!ok)
+                    {
+                        await DisplayAlert("ERROR", "TOKEN_MALFORMED", "CLOSE");
+                    }
+                }
+
                 var newPage = new LoginPage();
-                await Application.Current.MainPage.Navigation.PushModalAsync(newPage);
+                //Application.Current.MainPage = new NavigationPage(newPage);
+                await Application.Current.MainPage.Navigation.PushAsync(newPage);
             }
 
             
