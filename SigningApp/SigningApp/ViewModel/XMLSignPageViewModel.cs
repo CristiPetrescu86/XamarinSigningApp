@@ -174,17 +174,7 @@ namespace SigningApp.ViewModel
             try
             {
                 // pickMultipleAsync pentru mai tarziu
-                var file = await FilePicker.PickAsync(
-                    new PickOptions
-                    {
-                        FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
-                        {
-                            { DevicePlatform.UWP, new [] {".xml"} },
-                            { DevicePlatform.Android, new [] { ".xml" } },
-                            { DevicePlatform.macOS, new [] { ".xml" } },
-                            { DevicePlatform.iOS, new [] { ".xml" } }
-                        })
-                    });
+                var file = await FilePicker.PickAsync();
 
                 if (file == null)
                 {

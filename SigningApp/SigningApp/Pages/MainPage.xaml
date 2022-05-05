@@ -18,8 +18,18 @@
                 <Label Grid.Column="1" Text="Digital Signatures" TextColor="#2D2942" FontSize="20" FontAttributes="Bold" 
                        VerticalOptions="Center" HorizontalOptions="Center"/>
             </Grid>
-            <Image Grid.Row="1" BackgroundColor="WhiteSmoke" Source="logoCrypto2.png" Margin="100,100,30,30" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"></Image>
+            <Image Grid.Row="1" BackgroundColor="WhiteSmoke" Source="logoCrypto2.png" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+                <Image.Margin>
+                    <OnPlatform x:TypeArguments="Thickness">
+                        <On Platform="iOS" Value="5,5,5,10" />
+                        <On Platform="Android" Value="40,80,40,30" />
+                        <On Platform="UWP" Value="100,30,100,30" />
+                    </OnPlatform>
+                </Image.Margin>
+            </Image>
         </Grid>
+
+        
 
         <Grid x:Name="MenuGrid" IsVisible="False">
             <BoxView x:Name="MenuOverlay" BackgroundColor="Black" Opacity="0.35">

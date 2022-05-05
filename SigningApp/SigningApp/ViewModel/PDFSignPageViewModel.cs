@@ -231,7 +231,7 @@ namespace SigningApp.ViewModel
             {
                 var file = await FilePicker.PickAsync();
 
-                if(file == null)
+                if (file == null)
                 {
                     return;
                 }

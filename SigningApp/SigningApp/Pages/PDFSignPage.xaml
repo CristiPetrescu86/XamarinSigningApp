@@ -13,7 +13,14 @@
     
     <ContentPage.Content>
         <ScrollView>
-            <StackLayout Padding="12" Margin="20,20,20,40">
+            <StackLayout Padding="12">
+                <StackLayout.Margin>
+                    <OnPlatform x:TypeArguments="Thickness">
+                        <On Platform="iOS" Value="5,5,5,10" />
+                        <On Platform="Android" Value="5,5,5,10" />
+                        <On Platform="UWP" Value="20,20,20,40" />
+                    </OnPlatform>
+                </StackLayout.Margin>
                 <Button Text="Pick PDF" Margin="0,0,0,10" TextColor="White" FontAttributes="Bold" BackgroundColor="#34495E" Command="{Binding PickDoc}" />
                 <Grid>
                     <Grid.RowDefinitions>

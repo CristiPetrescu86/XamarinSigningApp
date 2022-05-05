@@ -11,16 +11,42 @@
             <Label Text="Signing App" FontSize="Large" TextColor="#34495E" HorizontalOptions="Center"></Label>
             <Frame BackgroundColor="#34495E" HasShadow="False">
                 <StackLayout Orientation="Vertical" Spacing="10">
-                    <Entry x:Name="Username" Text="{Binding Username}" Placeholder="Username"   
-                           PlaceholderColor="#34495E" HeightRequest="40"   
-                           Keyboard="Text"  
-                           TextColor="#34495E"/>
-                    <Entry x:Name="Password" Text="{Binding Password}" Placeholder="Password"   
-                           PlaceholderColor="#34495E" HeightRequest="40"   
-                           IsPassword="True"  
-                           TextColor="#34495E"/>
+                <Entry x:Name="Username" Text="{Binding Username}" Placeholder="Username" HeightRequest="40" Keyboard="Text">
+                    <Entry.TextColor>
+                        <OnPlatform x:TypeArguments="Color">
+                            <On Platform="iOS" Value="#34495E" />
+                            <On Platform="Android" Value="#FFFFFF" />
+                            <On Platform="UWP" Value="#34495E" />
+                        </OnPlatform>
+                    </Entry.TextColor>
+                    <Entry.PlaceholderColor>
+                        <OnPlatform x:TypeArguments="Color">
+                            <On Platform="iOS" Value="#34495E" />
+                            <On Platform="Android" Value="#FFFFFF" />
+                            <On Platform="UWP" Value="#34495E" />
+                        </OnPlatform>
+                    </Entry.PlaceholderColor>
+                </Entry>
+                    
+                <Entry x:Name="Password" Text="{Binding Password}" Placeholder="Password" HeightRequest="40" IsPassword="True">
+                    <Entry.TextColor>
+                        <OnPlatform x:TypeArguments="Color">
+                            <On Platform="iOS" Value="#34495E" />
+                            <On Platform="Android" Value="#FFFFFF" />
+                            <On Platform="UWP" Value="#34495E" />
+                        </OnPlatform>
+                    </Entry.TextColor>
+                    <Entry.PlaceholderColor>
+                        <OnPlatform x:TypeArguments="Color">
+                            <On Platform="iOS" Value="#34495E" />
+                            <On Platform="Android" Value="#FFFFFF" />
+                            <On Platform="UWP" Value="#34495E" />
+                        </OnPlatform>
+                    </Entry.PlaceholderColor>
+                </Entry>
                 </StackLayout>
             </Frame>
+           
             <Button Command="{Binding OnSubmit}" Text="Login" TextColor="White"  
                     FontAttributes="Bold" FontSize="Medium" HorizontalOptions="FillAndExpand"  
                     BackgroundColor="#34495E" />
@@ -29,8 +55,10 @@
                     FontAttributes="Bold" FontSize="Medium" HorizontalOptions="FillAndExpand"  
                     BackgroundColor="#34495E" />
 
-            <Entry Text="{Binding Token}"></Entry>
-            <Button Command="{Binding LogAux}"></Button>
+            <!-->
+                <Entry Text="{Binding Token}"></Entry>
+                <Button Command="{Binding LogAux}"></Button>
+            <!-->
 
         </StackLayout>
     </ContentPage.Content>

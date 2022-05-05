@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-
+using System.Windows.Input;
 using Xamarin.Forms;
+
 
 namespace SigningApp.ViewModel
 {
@@ -53,6 +55,36 @@ namespace SigningApp.ViewModel
             }
 
             return false;
+        }
+
+        private Command downloadCerts;
+
+        public ICommand DownloadCerts
+        {
+            get
+            {
+                if (downloadCerts == null)
+                {
+                    downloadCerts = new Command(SaveCerts);
+                }
+                return downloadCerts;
+            }
+        }
+
+        private void SaveCerts()
+        {
+            string localStorage = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData));
+            int count = 1;
+            foreach (string cert in KeySelected.cert.certificates)
+            {
+                
+                string filename = localStorage + "/certificate" + count.ToString() + ".cer";
+                using (StreamWriter writer = new StreamWriter(filename))
+                {
+                    writer.WriteLine(cert);
+                }
+                count++;
+            }
         }
 
     }

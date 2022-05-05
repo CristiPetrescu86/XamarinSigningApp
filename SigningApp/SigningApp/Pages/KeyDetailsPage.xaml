@@ -10,182 +10,205 @@
     </ContentPage.BindingContext>
 
     <ContentPage.Content>
-        <StackLayout VerticalOptions="StartAndExpand" HorizontalOptions="Center"
-                           Grid.RowSpan="1" Grid.ColumnSpan="1" Margin="20,20,20,40">
-                      
-            <Grid Margin="20,20,20,40">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="2*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="2*" />
-                    <RowDefinition Height="2*" />
-                    <RowDefinition Height="2*" />
-                    <RowDefinition Height="2*" />
-                    <RowDefinition Height="2*" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
+        <ScrollView>
+            <StackLayout VerticalOptions="StartAndExpand" HorizontalOptions="Center" Grid.RowSpan="1" Grid.ColumnSpan="1">
+                <StackLayout.Margin>
+                    <OnPlatform x:TypeArguments="Thickness">
+                        <On Platform="iOS" Value="5,5,5,10" />
+                        <On Platform="Android" Value="5,5,5,10" />
+                        <On Platform="UWP" Value="20,20,20,40" />
+                    </OnPlatform>
+                </StackLayout.Margin>
 
-                <BoxView Grid.ColumnSpan="4" Grid.RowSpan="15" BackgroundColor="White"  CornerRadius="10" />
-                <Label Grid.ColumnSpan="4" FontSize="Title" Text="{Binding KeySelected.credentialName, StringFormat='Nume credential: {0}'}" HorizontalOptions="Center" ></Label>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
 
+                    <BoxView Grid.ColumnSpan="4" Grid.RowSpan="16" BackgroundColor="White"  CornerRadius="10" />
+                    <Label Margin="0,10,0,0"  Grid.ColumnSpan="4" FontSize="Title" Text="{Binding KeySelected.credentialName, StringFormat='Nume credential: {0}'}" HorizontalOptions="Center" VerticalOptions="Center" ></Label>
 
-                <Label Grid.Row="2" Grid.ColumnSpan="2" Grid.RowSpan="3"
+                    <Label Grid.Row="1" Grid.ColumnSpan="2" Grid.RowSpan="2"
                Text="Detalii cheie privata"
                HorizontalOptions="Center"
                VerticalOptions="Center"
                FontSize="Small" />
 
 
-                <Label Grid.Row="2"
+                    <Label Grid.Row="1"
                Grid.Column="2"
                Text="Status"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
-                <Label Grid.Row="2"
+                    <Label Grid.Row="1"
                Grid.Column="3"
                Text="{Binding KeySelected.key.status}"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
-                
-                <Label Grid.Row="3"
-               Grid.Column="2"
-               Text="Algoritm"
-               HorizontalOptions="Center"
-               VerticalOptions="Center" />
-                <Label Grid.Row="3"
-               Grid.Column="3"
-               Text="{Binding KeySelected.key.algo[0]}"
-               HorizontalOptions="Center"
-               VerticalOptions="Center" />
 
-                <Label Grid.Row="4"
+                    <Label Grid.Row="2"
                Grid.Column="2"
                Text="Lungime cheie"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
-                <Label Grid.Row="4"
+                    <Label Grid.Row="2"
                Grid.Column="3"
                Text="{Binding KeySelected.key.len}"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
 
-                <Label Grid.Row="6" Grid.ColumnSpan="2" Grid.RowSpan="4"
+                    <Button Grid.Row="3" 
+               Grid.Column="0" 
+               Grid.ColumnSpan="4" 
+               Margin="20,0,20,0"
+               TextColor="White" 
+               FontAttributes="Bold" 
+               BackgroundColor="#34495E"
+               VerticalOptions="Center"
+               Text="Download Certificate Chain"
+               Command="{Binding DownloadCerts}"></Button>
+
+                    <Label Grid.Row="5" Grid.ColumnSpan="2" Grid.RowSpan="4"
                Text="Detalii certificat public"
                HorizontalOptions="Center"
                VerticalOptions="Center"
                FontSize="Small" />
 
-                <Label Grid.Row="6"
+                    <Label Grid.Row="4"
                Grid.Column="2"
                Text="Status"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
-                <Label Grid.Row="6"
+                    <Label Grid.Row="4"
                Grid.Column="3"
                Text="{Binding KeySelected.cert.status}"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
 
-                <Label Grid.Row="7"
+                    <Label Grid.Row="5"
                Grid.Column="2"
                Text="Issuer"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
-                <Label Grid.Row="7"
+                    <Label Grid.Row="5"
                Grid.Column="3"
                Text="{Binding KeySelected.cert.issuerDN}"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
 
-                <Label Grid.Row="8"
+                    <Label Grid.Row="6"
                Grid.Column="2"
                Text="Valid de la"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
-                <Label Grid.Row="8"
+                    <Label Grid.Row="6"
                Grid.Column="3"
                Text="{Binding ValideFrom, StringFormat='{0:d} la ora {0:t}'}"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
 
-                <Label Grid.Row="9"
+                    <Label Grid.Row="7"
                Grid.Column="2"
                Text="Valid pana la data:"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
-                <Label Grid.Row="9"
+                    <Label Grid.Row="7"
                Grid.Column="3"
                Text="{Binding ValideTo, StringFormat='{0:d} la ora {0:t}'}"
                HorizontalOptions="Center"
                VerticalOptions="Center" />
 
-                <Label Grid.Row="10"
+                    <Label Grid.Row="8"
+               Grid.Column="2"
+               Text="SubjectDN"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" />
+                    <Label Grid.Row="8"
+               Grid.Column="3"
+               Text="{Binding KeySelected.cert.subjectDN}"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" />
+
+                    <Label Grid.Row="9"
+               Grid.Column="2"
+               Text="Serial Number"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" />
+                    <Label Grid.Row="9"
+               Grid.Column="3"
+               Text="{Binding KeySelected.cert.serialNumber}"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" />
+
+                    <Label Grid.Row="10"
                Grid.Column="1"
                Grid.ColumnSpan="2"
-               Text="{Binding KeySelected.multisign, StringFormat='Documente pentru semnare multipla: {0}'}"
+               Text="{Binding KeySelected.multisign, StringFormat='Semnare multipla: {0}'}"
                HorizontalOptions="Center"
                VerticalOptions="Center"
                FontSize="Small" />
 
-                <Label Grid.Row="11" Grid.RowSpan="2"
+                    <Label Grid.Row="12" Grid.RowSpan="2"
                Text="PIN"
                HorizontalOptions="Center"
                VerticalOptions="Center"
                FontSize="Small" />
 
-                <Label Grid.Row="11" Grid.Column="1"
+                    <Label Grid.Row="12" Grid.Column="1"
                Text="{Binding KeySelected.PIN.presence, StringFormat='Has PIN: {0}'}" 
                HorizontalOptions="Center"
                VerticalOptions="Center"/>
-                <Label Grid.Row="12" Grid.Column="1"
+                    <Label Grid.Row="13" Grid.Column="1"
                Text="{Binding KeySelected.PIN.format, StringFormat='Format: {0}'}" 
                HorizontalOptions="Center"
                VerticalOptions="Center"/>
 
-                <Label Grid.Row="11" Grid.RowSpan="2" Grid.Column="2"
+                    <Label Grid.Row="12" Grid.RowSpan="2" Grid.Column="2"
                Text="OTP"
                HorizontalOptions="Center"
                VerticalOptions="Center"
                FontSize="Small" />
 
-                <Label Grid.Row="11" Grid.Column="3"
+                    <Label Grid.Row="11" Grid.Column="3"
                Text="{Binding KeySelected.OTP.presence, StringFormat='Has PIN: {0}'}" 
                HorizontalOptions="Center"
                VerticalOptions="Center"/>
-                <Label Grid.Row="12" Grid.Column="3"
+                    <Label Grid.Row="12" Grid.Column="3"
                Text="{Binding KeySelected.OTP.ID, StringFormat='ID: {0}'}" 
                HorizontalOptions="Center"
                VerticalOptions="Center"/>
-                <Label Grid.Row="13" Grid.Column="3"
+                    <Label Grid.Row="13" Grid.Column="3"
                Text="{Binding KeySelected.OTP.type, StringFormat='Tip: {0}'}" 
                HorizontalOptions="Center"
                VerticalOptions="Center"/>
-                <Label Grid.Row="14" Grid.Column="3"
+                    <Label Grid.Row="14" Grid.Column="3"
                Text="{Binding KeySelected.OTP.format, StringFormat='Format: {0}'}" 
                HorizontalOptions="Center"
                VerticalOptions="Center"/>
 
 
-
-
-
-            </Grid>
-
-
-        </StackLayout>
-     
+                </Grid>
+            </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>
