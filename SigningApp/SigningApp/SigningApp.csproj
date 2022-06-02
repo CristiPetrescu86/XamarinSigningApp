@@ -63,4 +63,8 @@
   <ItemGroup>
     <Folder Include="XadesSignedXML\XML\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CSC.Library\CSC.Library.csproj" />
+  </ItemGroup>
 </Project>

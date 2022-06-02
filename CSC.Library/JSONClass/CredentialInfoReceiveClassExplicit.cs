@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LicentaApp.JsonClass
 {
-    class CredentialInfoReceiveClassExplicit
+    public class CredentialInfoReceiveClassExplicit
     {
         public string description { get; set; }
 

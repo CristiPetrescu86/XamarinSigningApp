@@ -16,6 +16,7 @@ using System.Security.Cryptography.X509Certificates;
 using iText.Signatures;
 using System.Security.Cryptography;
 using System.Diagnostics;
+using CSC.Library;
 
 namespace LicentaApp
 {
@@ -29,7 +30,9 @@ namespace LicentaApp
         public string serviceLink { get; set; }
         private string accessToken { get; set; }
 
-        
+        private string codeAux { get; set; }
+
+
         public void setAccess(string a)
         {
             accessToken = a;
@@ -54,79 +57,16 @@ namespace LicentaApp
 
         public User() { }
 
-
-        public string getInfo()
+        public bool getInfo()
         {
-            string language = "en-US";
-            // choose variant
-            var method = new GetInfoSendClass
-            {
-                lang = language
-            };
-
-            string address = serviceLink + "info";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(address);
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method);
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var result = client.PostAsync("", byteContent).Result;
-
-            var result2 = JsonConvert.DeserializeObject<GetInfoReceiveClass>(result.Content.ReadAsStringAsync().Result);
-
-            return result2.name;
+            GetInfoReceiveClass infoClass = Protocol.getInfo(serviceLink);
+            return true;
         }
-        
+
+
         public bool authLogin(bool rememberMe)
         {
-            // CHOOSE OPTIONS
-            bool okRememberMe = false;
-            string clientDataAux = null;
-
-            //if (refreshTokenAuthBool)
-            //{
-            //    okRefresh = true;
-            //}
-            if (rememberMe)
-            {
-                okRememberMe = true;
-            }
-
-
-            var method = new AuthLoginSendClass
-            {
-                rememberMe = okRememberMe
-            };
-            if(clientDataAux != null)
-            {
-                method.clientData = clientDataAux;
-            }
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            string userInfo = username + ":" + password;
-            string userCredEncoded = Base64Encode(userInfo);
-
-            string address = serviceLink + "auth/login";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(address);
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Basic " + userCredEncoded);
-            //byteContent.Headers.Add("Authorization", "Basic" + userCredEncoded);
-            var result = client.PostAsync("", byteContent).Result;
-
-            var methodResponse = JsonConvert.DeserializeObject<AuthLoginReceiveClass>(result.Content.ReadAsStringAsync().Result);        
+            AuthLoginReceiveClass methodResponse = Protocol.authLogin(serviceLink, username, password, rememberMe);
 
             if (methodResponse.access_token == null)
             {
@@ -146,67 +86,22 @@ namespace LicentaApp
         
         public bool authRevoke()
         {
-            var method = new AuthRevokeSendClass();
-            
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };     
+            bool revokedRefresh = true;
+            bool revokedAccess;
 
             if (refresh_token != null)
             {
-                method.token = refresh_token;
-                method.token_type_hint = "refresh_token";
-
-                string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-
-                string address = serviceLink + "auth/revoke";
-
-                var client = new System.Net.Http.HttpClient();
-                client.BaseAddress = new Uri(address);
-
-                var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-                var byteContent = new ByteArrayContent(buffer);
-                byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + refresh_token);
-                //byteContent.Headers.Add("Authorization", "Basic" + userCredEncoded);
-                var response = client.PostAsync("", byteContent).Result;
-
-                if (response.StatusCode.ToString() != "NoContent")
-                {
-                    return false;
-                }
+                revokedRefresh = Protocol.authRevokeRefreshToken(refresh_token, serviceLink);
                 refresh_token = null;
             }
 
-            var method2 = new AuthRevokeSendClass();
-
-            var jsonSerializerOptions2 = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            method2.token = accessToken;
-            method2.token_type_hint = "access_token";
-
-            string adress = serviceLink + "auth/revoke";
-
-            var client2 = new System.Net.Http.HttpClient();
-            client2.BaseAddress = new Uri(adress);
-
-            string jsonString2 = System.Text.Json.JsonSerializer.Serialize(method2, jsonSerializerOptions2);
-            var buffer2 = System.Text.Encoding.UTF8.GetBytes(jsonString2);
-            var byteContent2 = new ByteArrayContent(buffer2);
-            byteContent2.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client2.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-            var response2 = client2.PostAsync("", byteContent2).Result;
-
-            if (response2.Content.ReadAsStringAsync().Result != string.Empty)
-            {
-                return false;
-            }
+            revokedAccess = Protocol.authRevokeAccessToken(accessToken,serviceLink);
             accessToken = null;
 
+            if(!revokedRefresh || !revokedAccess)
+            {
+                //return false;
+            }
             return true;
         }
 
@@ -218,43 +113,11 @@ namespace LicentaApp
                 return;
             }
 
-            var method = new CredentialsListSendClass();
-            int maxResults = 10;
-               
-            if (maxResults != 0)
-            {
-                method.maxResults = maxResults;
-            }
-          
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-
-            string adress = serviceLink + "credentials/list";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-     
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-
-            var response = client.PostAsync("", byteContent).Result;
-
-            CredentialsListReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsListReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
+            CredentialsListReceiveClass methodResponse = Protocol.credentialsList(accessToken,serviceLink);
 
             if (methodResponse.credentialIDs.Count == null)
             {
-                dynamic inform = JObject.Parse(response.Content.ToString());
-                if (inform.error_description != null)
-                {
-                    Console.WriteLine(inform.error_description);
-                    return;
-                }
+                return;
             }
             else
             {
@@ -279,10 +142,6 @@ namespace LicentaApp
         
         public void credentialsInfo(string credentialName)
         {
-            string credentialsCertificatesSelect = "chain";
-            bool credentialsCertInfoBool = true;
-            bool credentialsAuthInfoBool = true;
-
             bool ok = true;
             foreach (var credential in credentialsIDs)
             {
@@ -294,50 +153,13 @@ namespace LicentaApp
             }
             if (ok)
             {
-                Console.WriteLine("Nu exista credentialele");
                 return;
             }
 
-            var method = new CredentialsInfoSendClass
-            {
-                credentialID = credentialName
-            };
-
-            if (credentialsCertificatesSelect != null)
-            {
-                method.certificates = credentialsCertificatesSelect;
-            }
-            if(credentialsCertInfoBool)
-            {
-                method.certInfo = true;
-            }
-            if(credentialsAuthInfoBool)
-            {
-                method.authInfo = true;
-            }
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-
-            string adress = serviceLink + "credentials/info";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-
-            var response = client.PostAsync("", byteContent).Result;
 
             if (authModeSelected == "explicit")
             {
-                CredentialInfoReceiveClassExplicit methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialInfoReceiveClassExplicit>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
+                CredentialInfoReceiveClassExplicit methodResponse = Protocol.credentialInfoExplicit(credentialName, accessToken, serviceLink);
                 CredentialsInfoReceiveClass aux = new CredentialsInfoReceiveClass();
                 aux.authMode = methodResponse.authMode;
                 aux.cert = methodResponse.cert;
@@ -352,12 +174,7 @@ namespace LicentaApp
 
                 if (methodResponse.key.status == null)
                 {
-                    dynamic inform = JObject.Parse(response.Content.ToString());
-                    if (inform.error_description != null)
-                    {
-                        Console.WriteLine(inform.error_description);
-                        return;
-                    }
+                    return;
                 }
                 else
                 {
@@ -375,21 +192,15 @@ namespace LicentaApp
                     {
                         keysInfo.Add(aux);
                     }
-
                 }
             }
             else
             {
-                CredentialsInfoReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsInfoReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
+                CredentialsInfoReceiveClass methodResponse = Protocol.credentialInfo(credentialName, accessToken, serviceLink);
 
                 if (methodResponse.key.status == null)
                 {
-                    dynamic inform = JObject.Parse(response.Content.ToString());
-                    if (inform.error_description != null)
-                    {
-                        Console.WriteLine(inform.error_description);
-                        return;
-                    }
+                    return;
                 }
                 else
                 {
@@ -407,7 +218,6 @@ namespace LicentaApp
                     {
                         keysInfo.Add(methodResponse);
                     }
-
                 }
             }
         }
@@ -436,76 +246,44 @@ namespace LicentaApp
                 }
             }
 
-            var method = new CredentialsAuthorizeSendClass();
-            
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
             if (keysInfo[index].SCAL == "1")
             {
                 return true;
             }
 
-
-            //if isset PIN
-            //if isset OTP
-            //if isset credID
-
-            method.credentialID = keysInfo[index].credentialName;
-
-            method.numSignatures = 1;
-
-            method.hash.Add(hash);
-
+            bool PIN_bool = false;
+            bool OTP_bool = false;
 
             if (keysInfo[index].authMode == "explicit")
             {
                 if (keysInfo[index].PIN.presence == "true")
                 {
-                    method.PIN = PIN;
+                    PIN_bool = true;
                 }
 
                 if (keysInfo[index].OTP.presence == "true")
                 {
-                    method.OTP = OTP;
+                    OTP_bool = true;
                 }
 
-                if(keysInfo[index].OTP.type == "online")
+                if (keysInfo[index].OTP.type == "online")
                 {
-                    method.OTP = OTP;
+                    OTP_bool = true;
                 }
             }
 
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
+            if(PIN_bool && OTP_bool)
+                currentSAD = Protocol.credentialAuthorize(keysInfo[index].credentialName, accessToken, hash, PIN, OTP, serviceLink);
+            else if(PIN_bool)
+                currentSAD = Protocol.credentialAuthorize(keysInfo[index].credentialName, accessToken, hash, PIN, null, serviceLink);
+            else
+                currentSAD = Protocol.credentialAuthorize(keysInfo[index].credentialName, accessToken, hash, null, OTP, serviceLink);
 
-            string adress = serviceLink + "credentials/authorize";
 
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-
-            var response = client.PostAsync("", byteContent).Result;
-
-            CredentialsAuthorizeReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsAuthorizeReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
-
-            if(methodResponse.SAD == null)
+            if (currentSAD.SAD == null)
             {
-                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                if (inform.error_description != null)
-                {
-                    //Debug.WriteLine(inform.error_description);
-                    return false;
-                }
+                return false;
             }
-
-            currentSAD = methodResponse;
-
             return true;
         }
 
@@ -522,77 +300,44 @@ namespace LicentaApp
                 }
             }
 
-            var method = new CredentialsAuthorizeSendClass();
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
             if (keysInfo[index].SCAL == "1")
             {
                 return true;
             }
 
-
-            //if isset PIN
-            //if isset OTP
-            //if isset credID
-
-            method.credentialID = keysInfo[index].credentialName;
-
-            method.numSignatures = numSign;
-
-            foreach(var hash in hashList)
-                method.hash.Add(hash);
-
+            bool PIN_bool = false;
+            bool OTP_bool = false;
 
             if (keysInfo[index].authMode == "explicit")
             {
                 if (keysInfo[index].PIN.presence == "true")
                 {
-                    method.PIN = PIN;
+                    PIN_bool = true;
                 }
 
                 if (keysInfo[index].OTP.presence == "true")
                 {
-                    method.OTP = OTP;
+                    OTP_bool = true;
                 }
 
                 if (keysInfo[index].OTP.type == "online")
                 {
-                    method.OTP = OTP;
+                    OTP_bool = true;
                 }
             }
 
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
+            if (PIN_bool && OTP_bool)
+                currentSAD = Protocol.credentialsAuthorizeMultipleHash(keysInfo[index].credentialName, numSign, accessToken, hashList, PIN, OTP, serviceLink);
+            else if (PIN_bool)
+                currentSAD = Protocol.credentialsAuthorizeMultipleHash(keysInfo[index].credentialName, numSign, accessToken, hashList, PIN, null, serviceLink);
+            else
+                currentSAD = Protocol.credentialsAuthorizeMultipleHash(keysInfo[index].credentialName, numSign, accessToken, hashList, null, OTP, serviceLink);
 
-            string adress = serviceLink + "credentials/authorize";
 
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-
-            var response = client.PostAsync("", byteContent).Result;
-
-            CredentialsAuthorizeReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<CredentialsAuthorizeReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
-
-            if (methodResponse.SAD == null)
+            if (currentSAD.SAD == null)
             {
-                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                if (inform.error_description != null)
-                {
-                    //Debug.WriteLine(inform.error_description);
-                    return false;
-                }
+                return false;
             }
-
-            currentSAD = methodResponse;
-
             return true;
         }
 
@@ -697,41 +442,7 @@ namespace LicentaApp
                 return;
             }
 
-            var method = new SendOTPClass();
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            method.credentialID = keysInfo[index].credentialName;
-
-            //if(clientDataAuthBool)
-            //{
-            //    method.clientData = clientDataAuthString;
-            //}
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-
-            string adress = serviceLink + "credentials/sendOTP";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-
-            var response = client.PostAsync("", byteContent).Result;
-
-            if(response.StatusCode.ToString() != "No Content")
-            {
-                //dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                //Console.WriteLine(inform.error_description);
-            }
-
-            //Console.WriteLine("OTP send");
+            Protocol.sendOTP(credentialName, accessToken, serviceLink);
         }
 
         
@@ -752,49 +463,11 @@ namespace LicentaApp
                 return false;
             }
 
-            var method = new SignHashSendClass();
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            method.credentialID = keysInfo[index].credentialName;
-            method.SAD = currentSAD.SAD;
-
-            method.hash.Add(hash);
-
-            method.signAlgo = signOID;
-
-            if (hashOID != string.Empty)
-            {
-                method.hashAlgo = hashOID;
-            }
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-
-            string adress = serviceLink + "signatures/signHash";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-
-            var response = client.PostAsync("", byteContent).Result;
-
-            SignHashReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<SignHashReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
+            SignHashReceiveClass methodResponse = Protocol.signSingleHash(credentialName, accessToken, serviceLink, currentSAD.SAD, hash, signOID, hashOID);
 
             if (methodResponse.signatures.Count == 0)
             {
-                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                if (inform.error_description != null)
-                {
-                    //Debug.WriteLine(inform.error_description);
-                    return false;
-                }
+                return false;
             }
 
             foreach (string elem in methodResponse.signatures)
@@ -823,51 +496,11 @@ namespace LicentaApp
                 return false;
             }
 
-            var method = new SignHashSendClass();
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            method.credentialID = keysInfo[index].credentialName;
-            method.SAD = currentSAD.SAD;
-
-            foreach (string docToHash in hash)
-            {
-                method.hash.Add(docToHash); 
-            }
-
-            method.signAlgo = signOID;
-
-            if (hashOID != string.Empty)
-            {
-                method.hashAlgo = hashOID;
-            }
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-
-            string adress = serviceLink + "signatures/signHash";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-
-            var response = client.PostAsync("", byteContent).Result;
-
-            SignHashReceiveClass methodResponse = System.Text.Json.JsonSerializer.Deserialize<SignHashReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
+            SignHashReceiveClass methodResponse = Protocol.signMultipleHash(credentialName, accessToken, serviceLink, currentSAD.SAD, hash, signOID, hashOID);
 
             if (methodResponse.signatures.Count == 0)
             {
-                dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
-                if (inform.error_description != null)
-                {
-                    return false;
-                }
+                return false;
             }
 
             foreach (string elem in methodResponse.signatures)
@@ -880,114 +513,41 @@ namespace LicentaApp
 
         public void oauth2Auth()
         {     
-            // https://service.csctest.online/csc/v0/oauth2/authorize?response_type=code&client_id=bBdNs9Fa7kMx0qnFsPk66sklrDw&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin.html&scope=service&state=12345678
+            //https://service.csctest.online/csc/v0/oauth2/authorize?response_type=code&client_id=bBdNs9Fa7kMx0qnFsPk66sklrDw&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Flogin.html&scope=service&state=12345678
         }
 
-        public void oauth2Revoke()
-        {
-
-        }
-
-
-        private string codeAux { get; set; }
+        
 
         public bool oauth2Token(string code, string grant_type)
         {
-
-            var method = new OauthTokenSendClass
-            {
-                client_id = "ts_csc",
-                client_secret = "h767ujHG654GHhgI",
-                redirect_uri = "http://localhost:8080/login.html"
-            };
-
-            method.grant_type = grant_type;
-            method.code = code;
-
-            codeAux = code;
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            string adress = serviceLink + "oauth2/token";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var result = client.PostAsync("", byteContent).Result;
-
-            var methodResponse = JsonConvert.DeserializeObject<OauthTokenReceiveClass>(result.Content.ReadAsStringAsync().Result);
+            OauthTokenReceiveClass methodResponse = Protocol.oauth2TokenAccess(grant_type,code,serviceLink);
 
             if (methodResponse.access_token == null)
             {
+                accessToken = null;
                 return false;
             }
-
             accessToken = methodResponse.access_token;
-            //if (rememberMe)
-            //{
-            //    refresh_token = methodResponse.refresh_token;
-            //}
 
             return true;
         }
 
         public bool oauth2TokenCredential(string code, string grant_type)
         {
-            var method = new OauthTokenSendClass
-            {
-                client_id = "ts_csc",
-                client_secret = "h767ujHG654GHhgI",
-                redirect_uri = "http://localhost:8080/login.html"
-            };
-
-            method.grant_type = grant_type;
-            method.code = code;
-
-            var jsonSerializerOptions = new JsonSerializerOptions()
-            {
-                IgnoreNullValues = true
-            };
-
-            string adress = serviceLink + "oauth2/token";
-
-            var client = new System.Net.Http.HttpClient();
-            client.BaseAddress = new Uri(adress);
-
-            string jsonString = System.Text.Json.JsonSerializer.Serialize(method, jsonSerializerOptions);
-            var buffer = System.Text.Encoding.UTF8.GetBytes(jsonString);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var result = client.PostAsync("", byteContent).Result;
-
-            var methodResponse = JsonConvert.DeserializeObject<OauthTokenReceiveClass>(result.Content.ReadAsStringAsync().Result);
-
-            dynamic inform = JObject.Parse(result.Content.ReadAsStringAsync().Result);
-            if (inform.error_description != null)
-            {
-                //Debug.WriteLine(inform.error_description);
-                return false;
-            }
+            OauthTokenReceiveClass methodResponse = Protocol.oauth2TokenCredential(grant_type, code, serviceLink);
 
             if (methodResponse.access_token == null)
             {
+                currentSAD = null;
                 return false;
             }
 
             currentSAD = new CredentialsAuthorizeReceiveClass();
             currentSAD.SAD = methodResponse.access_token;
-
             if (methodResponse.expires_in != 3600)
             {
                 currentSAD.expiresIn = methodResponse.expires_in;
             }
-
 
             return true;
         }
@@ -1045,17 +605,6 @@ namespace LicentaApp
 
             return true;
         }
-
-
-
-
-        private string Base64Encode(string plaintext)
-        {
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plaintext);
-            string userEncoded = Convert.ToBase64String(plainTextBytes);
-            return userEncoded;
-        }
-
         
     }
 }

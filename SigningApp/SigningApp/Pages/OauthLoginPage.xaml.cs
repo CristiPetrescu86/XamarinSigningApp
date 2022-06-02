@@ -44,9 +44,15 @@ namespace SigningApp.Pages
 
                     bool ok = LoginPage.user.oauth2Token(cod, "authorization_code");
 
-                    if(ok)
+                    //LoginPage.user.serviceLink = "https://msign-test.transsped.ro/csc/v1/";
+
+                    if (ok)
                     {
                         Application.Current.MainPage = new NavigationPage(new MainPage());
+                    }
+                    else
+                    {
+                        Application.Current.MainPage = new NavigationPage(new LoginPage());
                     }
 
                 }
