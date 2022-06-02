@@ -19,7 +19,7 @@
                     </OnPlatform>
                 </StackLayout.Margin>
 
-                <Button Text="Pick XML document" Margin="0,0,0,10" TextColor="White" FontAttributes="Bold" BackgroundColor="#34495E" Command="{Binding PickDocs }"/>
+                <Button Text="Pick XML documents" Margin="0,0,0,10" TextColor="White" FontAttributes="Bold" BackgroundColor="#34495E" Command="{Binding PickDocs }"/>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="2*" />
@@ -54,7 +54,7 @@
                         </Grid>
                     </StackLayout>
                 </Grid>
-                <Button Text="Sign PDFs" Margin="0,10,0,0" TextColor="White" FontAttributes="Bold" BackgroundColor="#34495E" Command="{Binding SignDocs}" ></Button>
+                <Button Text="Sign XMLs" Margin="0,10,0,0" TextColor="White" FontAttributes="Bold" BackgroundColor="#34495E" Command="{Binding SignDocs}" ></Button>
             </StackLayout>
         </ScrollView>
     </ContentPage.Content>
