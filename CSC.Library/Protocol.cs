@@ -1,5 +1,6 @@
 ﻿using LicentaApp.JsonClass;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -455,6 +456,12 @@ namespace CSC.Library
             client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
 
             var response = client.PostAsync("", byteContent).Result;
+
+            //dynamic inform = JObject.Parse(response.Content.ReadAsStringAsync().Result);
+            //if (inform.error_description != null)
+            //{
+            //    Console.WriteLine(inform.error_description);
+            //}
 
             return System.Text.Json.JsonSerializer.Deserialize<SignHashReceiveClass>(response.Content.ReadAsStringAsync().Result, jsonSerializerOptions);
         }

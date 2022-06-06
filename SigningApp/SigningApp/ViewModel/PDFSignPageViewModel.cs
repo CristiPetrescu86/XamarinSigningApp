@@ -3,26 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Windows.Input;
 using Xamarin.Forms;
 using XamarinLicentaApp;
 
 using iText.Kernel.Pdf;
-using iText.Signatures;
 using LicentaApp;
-using Org.BouncyCastle.Ocsp;
-using Org.BouncyCastle.Security;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
-using System.Diagnostics;
 using Xamarin.Essentials;
 using Xamarin.CommunityToolkit.Extensions;
 using SigningApp.PopupPages;
 using SigningApp.Model;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 using SignaturePDF.Library;
 using CredentialsInfoReceiveClass = LicentaApp.JsonClass.CredentialsInfoReceiveClass;
 
@@ -588,9 +578,6 @@ namespace SigningApp.ViewModel
 
             bool done = signature.addSignature(Convert.FromBase64String(LoginPage.user.signatures[0]), signAlgo, timestampExist);
             
-            //outFile3.Dispose();
-            //outFile3.Close();
-
             if(done)
             {
                 // print OK
@@ -601,11 +588,6 @@ namespace SigningApp.ViewModel
             }
 
             LoginPage.user.signatures.Clear();
-
-            //if (File.Exists(outTempFileName))
-            //{
-            //    File.Delete(outTempFileName);
-            //}
         }
 
     }

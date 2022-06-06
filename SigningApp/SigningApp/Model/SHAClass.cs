@@ -84,7 +84,59 @@ namespace LicentaApp
             return resultAux;
         }
 
+        public List<string> makeHashesB64(string hashAlgo, List<byte[]> hash)
+        {
+            List<string> resultAux = new List<string>();
 
-       
+            if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
+            {
+                foreach (byte[] sh in hash)
+                {
+                    SHA256 shaM = new SHA256Managed();
+                    var auxHash = shaM.ComputeHash(sh);
+
+                    string hashedDocumentB64 = Convert.ToBase64String(auxHash);
+                    resultAux.Add(hashedDocumentB64);
+                }
+            }
+            else if (hashAlgo == "SHA1")
+            {
+                foreach (byte[] sh in hash)
+                {
+                    SHA1 shaM = new SHA1Managed();
+                    var auxHash = shaM.ComputeHash(sh);
+
+                    string hashedDocumentB64 = Convert.ToBase64String(auxHash);
+                    resultAux.Add(hashedDocumentB64);
+                }
+            }
+            else if (hashAlgo == "SHA384")
+            {
+                foreach (byte[] sh in hash)
+                {
+                    SHA384 shaM = new SHA384Managed();
+                    var auxHash = shaM.ComputeHash(sh);
+
+                    string hashedDocumentB64 = Convert.ToBase64String(auxHash);
+                    resultAux.Add(hashedDocumentB64);
+                }
+            }
+            else if (hashAlgo == "SHA512")
+            {
+                foreach (byte[] sh in hash)
+                {
+                    SHA512 shaM = new SHA512Managed();
+                    var auxHash = shaM.ComputeHash(sh);
+
+                    string hashedDocumentB64 = Convert.ToBase64String(auxHash);
+                    resultAux.Add(hashedDocumentB64);
+                }
+            }
+
+            return resultAux;
+        }
+
+
+
     }
 }

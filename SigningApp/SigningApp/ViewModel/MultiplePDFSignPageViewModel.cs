@@ -1,5 +1,6 @@
 ﻿using iText.Kernel.Pdf;
 using iText.Signatures;
+using LicentaApp;
 using LicentaApp.JsonClass;
 using SignaturePDF.Library;
 using SigningApp.Model;
@@ -340,6 +341,18 @@ namespace SigningApp.ViewModel
                 }
             }
 
+            if (NumeSemnatura == null)
+            {
+                DisplaySignNameNotSet();
+                return;
+            }
+
+            if (SelectedTimestamp == null)
+            {
+                DisplayTimestampNotChecked();
+                return;
+            }
+
             CredentialsInfoReceiveClass keyObject = new CredentialsInfoReceiveClass();
             foreach (CredentialsInfoReceiveClass elem in LoginPage.user.keysInfo)
             {
@@ -350,26 +363,14 @@ namespace SigningApp.ViewModel
                 }
             }
 
-            List<X509Certificate2> certList = new List<X509Certificate2>();
-            foreach (string elem in keyObject.cert.certificates)
-            {
-                byte[] bytesContent = Convert.FromBase64String(elem);
-                certList.Add(new X509Certificate2(bytesContent));
-            }
+            SignaturePDF.Library.CredentialsInfoReceiveClass toSend = new SignaturePDF.Library.CredentialsInfoReceiveClass();
+            toSend.authMode = keyObject.authMode;
+            toSend.cert = new SignaturePDF.Library.Certificates();
+            toSend.cert.certificates = keyObject.cert.certificates;
+            toSend.credentialName = keyObject.credentialName;
 
-            Org.BouncyCastle.X509.X509Certificate[] certListX509 = new Org.BouncyCastle.X509.X509Certificate[certList.Count];
-            int i = 0;
-            foreach (X509Certificate2 elem in certList)
-            {
-                certListX509[i] = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(elem);
-                i++;
-            }
 
-            // Signature ----------------------------------------------------
-
-            List<byte[]> docContent = new List<byte[]>();
-            List<byte[]> docHashes = new List<byte[]>();
-            List<string> outTempFileList = new List<string>();
+            // signature creation
 
             string signAlgo = SelectedAlgo.GetUntilOrEmpty();
             if (signAlgo == string.Empty)
@@ -382,133 +383,14 @@ namespace SigningApp.ViewModel
                 hashAlgo = "SHA-256";
             }
 
-            foreach (string fileName in DocsPath)
-            {
-                string outTempFileName = Path.GetDirectoryName(fileName);
-                Guid myuuid = Guid.NewGuid();
-                outTempFileName += @"\";
-                outTempFileName += myuuid.ToString();
-                outTempFileName += ".TEMP";
-                outTempFileList.Add(outTempFileName);
+            ParametersMultipleClass parametersClass = new ParametersMultipleClass(DocsPath, toSend, castedXCoord, castedYCoord, castedWidthDist, castedHeightDist, pageNumber, Motiv, Locatie, hashAlgo, NumeSemnatura);
 
-
-                FileStream outFile2 = new FileStream(outTempFileName, FileMode.Create);
-                PdfReader reader = new PdfReader(fileName);
-                PdfSigner signer = new PdfSigner(reader, outFile2, new StampingProperties());
-
-                PdfSignatureAppearance appearance2 = signer.GetSignatureAppearance();
-                if (SelectedType == "Invizibila")
-                {
-                    appearance2.SetPageRect(new iText.Kernel.Geom.Rectangle(0, 0, 0, 0));
-                }
-                else if (SelectedType == "Vizibila")
-                {
-                    appearance2.SetPageRect(new iText.Kernel.Geom.Rectangle(castedXCoord, castedYCoord, castedWidthDist, castedHeightDist));
-                }
-                else
-                {
-                    DisplayTipSemnaturaNotChecked();
-                    return;
-                }
-
-                if (SelectedType == "Invizibila")
-                {
-                    appearance2.SetPageNumber(1);
-                }
-                else
-                {
-                    if (pageNumber == 1)
-                    {
-                        appearance2.SetPageNumber(1);
-                    }
-                    else
-                    {
-                        PdfDocument pdfDocument = new PdfDocument(reader);
-                        int pageNumberValue = pdfDocument.GetNumberOfPages();
-                        pdfDocument.Close();
-
-                        appearance2.SetPageNumber(pageNumberValue);
-                    }
-                }
-                
-                appearance2.SetCertificate(certListX509[0]);
-
-                if (Motiv != null)
-                    appearance2.SetReason(Motiv);
-
-                if (Locatie != null)
-                    appearance2.SetLocation(Locatie);
-
-                appearance2.SetSignatureCreator("iTextSharp7 with Bounty Castle");
-
-                if (NumeSemnatura == null)
-                {
-                    DisplaySignNameNotSet();
-                    return;
-                }
-                signer.SetFieldName(NumeSemnatura);
-
-                PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED, hashAlgo);
-                signer.SignExternalContainer(external, 16000);
-                byte[] documentHash = external.getHash();
-                docContent.Add(documentHash);
-
-                outFile2.Dispose();
-                outFile2.Close();
-
-                PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, hashAlgo, false);
-                byte[] sh = sgn.GetAuthenticatedAttributeBytes(documentHash, PdfSigner.CryptoStandard.CADES, null, null);
-
-                docHashes.Add(sh);
-            }    
+            PDFSignature signature = new PDFSignature();
+            List<byte[]> docHashes = signature.createMultipleSign(parametersClass);
 
             if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true" && keyObject.OTP.type == "offline")
             {
-                List<string> docToBeSigned = new List<string>();
-                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA256 shaM = new SHA256Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA1")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA1 shaM = new SHA1Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA384")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA384 shaM = new SHA384Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA512")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA512 shaM = new SHA512Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
+                List<string> docToBeSigned = SHAClass.Instance.makeHashesB64(hashAlgo,docHashes);
 
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
 
@@ -544,51 +426,7 @@ namespace SigningApp.ViewModel
             }
             else if (keyObject.PIN.presence == "true")
             {
-                List<string> docToBeSigned = new List<string>();
-                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA256 shaM = new SHA256Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA1")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA1 shaM = new SHA1Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA384")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA384 shaM = new SHA384Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA512")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA512 shaM = new SHA512Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
+                List<string> docToBeSigned = SHAClass.Instance.makeHashesB64(hashAlgo, docHashes);
 
                 var result = await Navigation.ShowPopupAsync(new PINPopup());
 
@@ -624,51 +462,7 @@ namespace SigningApp.ViewModel
             }
             else if (keyObject.OTP.presence == "true")
             {
-                List<string> docToBeSigned = new List<string>();
-                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA256 shaM = new SHA256Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA1")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA1 shaM = new SHA1Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA384")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA384 shaM = new SHA384Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA512")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA512 shaM = new SHA512Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
+                List<string> docToBeSigned = SHAClass.Instance.makeHashesB64(hashAlgo, docHashes);
 
                 var result = await Navigation.ShowPopupAsync(new OTPPopup());
 
@@ -704,53 +498,9 @@ namespace SigningApp.ViewModel
             }
             else if (keyObject.OTP.type.Equals("online") && LoginPage.user.authModeSelected.Equals("oauth"))
             {
-                List<string> docToBeSigned = new List<string>();
-                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA256 shaM = new SHA256Managed();
-                        var resultAux = shaM.ComputeHash(sh);
+                List<string> docToBeSigned = SHAClass.Instance.makeHashesB64(hashAlgo, docHashes);
 
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA1")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA1 shaM = new SHA1Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA384")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA384 shaM = new SHA384Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA512")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA512 shaM = new SHA512Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-
-                var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, docHashes.Count, docToBeSigned));
+                var result = await Navigation.ShowPopupAsync(new OauthOTPPopup(SelectedKey, docToBeSigned.Count, docToBeSigned));
 
                 if (result == null)
                 {
@@ -775,51 +525,7 @@ namespace SigningApp.ViewModel
             }
             else
             {
-                List<string> docToBeSigned = new List<string>();
-                if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA256 shaM = new SHA256Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA1")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA1 shaM = new SHA1Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA384")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA384 shaM = new SHA384Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
-                else if (hashAlgo == "SHA512")
-                {
-                    foreach (byte[] sh in docHashes)
-                    {
-                        SHA512 shaM = new SHA512Managed();
-                        var resultAux = shaM.ComputeHash(sh);
-
-                        string hashedDocumentB64 = Convert.ToBase64String(resultAux);
-                        docToBeSigned.Add(hashedDocumentB64);
-                    }
-                }
+                List<string> docToBeSigned = SHAClass.Instance.makeHashesB64(hashAlgo, docHashes);
 
                 string signParam = null;
                 string hashParam = null;
@@ -837,52 +543,17 @@ namespace SigningApp.ViewModel
                 }
             }
 
-            int j = 0;
-            foreach (string fileName in DocsPath)
+            bool timestampExist = false;
+            if (SelectedTimestamp == "Da")
+                timestampExist = true;
+
+            List<byte[]> decB64hashes = new List<byte[]>();
+            foreach(string el in LoginPage.user.signatures)
             {
-                PdfPKCS7 sgn = new PdfPKCS7(null, certListX509, hashAlgo, false);
-                byte[] sh = sgn.GetAuthenticatedAttributeBytes(docContent[j], PdfSigner.CryptoStandard.CADES, null, null);
-
-                sgn.SetExternalDigest(Convert.FromBase64String(LoginPage.user.signatures[j]), null, signAlgo);
-                
-                byte[] encodedSig = null;
-
-                if (SelectedTimestamp == "Da")
-                {
-                    ITSAClient tsa = new TSAClientBouncyCastle("http://timestamp.digicert.com");
-                    //signer.Timestamp(tsa, "SignatureTimestamp");
-
-                    encodedSig = sgn.GetEncodedPKCS7(docContent[j], PdfSigner.CryptoStandard.CADES, tsa, null, null);
-                }
-                else if (SelectedTimestamp == "Nu")
-                {
-                    encodedSig = sgn.GetEncodedPKCS7(docContent[j], PdfSigner.CryptoStandard.CADES, null, null, null);
-                }
-                else
-                {
-                    DisplayTimestampNotChecked();
-                    return;
-                }
-
-                string outFileName3 = Path.GetDirectoryName(fileName);
-                outFileName3 += @"\";
-                outFileName3 += Path.GetFileNameWithoutExtension(fileName);
-                outFileName3 += "SIGNED";
-                outFileName3 += Path.GetExtension(fileName);
-
-                FileStream outFile3 = new FileStream(outFileName3, FileMode.Create);
-
-                PdfReader reader3 = new PdfReader(outTempFileList[j]);
-                PdfSigner signer3 = new PdfSigner(reader3, outFile3, new StampingProperties());
-
-                IExternalSignatureContainer signature3 = new MyExternalSignatureContainer(encodedSig);
-
-                PdfSigner.SignDeferred(signer3.GetDocument(), NumeSemnatura, outFile3, signature3);
-                outFile3.Dispose();
-                outFile3.Close();
-
-                j++;
+                decB64hashes.Add(Convert.FromBase64String(el));
             }
+            bool done = signature.addMultipleSignature(decB64hashes, signAlgo, timestampExist);
+
             LoginPage.user.signatures.Clear();
 
 
