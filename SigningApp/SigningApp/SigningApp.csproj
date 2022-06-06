@@ -66,5 +66,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\CSC.Library\CSC.Library.csproj" />
+    <ProjectReference Include="..\..\SignaturePDF.Library\SignaturePDF.Library.csproj" />
   </ItemGroup>
 </Project>

@@ -57,6 +57,33 @@ namespace LicentaApp
             return result;
         }
 
+        public byte[] makeHash(string hashAlgo, byte[] hash)
+        {
+            byte[] resultAux = null;
+            if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
+            {
+                SHA256 shaM = new SHA256Managed();
+                resultAux = shaM.ComputeHash(hash);
+            }
+            else if (hashAlgo == "SHA1")
+            {
+                SHA1 shaM = new SHA1Managed();
+                resultAux = shaM.ComputeHash(hash);
+            }
+            else if (hashAlgo == "SHA384")
+            {
+                SHA384 shaM = new SHA384Managed();
+                resultAux = shaM.ComputeHash(hash);
+            }
+            else if (hashAlgo == "SHA512")
+            {
+                SHA512 shaM = new SHA512Managed();
+                resultAux = shaM.ComputeHash(hash);
+            }
+
+            return resultAux;
+        }
+
 
        
     }

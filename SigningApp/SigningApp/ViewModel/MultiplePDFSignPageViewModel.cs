@@ -1,6 +1,7 @@
 ﻿using iText.Kernel.Pdf;
 using iText.Signatures;
 using LicentaApp.JsonClass;
+using SignaturePDF.Library;
 using SigningApp.Model;
 using SigningApp.PopupPages;
 using System;
@@ -18,6 +19,7 @@ using Xamarin.CommunityToolkit.Extensions;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using XamarinLicentaApp;
+using CredentialsInfoReceiveClass = LicentaApp.JsonClass.CredentialsInfoReceiveClass;
 
 namespace SigningApp.ViewModel
 {
