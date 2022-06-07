@@ -12,7 +12,6 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using System.Xml;
-using SigningApp.XadesSignedXML.XML;
 using LicentaApp.JsonClass;
 using Xamarin.CommunityToolkit.Extensions;
 using SigningApp.PopupPages;
@@ -20,6 +19,8 @@ using SigningApp.Model;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
+using SignatureXML.Library;
+using CredentialsInfoReceiveClass = LicentaApp.JsonClass.CredentialsInfoReceiveClass;
 
 namespace SigningApp.ViewModel
 {
@@ -244,22 +245,6 @@ namespace SigningApp.ViewModel
                 }
             }
 
-            XmlDocument doc = new XmlDocument();
-            doc.Load(fileName);
-            
-            List<X509Certificate2> certList = new List<X509Certificate2>();
-            foreach (string elem in keyObject.cert.certificates)
-            {
-                byte[] bytes = Convert.FromBase64String(elem);
-                certList.Add(new X509Certificate2(bytes));
-            }
-
-            if (certList == null)
-            {
-                DisplayNoCerts();
-                return;
-            }
-
             string signAlgo = SelectedAlgo.GetUntilOrEmpty();
             if (signAlgo == string.Empty)
             {
@@ -271,95 +256,21 @@ namespace SigningApp.ViewModel
                 hashAlgo = "SHA-256";
             }
 
-            Guid myuuid = Guid.NewGuid();
-            string myuuidAsString = "xmldsig-" + myuuid.ToString();
+            SignatureXML.Library.CredentialsInfoReceiveClass toSend = new SignatureXML.Library.CredentialsInfoReceiveClass();
+            toSend.authMode = keyObject.authMode;
+            toSend.cert = new SignatureXML.Library.Certificates();
+            toSend.cert.certificates = keyObject.cert.certificates;
+            toSend.credentialName = keyObject.credentialName;
 
-            SignedXml signedXml = new SignedXml(doc);
-            signedXml.PublicKeyCert = certList[0].PublicKey.Key;
-            signedXml.Signature.Id = myuuidAsString;
-            Reference reference = new Reference();
-            if (hashAlgo == "SHA256" || hashAlgo == "SHA-256")
-                reference.DigestMethod = SignedXml.XmlDsigSHA256Url;
-            else if (hashAlgo == "SHA1")
-                reference.DigestMethod = SignedXml.XmlDsigSHA1Url;
-            else if (hashAlgo == "SHA384")
-                reference.DigestMethod = SignedXml.XmlDsigSHA384Url;
-            else if (hashAlgo == "SHA512")
-                reference.DigestMethod = SignedXml.XmlDsigSHA512Url;
-
-            reference.Uri = "";
-            XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform();
-            reference.AddTransform(env);
-            signedXml.AddReference(reference);
-
-
-            KeyInfo keyInfo = new KeyInfo();
-            KeyInfoX509Data dataCerts = new KeyInfoX509Data();
-            foreach (X509Certificate2 elem in certList)
-            {
-                dataCerts.AddCertificate(elem);
-            }
-            keyInfo.AddClause(dataCerts);
-
-
-            signedXml.KeyInfo = keyInfo;
-
-            byte[] toBeSigned;
-
+            bool selectedType = false;
             if (SelectedType == "XAdES")
-            {
-                XadesObject xo = new XadesObject();
-                {
-                    List<Cert> certAuxList = new List<Cert>();
+                selectedType = true;
 
-                    foreach(X509Certificate2 elem in certList)
-                    {
-                        Cert certAux = new Cert();
+            ConfigureClass detailClass = new ConfigureClass(fileName, toSend, hashAlgo, signAlgo, selectedType, SelectedAlgo);
 
-                        certAux.IssuerSerial.X509IssuerName = elem.IssuerName.Name;
-                        certAux.IssuerSerial.X509SerialNumber = elem.SerialNumber;
-                        {
-                            SHA256 cryptoServiceProvider = new SHA256CryptoServiceProvider();
-                            certAux.CertDigest.DigestValue = cryptoServiceProvider.ComputeHash(elem.RawData);
-                            certAux.CertDigest.DigestMethod.Algorithm = SignedXml.XmlDsigSHA256Url;
-                        }
+            XMLSignature signature = new XMLSignature();
+            byte[] toBeSigned = signature.getSignatureContent(detailClass);
 
-                        certAuxList.Add(certAux);
-                    }
-
-                    xo.QualifyingProperties.Target = "#" + signedXml.Signature.Id;
-                    xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningTime = DateTime.Now;
-                    xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SignaturePolicyIdentifier.SignaturePolicyImplied = true;
-
-                    foreach (Cert elem in certAuxList)
-                    {
-                        xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningCertificate.CertCollection.Add(elem);
-                    }
-
-
-                    //DataObjectFormat dof = new DataObjectFormat();
-                    //dof.ObjectReferenceAttribute = "#Document";
-                    //dof.Description = "Document xml[XML]";
-                    //dof.Encoding = SignedXml.XmlDsigBase64TransformUrl;
-                    //dof.MimeType = "text/plain";
-                    //xo.QualifyingProperties.SignedProperties.SignedDataObjectProperties.DataObjectFormatCollection.Add(dof);
-                }
-                signedXml.AddXadesObject(xo);
-            }
-
-            if (SelectedAlgo == "RSA-SHA1")
-                signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA1Url;
-            else if (SelectedAlgo == "RSA-SHA256")
-                signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA256Url;
-            else if (SelectedAlgo == "RSA-SHA384")
-                signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA384Url;
-            else if (SelectedAlgo == "RSA-SHA512")
-                signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA512Url;
-            else if (signAlgo == "RSA" && hashAlgo == "SHA-256")
-                signedXml.SignedInfo.SignatureMethod = SignedXml.XmlDsigRSASHA256Url;
-
-            toBeSigned = signedXml.ComputeSignature();
-            
             HashedDocumentB64 = Convert.ToBase64String(toBeSigned);
 
             if (keyObject.PIN.presence == "true" && keyObject.OTP.presence == "true")
@@ -506,20 +417,7 @@ namespace SigningApp.ViewModel
                 }
             }
 
-            signedXml.setSignatureValue(LoginPage.user.signatures[0]);
-
-            XmlElement xmlSig = signedXml.GetXml();
-
-            doc.DocumentElement.AppendChild(doc.ImportNode(xmlSig, true));
-
-            string outFileName = Path.GetDirectoryName(DocPath);
-            outFileName += @"\";
-            outFileName += Path.GetFileNameWithoutExtension(DocPath);
-            outFileName += "SIGNED";
-            outFileName += Path.GetExtension(DocPath);
-
-            //doc.Save(outFileName);
-            File.WriteAllText(outFileName, doc.OuterXml);
+            signature.attachSignatureToDoc(LoginPage.user.signatures[0]);
 
             LoginPage.user.signatures.Clear();
         }

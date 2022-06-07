@@ -538,12 +538,13 @@ namespace LicentaApp
 
             if (methodResponse.access_token == null)
             {
-                currentSAD = null;
                 return false;
             }
 
-            currentSAD = new CredentialsAuthorizeReceiveClass();
-            currentSAD.SAD = methodResponse.access_token;
+            currentSAD = new CredentialsAuthorizeReceiveClass
+            {
+                SAD = methodResponse.access_token
+            };
             if (methodResponse.expires_in != 3600)
             {
                 currentSAD.expiresIn = methodResponse.expires_in;

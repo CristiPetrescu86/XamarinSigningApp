@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SigningApp", "SigningApp\Si
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSC.Library", "CSC.Library\CSC.Library.csproj", "{780BB835-50DE-41D1-819E-397E8C7105E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignaturePDF.Library", "SignaturePDF.Library\SignaturePDF.Library.csproj", "{E23D551E-8391-4A01-8060-69D95D32178F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SignaturePDF.Library", "SignaturePDF.Library\SignaturePDF.Library.csproj", "{E23D551E-8391-4A01-8060-69D95D32178F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignatureXML.Library", "SignatureXML.Library\SignatureXML.Library.csproj", "{BB429A1A-201E-48C7-BFE1-9C58F35850AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -223,6 +225,30 @@ Global
 		{E23D551E-8391-4A01-8060-69D95D32178F}.Release|x64.Build.0 = Release|Any CPU
 		{E23D551E-8391-4A01-8060-69D95D32178F}.Release|x86.ActiveCfg = Release|Any CPU
 		{E23D551E-8391-4A01-8060-69D95D32178F}.Release|x86.Build.0 = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|ARM.Build.0 = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|x64.Build.0 = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Debug|x86.Build.0 = Debug|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|ARM.ActiveCfg = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|ARM.Build.0 = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|iPhone.Build.0 = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|x64.ActiveCfg = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|x64.Build.0 = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|x86.ActiveCfg = Release|Any CPU
+		{BB429A1A-201E-48C7-BFE1-9C58F35850AA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

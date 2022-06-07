@@ -1,7 +1,6 @@
 ﻿using LicentaApp.JsonClass;
 using SigningApp.Model;
 using SigningApp.PopupPages;
-using SigningApp.XadesSignedXML.XML;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,6 +17,8 @@ using Xamarin.CommunityToolkit.Extensions;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using XamarinLicentaApp;
+using SignatureXML.Library;
+using CredentialsInfoReceiveClass = LicentaApp.JsonClass.CredentialsInfoReceiveClass;
 
 namespace SigningApp.ViewModel
 {
