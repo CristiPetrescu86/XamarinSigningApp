@@ -356,7 +356,6 @@ namespace SignatureXML.Library
 
         public byte[] ComputeSignature()
         {
-
             BuildDigestedReferences();
 
             // Load the key

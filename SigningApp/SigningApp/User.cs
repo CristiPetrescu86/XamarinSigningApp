@@ -541,14 +541,15 @@ namespace LicentaApp
                 return false;
             }
 
-            currentSAD = new CredentialsAuthorizeReceiveClass
-            {
-                SAD = methodResponse.access_token
-            };
+            currentSAD = new CredentialsAuthorizeReceiveClass();
+            currentSAD.SAD = methodResponse.access_token;
+
             if (methodResponse.expires_in != 3600)
             {
                 currentSAD.expiresIn = methodResponse.expires_in;
             }
+            else
+                methodResponse.expires_in = 3600;
 
             return true;
         }

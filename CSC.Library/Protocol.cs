@@ -438,7 +438,7 @@ namespace CSC.Library
 
             method.signAlgo = signOID;
 
-            if (hashOID != string.Empty)
+            if (hashOID != null)
             {
                 method.hashAlgo = hashOID;
             }

@@ -24,6 +24,27 @@ namespace SignatureXML.Library
         }
     }
 
+    public class ConfigureMultipleClass
+    {
+        public List<string> fileName;
+        public CredentialsInfoReceiveClass keyObject;
+        public string hashAlgo;
+        public string signAlgo;
+        public bool selectedType;
+        public string selectedAlgo;
+
+        public ConfigureMultipleClass(List<string> fileName, CredentialsInfoReceiveClass keyObject, string hashAlgo, string signAlgo, bool selectedType, string selectedAlgo)
+        {
+            this.fileName = fileName;
+            this.keyObject = keyObject;
+            this.hashAlgo = hashAlgo;
+            this.signAlgo = signAlgo;
+            this.selectedType = selectedType;
+            this.selectedAlgo = selectedAlgo;
+        }
+    }
+
+
     public class CredentialsInfoReceiveClass
     {
         public string description { get; set; }
