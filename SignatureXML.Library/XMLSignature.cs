@@ -109,6 +109,11 @@ namespace SignatureXML.Library
                         xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningCertificate.CertCollection.Add(elem);
                     }
 
+                    // "http://timestamp.digicert.com"
+                    TimeStamp timeStamp = new TimeStamp();
+                    xo.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(timeStamp);
+                    
+                    
 
                     //DataObjectFormat dof = new DataObjectFormat();
                     //dof.ObjectReferenceAttribute = "#Document";

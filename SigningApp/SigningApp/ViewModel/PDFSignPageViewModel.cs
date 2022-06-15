@@ -15,6 +15,9 @@ using SigningApp.PopupPages;
 using SigningApp.Model;
 using SignaturePDF.Library;
 using CredentialsInfoReceiveClass = LicentaApp.JsonClass.CredentialsInfoReceiveClass;
+using System.IO;
+using SignaturePad.Forms;
+using System.Threading.Tasks;
 
 namespace SigningApp.ViewModel 
 {
@@ -135,7 +138,6 @@ namespace SigningApp.ViewModel
         public string NumeSemnatura { get; set; }
 
 
-
         private ObservableCollection<int> pageNumber;
 
         public string SelectedTimestamp { get; set; }
@@ -245,7 +247,16 @@ namespace SigningApp.ViewModel
             {
                 Console.WriteLine(ex.Message);
             }
-       }
+        }
+
+
+        public Func<Task<byte[]>> SignatureFromStream { get; set; }
+        public byte[] Signature { get; set; }
+
+        public ICommand GetImageSignature => new Command(async () =>
+        {
+            Signature = await SignatureFromStream();
+        });
 
 
         private async void SignPDFButtonClicked()
@@ -371,7 +382,12 @@ namespace SigningApp.ViewModel
                 hashAlgo = "SHA-256";
             }
 
-            ParametersClass parametersClass = new ParametersClass(DocPath, toSend, castedXCoord, castedYCoord, castedWidthDist, castedHeightDist, SelectedPage, Motiv, Locatie, hashAlgo, NumeSemnatura);
+            GetImageSignature.Execute(null);
+
+            if (Signature == null)
+                return;
+
+            ParametersClass parametersClass = new ParametersClass(DocPath, toSend, castedXCoord, castedYCoord, castedWidthDist, castedHeightDist, SelectedPage, Motiv, Locatie, hashAlgo, NumeSemnatura,Signature);
 
             PDFSignature signature = new PDFSignature();
             byte[] sh = signature.createSign(parametersClass);

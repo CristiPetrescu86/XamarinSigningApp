@@ -1,4 +1,7 @@
-﻿using iText.Kernel.Pdf;
+﻿using iText.IO.Font.Constants;
+using iText.IO.Image;
+using iText.Kernel.Font;
+using iText.Kernel.Pdf;
 using iText.Signatures;
 using System;
 using System.Collections.Generic;
@@ -66,6 +69,13 @@ namespace SignaturePDF.Library
                 if (panelParams.locatie != null)
                     appearance2.SetLocation(panelParams.locatie);
                 appearance2.SetSignatureCreator("iTextSharp7 with Bounty Castle");
+
+                // Signature Pad
+                ImageData image1 = ImageDataFactory.Create(panelParams.imageData);
+                appearance2.SetSignatureGraphic(image1);
+                appearance2.SetImageScale(1);
+                appearance2.SetRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION);
+
                 // Numele chenarului, unic in cadrul documentului
                 signer.SetFieldName(panelParams.fieldName);
 

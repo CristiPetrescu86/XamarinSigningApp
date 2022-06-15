@@ -4,6 +4,9 @@ using SigningApp.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Xamarin.CommunityToolkit.Extensions;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -55,6 +58,43 @@ namespace XamarinLicentaApp
             vm.deleteInstance();
 
             return false;
+        }
+
+        protected override void OnBindingContextChanged()
+        {
+            base.OnBindingContextChanged();
+
+            var vm = (PDFSignPageViewModel)BindingContext; // Warning, the BindingContext View <-> ViewModel is already set
+
+            vm.SignatureFromStream = async () =>
+            {
+                if (SignatureView.Points.Count() > 0)
+                {
+                    using (var stream = await SignatureView.GetImageStreamAsync(SignaturePad.Forms.SignatureImageFormat.Png))
+                    {
+                        return await ImageConverter.ReadFully(stream);
+                    }
+                }
+
+                return await Task.Run(() => (byte[])null);
+            };
+        }
+
+        public static class ImageConverter
+        {
+            public static async Task<byte[]> ReadFully(Stream input)
+            {
+                byte[] buffer = new byte[16 * 1024];
+                using (var ms = new MemoryStream())
+                {
+                    int read;
+                    while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        ms.Write(buffer, 0, read);
+                    }
+                    return ms.ToArray();
+                }
+            }
         }
     }  
 }

@@ -17,8 +17,9 @@ namespace SignaturePDF.Library
         public string locatie;
         public string fieldName;
         public string hashAlgo;
+        public byte[] imageData;
 
-        public ParametersClass(string docPath, CredentialsInfoReceiveClass credentialClass, float castedXCoord, float castedYCoord, float castedWidthDist, float castedHeightDist, int selectedPage, string motiv, string locatie, string hashAlgo, string fieldName)
+        public ParametersClass(string docPath, CredentialsInfoReceiveClass credentialClass, float castedXCoord, float castedYCoord, float castedWidthDist, float castedHeightDist, int selectedPage, string motiv, string locatie, string hashAlgo, string fieldName, byte[] imageData)
         {
             this.docPath = docPath;
             this.keyObject = credentialClass;
@@ -31,6 +32,7 @@ namespace SignaturePDF.Library
             this.locatie = locatie;
             this.hashAlgo = hashAlgo;
             this.fieldName = fieldName;
+            this.imageData = imageData;
         }
 
     }
