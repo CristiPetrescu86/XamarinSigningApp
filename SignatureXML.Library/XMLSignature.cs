@@ -1,9 +1,14 @@
-﻿using System;
+﻿using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Security;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Xml;
 
 namespace SignatureXML.Library
@@ -13,6 +18,7 @@ namespace SignatureXML.Library
         private SignedXml signedXml;
         private XmlDocument doc;
         private string docPath;
+        private XadesObject xo;
 
         public byte[] getSignatureContent(ConfigureClass configureClass)
         {
@@ -76,7 +82,7 @@ namespace SignatureXML.Library
             if (configureClass.selectedType)
             {
                 // Creare obiect XAdES
-                XadesObject xo = new XadesObject();
+                xo = new XadesObject();
                 {
                     List<Cert> certAuxList = new List<Cert>();
 
@@ -109,12 +115,6 @@ namespace SignatureXML.Library
                         xo.QualifyingProperties.SignedProperties.SignedSignatureProperties.SigningCertificate.CertCollection.Add(elem);
                     }
 
-                    // "http://timestamp.digicert.com"
-                    TimeStamp timeStamp = new TimeStamp();
-                    xo.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(timeStamp);
-                    
-                    
-
                     //DataObjectFormat dof = new DataObjectFormat();
                     //dof.ObjectReferenceAttribute = "#Document";
                     //dof.Description = "Document xml[XML]";
@@ -122,7 +122,7 @@ namespace SignatureXML.Library
                     //dof.MimeType = "text/plain";
                     //xo.QualifyingProperties.SignedProperties.SignedDataObjectProperties.DataObjectFormatCollection.Add(dof);
                 }
-                signedXml.AddXadesObject(xo); // Se adauga obiectul XAdES
+                // signedXml.AddXadesObject(xo); // Se adauga obiectul XAdES
             }
 
             // Se adauga Url-ul algoritmului de semnare
@@ -141,10 +141,28 @@ namespace SignatureXML.Library
             return signedXml.ComputeSignature();
         }
 
+        
+
         public bool attachSignatureToDoc(string signatureValue)
         {
             // Se adauga semnatura valida
             signedXml.setSignatureValue(signatureValue);
+
+            // Adaugam timestamp
+            XmlElement auxElement = signedXml.GetXml();
+            XmlNodeList auxNodeList = auxElement.GetElementsByTagName("ds:SignatureValue");
+            string signatureField = auxNodeList[0].OuterXml;
+            iText.Signatures.ITSAClient tsa = new iText.Signatures.TSAClientBouncyCastle("http://timestamp.digicert.com");
+            TimeStamp timeStamp = new TimeStamp();
+            timeStamp.TagName = "SignatureTimeStamp";
+            byte[] bytesTimeStamp = Encoding.UTF8.GetBytes(signatureField);
+            byte[] hashedSignatureValue = SHA256CryptoServiceProvider.Create().ComputeHash(bytesTimeStamp);
+            timeStamp.EncapsulatedTimeStamp.PkiData = tsa.GetTimeStampToken(hashedSignatureValue);
+            HashDataInfo hashData = new HashDataInfo();
+            timeStamp.HashDataInfoCollection.Add(hashData);
+            xo.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(timeStamp);
+
+            signedXml.AddXadesObject(xo); // Se adauga obiectul XAdES
 
             // Se adauga semnatura in documentul initial
             XmlElement xmlSig = signedXml.GetXml();
@@ -165,6 +183,7 @@ namespace SignatureXML.Library
         private List<XmlDocument> xmlDocs = new List<XmlDocument>();
         private List<SignedXml> signedDocs = new List<SignedXml>();
         private List<string> docPaths;
+        private List<XadesObject> xoList = new List<XadesObject>();
 
         public List<string> getMultipleSignatureContent(ConfigureMultipleClass configureClass)
         {
@@ -262,7 +281,8 @@ namespace SignatureXML.Library
                         //dof.MimeType = "text/plain";
                         //xo.QualifyingProperties.SignedProperties.SignedDataObjectProperties.DataObjectFormatCollection.Add(dof);
                     }
-                    signedXml.AddXadesObject(xo);
+                    //signedXml.AddXadesObject(xo);
+                    xoList.Add(xo);
                 }
 
                 if (configureClass.selectedAlgo == "RSA-SHA1")
@@ -294,8 +314,24 @@ namespace SignatureXML.Library
             {
                 signedDocs[j].setSignatureValue(signatureValue[j]);
 
-                XmlElement xmlSig = signedDocs[j].GetXml();
+                // Adaugam timestamp
+                XmlElement auxElement = signedDocs[j].GetXml();
+                XmlNodeList auxNodeList = auxElement.GetElementsByTagName("ds:SignatureValue");
+                string signatureField = auxNodeList[0].OuterXml;
+                iText.Signatures.ITSAClient tsa = new iText.Signatures.TSAClientBouncyCastle("http://timestamp.digicert.com");
+                TimeStamp timeStamp = new TimeStamp();
+                timeStamp.TagName = "SignatureTimeStamp";
+                byte[] bytesTimeStamp = Encoding.UTF8.GetBytes(signatureField);
+                byte[] hashedSignatureValue = SHA256CryptoServiceProvider.Create().ComputeHash(bytesTimeStamp);
+                timeStamp.EncapsulatedTimeStamp.PkiData = tsa.GetTimeStampToken(hashedSignatureValue);
+                HashDataInfo hashData = new HashDataInfo();
+                timeStamp.HashDataInfoCollection.Add(hashData);
+                xoList[j].QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(timeStamp);
 
+                signedDocs[j].AddXadesObject(xoList[j]); // Se adauga obiectul XAdES
+
+
+                XmlElement xmlSig = signedDocs[j].GetXml();
                 xmlDocs[j].DocumentElement.AppendChild(xmlDocs[j].ImportNode(xmlSig, true));
 
                 string outFileName = Path.GetDirectoryName(docPaths[j]);
