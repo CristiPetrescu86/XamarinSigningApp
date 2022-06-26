@@ -109,7 +109,8 @@
                   StrokeWidth="2"  
                   WidthRequest="200"  
                   HeightRequest="100"
-                  CaptionText="Semneaza deasupra liniei"/>
+                  CaptionText="Semneaza deasupra liniei"
+                  StrokeCompletedCommand="{Binding GetSignWrite}"/>
 
                 <Button Margin="0,10,0,0" Text="Sign PDF" TextColor="White" FontAttributes="Bold" BackgroundColor="#34495E" Command="{Binding SignDoc}"/>
             

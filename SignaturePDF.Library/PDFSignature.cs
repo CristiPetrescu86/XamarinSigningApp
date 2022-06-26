@@ -71,10 +71,13 @@ namespace SignaturePDF.Library
                 appearance2.SetSignatureCreator("iTextSharp7 with Bounty Castle");
 
                 // Signature Pad
-                ImageData image1 = ImageDataFactory.Create(panelParams.imageData);
-                appearance2.SetSignatureGraphic(image1);
-                appearance2.SetImageScale(1);
-                appearance2.SetRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION);
+                if (panelParams.imageData != null)
+                {
+                    ImageData image1 = ImageDataFactory.Create(panelParams.imageData);
+                    appearance2.SetSignatureGraphic(image1);
+                    appearance2.SetImageScale(1);
+                    appearance2.SetRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION);
+                }
 
                 // Numele chenarului, unic in cadrul documentului
                 signer.SetFieldName(panelParams.fieldName);
@@ -214,7 +217,7 @@ namespace SignaturePDF.Library
                 PdfPKCS7 sgn_aux = new PdfPKCS7(null, certListX509, panelParams.hashAlgo, false);
                 // Extragere octeti ce trebuiesc semnati
                 byte[] sh_aux = sgn_aux.GetAuthenticatedAttributeBytes(docContent[j], PdfSigner.CryptoStandard.CADES, null, null);
-                sgnMultiple.Add(sgn);
+                sgnMultiple.Add(sgn_aux);
                 docHashes.Add(sh_aux);
                 j++;
             }

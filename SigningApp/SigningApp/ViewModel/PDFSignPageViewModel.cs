@@ -42,6 +42,7 @@ namespace SigningApp.ViewModel
         public Action DisplayTimestampNotChecked;
         public Action DisplayAlgoNotSelected;
         public Action DisplaySignNameNotSet;
+        public Action DisplaySignatureDone;
 
 
         Dictionary <string, string> keysAlgo = new Dictionary<string, string>(){
@@ -256,12 +257,35 @@ namespace SigningApp.ViewModel
         public ICommand GetImageSignature => new Command(async () =>
         {
             Signature = await SignatureFromStream();
+            //Signature = SignatureFromStream().GetAwaiter().GetResult();
         });
+
+
+        private Command getSignWrite;
+
+        public ICommand GetSignWrite
+        {
+            get
+            {
+                if (getSignWrite == null)
+                {
+                    getSignWrite = new Command(getSignWriteFunction);
+                }
+                return getSignWrite;
+            }
+        }
+
+        void getSignWriteFunction()
+        {
+            GetImageSignature.Execute(null);
+        }
 
 
         private async void SignPDFButtonClicked()
         {
-            if(DocPath == null)
+            GetImageSignature.Execute(null);
+
+            if (DocPath == null)
             {
                 DisplayFileNotUploaded();
                 return;
@@ -382,8 +406,6 @@ namespace SigningApp.ViewModel
                 hashAlgo = "SHA-256";
             }
 
-            GetImageSignature.Execute(null);
-
             if (Signature == null)
                 return;
 
@@ -406,11 +428,18 @@ namespace SigningApp.ViewModel
 
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
 
+                if(result == null)
+                {
+                    DisplayPINandOTPnotSet();
+                    return;
+                }
+
                 if (result.ToString() == "UNSET")
                 {
                     DisplayPINandOTPnotSet();
                     return;
                 }
+
 
                 PINandOTP credObj = System.Text.Json.JsonSerializer.Deserialize<PINandOTP>(result.ToString());
 
@@ -604,6 +633,8 @@ namespace SigningApp.ViewModel
             }
 
             LoginPage.user.signatures.Clear();
+
+            DisplaySignatureDone();
         }
 
     }

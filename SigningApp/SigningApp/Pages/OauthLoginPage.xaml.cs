@@ -24,7 +24,7 @@ namespace SigningApp.Pages
 
 
         void webviewNavigating(object sender, WebNavigatingEventArgs e)
-        {
+        {   
             labelLoading.IsVisible = true;
 
             Match m = Regex.Match(e.Url, @"(?i:http://)(?<localhost>[^\s/]*)/\?(?<code>[^\s/]*)\&(?<state>[^\s]*)");

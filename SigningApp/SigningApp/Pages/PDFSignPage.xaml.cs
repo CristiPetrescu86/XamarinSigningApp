@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.CommunityToolkit.Extensions;
+using Xamarin.CommunityToolkit.UI.Views.Options;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xamarin.Forms.PlatformConfiguration;
@@ -43,6 +44,20 @@ namespace XamarinLicentaApp
             vm.DisplayTimestampNotChecked += () => DisplayAlert("Eroare", "Timestamp nu a fost bifat", "Close");
             vm.DisplayAlgoNotSelected += () => DisplayAlert("Eroare", "Algoritmul nu a fost selectat", "Close");
             vm.DisplaySignNameNotSet += () => DisplayAlert("Eroare", "Numele semnaturii nu a fost introdus", "Close");
+            var messageOptions = new MessageOptions
+            {
+                Message = "Signature done successful!",
+                Foreground = Color.White,
+                Font = Font.SystemFontOfSize(16),
+                Padding = new Thickness(20),
+            };
+            var options = new ToastOptions
+            {
+                MessageOptions = messageOptions,
+                CornerRadius = new Thickness(40, 40, 0, 0),
+                BackgroundColor = Color.FromHex("#34495E")
+            };
+            vm.DisplaySignatureDone += () => this.DisplayToastAsync(options);
 
         }
 

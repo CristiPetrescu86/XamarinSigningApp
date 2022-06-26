@@ -38,6 +38,7 @@ namespace SigningApp.ViewModel
         public Action DisplayCredAuthNotOK;
         public Action DisplaySignMethNotOK;
         public Action DisplayAlgoNotSelected;
+        public Action DisplaySignatureDone;
 
         readonly Dictionary<string, string> keysAlgo = new Dictionary<string, string>(){
             {"1.2.840.113549.1.1.1", "RSA"},
@@ -420,6 +421,8 @@ namespace SigningApp.ViewModel
             signature.attachSignatureToDoc(LoginPage.user.signatures[0]);
 
             LoginPage.user.signatures.Clear();
+
+            DisplaySignatureDone();
         }
 
 

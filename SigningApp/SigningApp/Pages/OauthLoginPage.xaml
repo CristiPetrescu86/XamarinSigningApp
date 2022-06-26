@@ -4,7 +4,7 @@
              x:Class="SigningApp.Pages.OauthLoginPage">
     <ContentPage.Content>
         <StackLayout>
-            <Label x:Name="labelLoading" Text="Loading..." IsVisible="false" />
+            <Label x:Name="labelLoading" Text="Loading..." IsVisible="false" Margin="0,100,0,0" HorizontalOptions="Center" FontSize="Header" TextColor="#34495E" />
             <WebView HeightRequest="1000" WidthRequest="1000" Source="https://msign-test.transsped.ro/csc/v0/oauth2/authorize?response_type=token&amp;client_id=ts_csc&amp;client_secret=h767ujHG654GHhgI&amp;redirect_uri=http://localhost:8080&amp;lang=en-US" Navigated="webviewNavigated" Navigating="webviewNavigating" />
         </StackLayout>
     </ContentPage.Content>
