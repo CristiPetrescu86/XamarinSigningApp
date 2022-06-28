@@ -39,6 +39,7 @@ namespace SigningApp.ViewModel
         public Action DisplaySignMethNotOK;
         public Action DisplayAlgoNotSelected;
         public Action DisplaySignatureDone;
+        public Action DisplayTimestampNotSelected;
 
         readonly Dictionary<string, string> keysAlgo = new Dictionary<string, string>(){
             {"1.2.840.113549.1.1.1", "RSA"},
@@ -113,6 +114,8 @@ namespace SigningApp.ViewModel
         public string SelectedAlgo { get; set; }
 
         public string SelectedType { get; set; }
+
+        public string SelectedTimestamp { get; set; }
 
         private ObservableCollection<string> GetKeys()
         {
@@ -234,6 +237,15 @@ namespace SigningApp.ViewModel
                 return;
             }
 
+            if(SelectedType == "XAdES")
+            {
+                if(SelectedTimestamp == null)
+                {
+                    DisplayTimestampNotSelected();
+                    return;
+                }
+            }
+
             string fileName = DocPath;
 
             CredentialsInfoReceiveClass keyObject = new CredentialsInfoReceiveClass();
@@ -278,6 +290,12 @@ namespace SigningApp.ViewModel
             {
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
 
+                if (result == null)
+                {
+                    DisplayPINandOTPnotSet();
+                    return;
+                }
+
                 if (result.ToString() == "UNSET")
                 {
                     DisplayPINandOTPnotSet();
@@ -312,6 +330,12 @@ namespace SigningApp.ViewModel
             {
                 var result = await Navigation.ShowPopupAsync(new PINPopup());
 
+                if (result == null)
+                {
+                    DisplayPINnotSet();
+                    return;
+                }
+
                 if (result.ToString() == "UNSET")
                 {
                     DisplayPINnotSet();
@@ -345,6 +369,12 @@ namespace SigningApp.ViewModel
             else if (keyObject.OTP.presence == "true")
             {
                 var result = await Navigation.ShowPopupAsync(new OTPPopup());
+
+                if (result == null)
+                {
+                    DisplayOTPnotSet();
+                    return;
+                }
 
                 if (result.ToString() == "UNSET")
                 {
@@ -382,6 +412,7 @@ namespace SigningApp.ViewModel
 
                 if (result == null)
                 {
+                    DisplayCredAuthNotOK();
                     return;
                 }
 
@@ -418,7 +449,25 @@ namespace SigningApp.ViewModel
                 }
             }
 
-            signature.attachSignatureToDoc(LoginPage.user.signatures[0]);
+            if (SelectedType == "XAdES")
+            {
+                if (SelectedTimestamp == null)
+                {
+                    DisplayTimestampNotSelected();
+                    return;
+                }
+            }
+
+            bool typeSign = false;
+            bool timestampExist = false;
+            if (SelectedType == "XAdES")
+            {
+                typeSign = true;
+                if (SelectedTimestamp == "Da")
+                    timestampExist = true;
+            }
+
+            signature.attachSignatureToDoc(LoginPage.user.signatures[0],typeSign,timestampExist);
 
             LoginPage.user.signatures.Clear();
 

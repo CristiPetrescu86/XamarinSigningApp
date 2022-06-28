@@ -85,6 +85,8 @@ namespace SignaturePDF.Library
                 PreSignatureContainer external = new PreSignatureContainer(PdfName.Adobe_PPKLite, PdfName.ETSI_CAdES_DETACHED, panelParams.hashAlgo);
                 signer.SignExternalContainer(external, 16000);
                 documentHash = external.getHash();
+
+                outFile2.Dispose();
             }
 
             // Creare structura PKCS7
@@ -133,6 +135,7 @@ namespace SignaturePDF.Library
 
                 // Se ataseaza container-ul peste cel gol creat precedent
                 PdfSigner.SignDeferred(signer3.GetDocument(), fieldName, outFile3, signature3);
+                outFile3.Dispose();
             } 
 
             //File.Delete(tempFileName);
@@ -177,6 +180,12 @@ namespace SignaturePDF.Library
                 outTempFileName += ".TEMP";
                 outTempFileList.Add(outTempFileName);
 
+                PdfReader readerAux = new PdfReader(fileName);
+                PdfDocument pdfDocument = new PdfDocument(readerAux);
+                int pageNumberValue = pdfDocument.GetNumberOfPages();
+                pdfDocument.Close();
+                readerAux.Close();
+
                 using (FileStream outFile2 = new FileStream(outTempFileName, FileMode.Create))
                 {
                     PdfReader reader = new PdfReader(fileName);
@@ -189,9 +198,6 @@ namespace SignaturePDF.Library
                         appearance2.SetPageNumber(1);
                     else
                     {
-                        PdfDocument pdfDocument = new PdfDocument(reader);
-                        int pageNumberValue = pdfDocument.GetNumberOfPages();
-                        pdfDocument.Close();
                         appearance2.SetPageNumber(pageNumberValue);
                     }
                     appearance2.SetCertificate(certListX509[0]);
@@ -203,6 +209,15 @@ namespace SignaturePDF.Library
                         appearance2.SetLocation(panelParams.locatie);
 
                     appearance2.SetSignatureCreator("iTextSharp7 with Bounty Castle");
+
+                    // Signature Pad
+                    if (panelParams.imageData != null)
+                    {
+                        ImageData image1 = ImageDataFactory.Create(panelParams.imageData);
+                        appearance2.SetSignatureGraphic(image1);
+                        appearance2.SetImageScale(1);
+                        appearance2.SetRenderingMode(PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION);
+                    }
 
                     signer.SetFieldName(panelParams.fieldName);
 

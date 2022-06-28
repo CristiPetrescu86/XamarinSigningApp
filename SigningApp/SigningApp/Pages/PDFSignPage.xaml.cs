@@ -44,6 +44,14 @@ namespace XamarinLicentaApp
             vm.DisplayTimestampNotChecked += () => DisplayAlert("Eroare", "Timestamp nu a fost bifat", "Close");
             vm.DisplayAlgoNotSelected += () => DisplayAlert("Eroare", "Algoritmul nu a fost selectat", "Close");
             vm.DisplaySignNameNotSet += () => DisplayAlert("Eroare", "Numele semnaturii nu a fost introdus", "Close");
+            vm.DisplayXbig += () => DisplayAlert("Eroare", "Coordonata X este in afara documentului" +
+                "\nReminder: X : (0,595)", "Close");
+            vm.DisplayYBig += () => DisplayAlert("Eroare", "Coordonata Y este in afara documentului" +
+                "\nReminder: Y : (0,842)", "Close");
+            vm.DisplayTooLargeWidth += () => DisplayAlert("Eroare", "Dimensiunea pe orizontala depaseste dimensiunea documentului" +
+                "\nReminder: X + lungime : (0,595)", "Close");
+            vm.DisplayTooLargeHeight += () => DisplayAlert("Eroare", "Dimensiunea pe verticala depaseste dimensiunea documentului" +
+                "\nReminder: Y + inaltime : (0,842)", "Close");
             var messageOptions = new MessageOptions
             {
                 Message = "Signature done successful!",

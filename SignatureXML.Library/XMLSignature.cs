@@ -143,26 +143,33 @@ namespace SignatureXML.Library
 
         
 
-        public bool attachSignatureToDoc(string signatureValue)
+        public bool attachSignatureToDoc(string signatureValue, bool typeSignature, bool timestampExist)
         {
             // Se adauga semnatura valida
             signedXml.setSignatureValue(signatureValue);
 
-            // Adaugam timestamp
-            XmlElement auxElement = signedXml.GetXml();
-            XmlNodeList auxNodeList = auxElement.GetElementsByTagName("ds:SignatureValue");
-            string signatureField = auxNodeList[0].OuterXml;
-            iText.Signatures.ITSAClient tsa = new iText.Signatures.TSAClientBouncyCastle("http://timestamp.digicert.com");
-            TimeStamp timeStamp = new TimeStamp();
-            timeStamp.TagName = "SignatureTimeStamp";
-            byte[] bytesTimeStamp = Encoding.UTF8.GetBytes(signatureField);
-            byte[] hashedSignatureValue = SHA256CryptoServiceProvider.Create().ComputeHash(bytesTimeStamp);
-            timeStamp.EncapsulatedTimeStamp.PkiData = tsa.GetTimeStampToken(hashedSignatureValue);
-            HashDataInfo hashData = new HashDataInfo();
-            timeStamp.HashDataInfoCollection.Add(hashData);
-            xo.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(timeStamp);
+            if(typeSignature && !timestampExist)
+            {
+                signedXml.AddXadesObject(xo); // Se adauga obiectul XAdES
+            }
+            else if(typeSignature && timestampExist)
+            {
+                // Adaugam timestamp
+                XmlElement auxElement = signedXml.GetXml();
+                XmlNodeList auxNodeList = auxElement.GetElementsByTagName("ds:SignatureValue");
+                string signatureField = auxNodeList[0].OuterXml;
+                iText.Signatures.ITSAClient tsa = new iText.Signatures.TSAClientBouncyCastle("http://timestamp.digicert.com");
+                TimeStamp timeStamp = new TimeStamp();
+                timeStamp.TagName = "SignatureTimeStamp";
+                byte[] bytesTimeStamp = Encoding.UTF8.GetBytes(signatureField);
+                byte[] hashedSignatureValue = SHA256CryptoServiceProvider.Create().ComputeHash(bytesTimeStamp);
+                timeStamp.EncapsulatedTimeStamp.PkiData = tsa.GetTimeStampToken(hashedSignatureValue);
+                HashDataInfo hashData = new HashDataInfo();
+                timeStamp.HashDataInfoCollection.Add(hashData);
+                xo.QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(timeStamp);
 
-            signedXml.AddXadesObject(xo); // Se adauga obiectul XAdES
+                signedXml.AddXadesObject(xo); // Se adauga obiectul XAdES
+            }
 
             // Se adauga semnatura in documentul initial
             XmlElement xmlSig = signedXml.GetXml();
@@ -308,28 +315,34 @@ namespace SignatureXML.Library
         }
 
 
-        public bool attachMultipleSignatureToDoc(List<string> signatureValue)
+        public bool attachMultipleSignatureToDoc(List<string> signatureValue, bool typeSignature, bool timestampExist)
         {
             for (int j = 0; j < xmlDocs.Count(); j++)
             {
                 signedDocs[j].setSignatureValue(signatureValue[j]);
 
-                // Adaugam timestamp
-                XmlElement auxElement = signedDocs[j].GetXml();
-                XmlNodeList auxNodeList = auxElement.GetElementsByTagName("ds:SignatureValue");
-                string signatureField = auxNodeList[0].OuterXml;
-                iText.Signatures.ITSAClient tsa = new iText.Signatures.TSAClientBouncyCastle("http://timestamp.digicert.com");
-                TimeStamp timeStamp = new TimeStamp();
-                timeStamp.TagName = "SignatureTimeStamp";
-                byte[] bytesTimeStamp = Encoding.UTF8.GetBytes(signatureField);
-                byte[] hashedSignatureValue = SHA256CryptoServiceProvider.Create().ComputeHash(bytesTimeStamp);
-                timeStamp.EncapsulatedTimeStamp.PkiData = tsa.GetTimeStampToken(hashedSignatureValue);
-                HashDataInfo hashData = new HashDataInfo();
-                timeStamp.HashDataInfoCollection.Add(hashData);
-                xoList[j].QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(timeStamp);
+                if (typeSignature && !timestampExist)
+                {
+                    signedDocs[j].AddXadesObject(xoList[j]); // Se adauga obiectul XAdES
+                }
+                else if (typeSignature && timestampExist)
+                {
+                    // Adaugam timestamp
+                    XmlElement auxElement = signedDocs[j].GetXml();
+                    XmlNodeList auxNodeList = auxElement.GetElementsByTagName("ds:SignatureValue");
+                    string signatureField = auxNodeList[0].OuterXml;
+                    iText.Signatures.ITSAClient tsa = new iText.Signatures.TSAClientBouncyCastle("http://timestamp.digicert.com");
+                    TimeStamp timeStamp = new TimeStamp();
+                    timeStamp.TagName = "SignatureTimeStamp";
+                    byte[] bytesTimeStamp = Encoding.UTF8.GetBytes(signatureField);
+                    byte[] hashedSignatureValue = SHA256CryptoServiceProvider.Create().ComputeHash(bytesTimeStamp);
+                    timeStamp.EncapsulatedTimeStamp.PkiData = tsa.GetTimeStampToken(hashedSignatureValue);
+                    HashDataInfo hashData = new HashDataInfo();
+                    timeStamp.HashDataInfoCollection.Add(hashData);
+                    xoList[j].QualifyingProperties.UnsignedProperties.UnsignedSignatureProperties.SignatureTimeStampCollection.Add(timeStamp);
 
-                signedDocs[j].AddXadesObject(xoList[j]); // Se adauga obiectul XAdES
-
+                    signedDocs[j].AddXadesObject(xoList[j]); // Se adauga obiectul XAdES
+                }
 
                 XmlElement xmlSig = signedDocs[j].GetXml();
                 xmlDocs[j].DocumentElement.AppendChild(xmlDocs[j].ImportNode(xmlSig, true));

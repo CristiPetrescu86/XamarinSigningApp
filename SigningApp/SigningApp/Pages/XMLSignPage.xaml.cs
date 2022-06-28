@@ -28,6 +28,7 @@ namespace SigningApp.Pages
             vm.DisplayCredAuthNotOK += () => DisplayAlert("Eroare", "Autorizarea cheii nu a putut fi realizata", "Close");
             vm.DisplaySignMethNotOK += () => DisplayAlert("Eroare", "Eroare la semnarea hash-ului", "Close");
             vm.DisplayAlgoNotSelected += () => DisplayAlert("Eroare", "Algoritmul nu a fost selectat", "Close");
+            vm.DisplayTimestampNotSelected += () => DisplayAlert("Eroare", "Marca temporala nu a fost selectata", "Close");
             var messageOptions = new MessageOptions
             {
                 Message = "Signature done successful!",

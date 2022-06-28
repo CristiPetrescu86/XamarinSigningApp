@@ -36,6 +36,8 @@ namespace SigningApp.ViewModel
         public Action DisplayCredAuthNotOK;
         public Action DisplaySignMethNotOK;
         public Action DisplayAlgoNotSelected;
+        public Action DisplaySignatureDone;
+        public Action DisplayTimestampNotSelected;
 
         readonly Dictionary<string, string> keysAlgo = new Dictionary<string, string>(){
             {"1.2.840.113549.1.1.1", "RSA"},
@@ -93,6 +95,8 @@ namespace SigningApp.ViewModel
         public string SelectedKey { get; set; }
 
         public string SelectedType { get; set; }
+
+        public string SelectedTimestamp { get; set; }
 
         private ObservableCollection<string> GetKeys()
         {
@@ -248,6 +252,15 @@ namespace SigningApp.ViewModel
                 return;
             }
 
+            if (SelectedType == "XAdES")
+            {
+                if (SelectedTimestamp == null)
+                {
+                    DisplayTimestampNotSelected();
+                    return;
+                }
+            }
+
 
             CredentialsInfoReceiveClass keyObject = new CredentialsInfoReceiveClass();
             foreach (CredentialsInfoReceiveClass elem in LoginPage.user.keysInfo)
@@ -297,6 +310,12 @@ namespace SigningApp.ViewModel
             {
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
 
+                if (result == null)
+                {
+                    DisplayPINandOTPnotSet();
+                    return;
+                }
+
                 if (result.ToString() == "UNSET")
                 {
                     DisplayPINandOTPnotSet();
@@ -322,6 +341,12 @@ namespace SigningApp.ViewModel
             else if (keyObject.PIN.presence == "true")
             {
                 var result = await Navigation.ShowPopupAsync(new PINPopup());
+
+                if (result == null)
+                {
+                    DisplayPINnotSet();
+                    return;
+                }
 
                 if (result.ToString() == "UNSET")
                 {
@@ -377,6 +402,7 @@ namespace SigningApp.ViewModel
 
                 if (result == null)
                 {
+                    DisplayCredAuthNotOK();
                     return;
                 }
 
@@ -397,9 +423,20 @@ namespace SigningApp.ViewModel
                 }
             }
 
-            signature.attachMultipleSignatureToDoc(LoginPage.user.signatures);
+            bool typeSign = false;
+            bool timestampExist = false;
+            if (SelectedType == "XAdES")
+            {
+                typeSign = true;
+                if (SelectedTimestamp == "Da")
+                    timestampExist = true;
+            }
+
+            signature.attachMultipleSignatureToDoc(LoginPage.user.signatures, typeSign, timestampExist);
 
             LoginPage.user.signatures.Clear();
+
+            DisplaySignatureDone();
         }
     }
 }

@@ -15,6 +15,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.CommunityToolkit.Extensions;
 using Xamarin.Essentials;
@@ -45,6 +46,11 @@ namespace SigningApp.ViewModel
         public Action DisplayTimestampNotChecked;
         public Action DisplayAlgoNotSelected;
         public Action DisplaySignNameNotSet;
+        public Action DisplaySignatureDone;
+        public Action DisplayXbig;
+        public Action DisplayYBig;
+        public Action DisplayTooLargeWidth;
+        public Action DisplayTooLargeHeight;
 
         Dictionary<string, string> keysAlgo = new Dictionary<string, string>(){
             {"1.2.840.113549.1.1.1", "RSA"},
@@ -251,8 +257,39 @@ namespace SigningApp.ViewModel
             }
         }
 
+        public Func<Task<byte[]>> SignatureFromStream { get; set; }
+        public byte[] Signature { get; set; }
+
+        public ICommand GetImageSignature => new Command(async () =>
+        {
+            Signature = await SignatureFromStream();
+            //Signature = SignatureFromStream().GetAwaiter().GetResult();
+        });
+
+
+        private Command getSignWrite;
+
+        public ICommand GetSignWrite
+        {
+            get
+            {
+                if (getSignWrite == null)
+                {
+                    getSignWrite = new Command(getSignWriteFunction);
+                }
+                return getSignWrite;
+            }
+        }
+
+        void getSignWriteFunction()
+        {
+            GetImageSignature.Execute(null);
+        }
+
         private async void SignPDFsButtonClicked()
         {
+            GetImageSignature.Execute(null);
+
             if (DocsPath == null)
             {
                 DisplayFileNotUploaded();
@@ -315,10 +352,35 @@ namespace SigningApp.ViewModel
                         return;
                     }
 
+                    if (castedXCoord >= 595 || castedXCoord < 0)
+                    {
+                        DisplayXbig();
+                        return;
+                    }
+
+                    if (castedXCoord + castedWidthDist >= 595)
+                    {
+                        DisplayTooLargeWidth();
+                        return;
+                    }
+
+                    if (castedYCoord >= 840 || castedYCoord < 0)
+                    {
+                        DisplayYBig();
+                        return;
+                    }
+
+                    if (castedYCoord + castedHeightDist >= 840)
+                    {
+                        DisplayTooLargeHeight();
+                        return;
+                    }
+
                 }
                 catch
                 {
                     DisplayCoordError();
+                    return;
                 }
             }
 
@@ -383,7 +445,7 @@ namespace SigningApp.ViewModel
                 hashAlgo = "SHA-256";
             }
 
-            ParametersMultipleClass parametersClass = new ParametersMultipleClass(DocsPath, toSend, castedXCoord, castedYCoord, castedWidthDist, castedHeightDist, pageNumber, Motiv, Locatie, hashAlgo, NumeSemnatura);
+            ParametersMultipleClass parametersClass = new ParametersMultipleClass(DocsPath, toSend, castedXCoord, castedYCoord, castedWidthDist, castedHeightDist, pageNumber, Motiv, Locatie, hashAlgo, NumeSemnatura, Signature);
 
             PDFSignature signature = new PDFSignature();
             List<byte[]> docHashes = signature.createMultipleSign(parametersClass);
@@ -393,6 +455,12 @@ namespace SigningApp.ViewModel
                 List<string> docToBeSigned = SHAClass.Instance.makeHashesB64(hashAlgo,docHashes);
 
                 var result = await Navigation.ShowPopupAsync(new PINOTPPopup());
+
+                if (result == null)
+                {
+                    DisplayPINandOTPnotSet();
+                    return;
+                }
 
                 if (result.ToString() == "UNSET")
                 {
@@ -430,6 +498,12 @@ namespace SigningApp.ViewModel
 
                 var result = await Navigation.ShowPopupAsync(new PINPopup());
 
+                if (result == null)
+                {
+                    DisplayPINnotSet();
+                    return;
+                }
+
                 if (result.ToString() == "UNSET")
                 {
                     DisplayPINnotSet();
@@ -465,6 +539,12 @@ namespace SigningApp.ViewModel
                 List<string> docToBeSigned = SHAClass.Instance.makeHashesB64(hashAlgo, docHashes);
 
                 var result = await Navigation.ShowPopupAsync(new OTPPopup());
+
+                if (result == null)
+                {
+                    DisplayOTPnotSet();
+                    return;
+                }
 
                 if (result.ToString() == "UNSET")
                 {
@@ -556,6 +636,7 @@ namespace SigningApp.ViewModel
 
             LoginPage.user.signatures.Clear();
 
+            DisplaySignatureDone();
 
             /*else
             {

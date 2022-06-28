@@ -43,6 +43,10 @@ namespace SigningApp.ViewModel
         public Action DisplayAlgoNotSelected;
         public Action DisplaySignNameNotSet;
         public Action DisplaySignatureDone;
+        public Action DisplayXbig;
+        public Action DisplayYBig;
+        public Action DisplayTooLargeWidth;
+        public Action DisplayTooLargeHeight;
 
 
         Dictionary <string, string> keysAlgo = new Dictionary<string, string>(){
@@ -222,6 +226,7 @@ namespace SigningApp.ViewModel
 
         private async void PickFile()
         {
+            PageNumber.Clear();
             try
             {
                 var file = await FilePicker.PickAsync();
@@ -346,6 +351,31 @@ namespace SigningApp.ViewModel
                         DisplayHeightNotSet();
                         return;
                     }
+
+                    if(castedXCoord >= 595 || castedXCoord < 0)
+                    {
+                        DisplayXbig();
+                        return;
+                    }
+
+                    if(castedXCoord + castedWidthDist >= 595)
+                    {
+                        DisplayTooLargeWidth();
+                        return;
+                    }
+
+                    if (castedYCoord >= 840 || castedYCoord < 0)
+                    {
+                        DisplayYBig();
+                        return;
+                    }
+
+                    if (castedYCoord + castedHeightDist >= 840)
+                    {
+                        DisplayTooLargeHeight();
+                        return;
+                    }
+
                 }
                 catch
                 {
@@ -405,9 +435,6 @@ namespace SigningApp.ViewModel
             {
                 hashAlgo = "SHA-256";
             }
-
-            if (Signature == null)
-                return;
 
             ParametersClass parametersClass = new ParametersClass(DocPath, toSend, castedXCoord, castedYCoord, castedWidthDist, castedHeightDist, SelectedPage, Motiv, Locatie, hashAlgo, NumeSemnatura,Signature);
 
@@ -479,6 +506,12 @@ namespace SigningApp.ViewModel
 
                 var result = await Navigation.ShowPopupAsync(new PINPopup());
 
+                if (result == null)
+                {
+                    DisplayPINnotSet();
+                    return;
+                }
+
                 if (result.ToString() == "UNSET")
                 {
                     DisplayPINnotSet();
@@ -522,6 +555,12 @@ namespace SigningApp.ViewModel
                 string hashedDocumentB64 = Convert.ToBase64String(resultAux);
 
                 var result = await Navigation.ShowPopupAsync(new OTPPopup());
+
+                if (result == null)
+                {
+                    DisplayOTPnotSet();
+                    return;
+                }
 
                 if (result.ToString() == "UNSET")
                 {

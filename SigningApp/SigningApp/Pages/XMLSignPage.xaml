@@ -23,7 +23,8 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="2*" />
-                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition></ColumnDefinition>
@@ -51,6 +52,23 @@
 
                             <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="0" Content="XML-DSIG" Value="XML-DSIG"></RadioButton>
                             <RadioButton GroupName="tipSemnatura" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="XAdES" Value="XAdES"></RadioButton>
+                        </Grid>
+                    </StackLayout>
+
+                    <StackLayout Grid.Row="2" Grid.ColumnSpan="3" RadioButtonGroup.GroupName="marcaTemporala" RadioButtonGroup.SelectedValue="{Binding SelectedTimestamp}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="2*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label HorizontalOptions="Center" VerticalOptions="Center" Text="Timestamp"></Label>
+                            <RadioButton GroupName="marcaTemporala" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="1" Content="Da" Value="Da"></RadioButton>
+                            <RadioButton GroupName="marcaTemporala" HorizontalOptions="Center" VerticalOptions="Center" Grid.Column="2" Content="Nu" Value="Nu"></RadioButton>
                         </Grid>
                     </StackLayout>
                 </Grid>

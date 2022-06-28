@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Xamarin.CommunityToolkit.Extensions;
+using Xamarin.CommunityToolkit.UI.Views.Options;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -30,6 +31,22 @@ namespace SigningApp.Pages
             vm.DisplayCredAuthNotOK += () => DisplayAlert("Eroare", "Autorizarea cheii nu a putut fi realizata", "Close");
             vm.DisplaySignMethNotOK += () => DisplayAlert("Eroare", "Eroare la semnarea hash-ului", "Close");
             vm.DisplayAlgoNotSelected += () => DisplayAlert("Eroare", "Algoritmul nu a fost selectat", "Close");
+            vm.DisplayTimestampNotSelected += () => DisplayAlert("Eroare", "Marca temporala nu a fost selectata", "Close");
+            var messageOptions = new MessageOptions
+            {
+                Message = "Signature done successful!",
+                Foreground = Color.White,
+                Font = Font.SystemFontOfSize(16),
+                Padding = new Thickness(20),
+            };
+            var options = new ToastOptions
+            {
+                MessageOptions = messageOptions,
+                CornerRadius = new Thickness(40, 40, 0, 0),
+                BackgroundColor = Color.FromHex("#34495E")
+            };
+            vm.DisplaySignatureDone += () => this.DisplayToastAsync(options);
+
         }
 
         private void LoadAlgos(object sender, EventArgs e)
